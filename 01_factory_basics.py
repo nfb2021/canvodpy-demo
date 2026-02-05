@@ -7,6 +7,7 @@ app = marimo.App()
 @app.cell
 def _():
     import marimo as mo
+
     return (mo,)
 
 
@@ -43,6 +44,7 @@ def _():
         ReaderFactory,
         VODFactory,
     )
+
     return GridFactory, ReaderFactory, VODFactory
 
 
@@ -64,11 +66,11 @@ def _(GridFactory, ReaderFactory, VODFactory, mo):
 
     mo.md(
         f"""
-        **Available Readers:** `{', '.join(readers)}`
+        **Available Readers:** `{", ".join(readers)}`
 
-        **Available Grids:** `{', '.join(grids)}`
+        **Available Grids:** `{", ".join(grids)}`
 
-        **Available VOD Calculators:** `{', '.join(vod_calcs)}`
+        **Available VOD Calculators:** `{", ".join(vod_calcs)}`
         """
     )
     return (grids,)
@@ -94,9 +96,7 @@ def _(grids, mo):
     angular_res = mo.ui.slider(
         1.0, 10.0, value=5.0, label="Angular Resolution (°)", step=0.5
     )
-    cutoff = mo.ui.slider(
-        0.0, 30.0, value=10.0, label="Cutoff Angle (°)", step=1.0
-    )
+    cutoff = mo.ui.slider(0.0, 30.0, value=10.0, label="Cutoff Angle (°)", step=1.0)
 
     mo.hstack([grid_selector, angular_res, cutoff])
     return angular_res, cutoff, grid_selector
@@ -164,6 +164,7 @@ def _(mo):
 def _():
     import polars as pl
     import altair as alt
+
     return alt, pl
 
 

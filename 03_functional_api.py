@@ -7,6 +7,7 @@ app = marimo.App()
 @app.cell
 def _():
     import marimo as mo
+
     return (mo,)
 
 
@@ -48,6 +49,7 @@ def _():
         create_grid,
         read_rinex,
     )
+
     return assign_grid_cells, calculate_vod, create_grid, read_rinex
 
 
@@ -179,7 +181,7 @@ def _(mo):
 @app.cell
 def _(mo):
     mo.md(
-        '''
+        """
         ```python
         from airflow import DAG
         from airflow.operators.python import PythonOperator
@@ -238,7 +240,7 @@ def _(mo):
             read_rinex_task >> assign_cells_task
             assign_cells_task >> calc_vod_task
         ```
-        '''
+        """
     )
     return
 

@@ -7,6 +7,7 @@ app = marimo.App()
 @app.cell
 def _():
     import marimo as mo
+
     return (mo,)
 
 
@@ -44,6 +45,7 @@ def _():
     from canvod.grids.core.grid_builder import BaseGridBuilder
     from canvod.grids.core.grid_data import GridData
     from canvodpy.factories import GridFactory
+
     return (
         BaseGridBuilder,
         GridData,
@@ -121,6 +123,7 @@ def _(BaseGridBuilder, GridData, np, pl):
         @property
         def definition(self) -> str:
             return f"simple_square_{self.n_divisions}x{self.n_divisions}"
+
     return (SimpleSquareGrid,)
 
 
@@ -148,7 +151,7 @@ def _(GridFactory, mo):
         f"""
         **Registration Successful!**
 
-        Available grids now include: `{', '.join(GridFactory.list_available())}`
+        Available grids now include: `{", ".join(GridFactory.list_available())}`
         """
     )
     return
@@ -162,9 +165,7 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    n_divisions = mo.ui.slider(
-        4, 16, value=8, label="Grid Divisions", step=1
-    )
+    n_divisions = mo.ui.slider(4, 16, value=8, label="Grid Divisions", step=1)
     n_divisions
     return (n_divisions,)
 
@@ -205,6 +206,7 @@ def _(mo):
 @app.cell
 def _():
     import altair as alt
+
     return (alt,)
 
 
@@ -375,6 +377,7 @@ def _(mo):
 @app.cell
 def _():
     from canvodpy import VODWorkflow
+
     return (VODWorkflow,)
 
 

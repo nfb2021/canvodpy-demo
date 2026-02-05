@@ -7,6 +7,7 @@ app = marimo.App()
 @app.cell
 def _():
     import marimo as mo
+
     return (mo,)
 
 
@@ -39,6 +40,7 @@ def _(mo):
 def _():
     from canvodpy import VODWorkflow
     from datetime import date
+
     return VODWorkflow, date
 
 
