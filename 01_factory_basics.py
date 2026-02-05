@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.19.5"
+__generated_with = "0.19.7"
 app = marimo.App()
 
 
@@ -12,27 +12,27 @@ def _():
 
 @app.cell
 def _(mo):
-    mo.md(
-        """
-        # canVODpy New API: Factory Basics
+    mo.md("""
+    # canVODpy New API: Factory Basics
 
-        This notebook demonstrates the **factory pattern** in the redesigned canVODpy API.
-        Factories provide a clean interface for registering and creating components with
-        ABC enforcement and automatic validation.
+    This notebook demonstrates the **factory pattern** in the redesigned canVODpy API.
+    Factories provide a clean interface for registering and creating components with
+    ABC enforcement and automatic validation.
 
-        ## What You'll Learn
-        1. List available components
-        2. Create components with the factory
-        3. Pass parameters to components
-        4. Register custom components
-        """
-    )
+    ## What You'll Learn
+    1. List available components
+    2. Create components with the factory
+    3. Pass parameters to components
+    4. Register custom components
+    """)
     return
 
 
 @app.cell
 def _(mo):
-    mo.md("## Setup: Import Factories")
+    mo.md("""
+    ## Setup: Import Factories
+    """)
     return
 
 
@@ -48,13 +48,11 @@ def _():
 
 @app.cell
 def _(mo):
-    mo.md(
-        """
-        ## 1. List Available Components
+    mo.md("""
+    ## 1. List Available Components
 
-        Each factory maintains a registry of available implementations.
-        """
-    )
+    Each factory maintains a registry of available implementations.
+    """)
     return
 
 
@@ -73,18 +71,16 @@ def _(GridFactory, ReaderFactory, VODFactory, mo):
         **Available VOD Calculators:** `{', '.join(vod_calcs)}`
         """
     )
-    return grids, readers, vod_calcs
+    return (grids,)
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        """
-        ## 2. Create Grid Builder
+    mo.md("""
+    ## 2. Create Grid Builder
 
-        Select a grid type and parameters to create a grid builder.
-        """
-    )
+    Select a grid type and parameters to create a grid builder.
+    """)
     return
 
 
@@ -126,7 +122,9 @@ def _(GridFactory, angular_res, cutoff, grid_selector, mo):
 
 @app.cell
 def _(mo):
-    mo.md("## 3. Build and Inspect Grid")
+    mo.md("""
+    ## 3. Build and Inspect Grid
+    """)
     return
 
 
@@ -154,13 +152,11 @@ def _(grid):
 
 @app.cell
 def _(mo):
-    mo.md(
-        """
-        ## 4. Visualize Grid Structure
+    mo.md("""
+    ## 4. Visualize Grid Structure
 
-        The grid DataFrame contains cell boundaries and metadata.
-        """
-    )
+    The grid DataFrame contains cell boundaries and metadata.
+    """)
     return
 
 
@@ -172,7 +168,7 @@ def _():
 
 
 @app.cell
-def _(alt, grid):
+def _(alt, grid, pl):
     _chart_data = grid.df.with_columns(
         [
             (pl.col("phi") * 180 / 3.14159).alias("phi_deg"),
@@ -202,27 +198,25 @@ def _(alt, grid):
 
 @app.cell
 def _(mo):
-    mo.md(
-        """
-        ## 5. Factory Benefits
+    mo.md("""
+    ## 5. Factory Benefits
 
-        ### ✅ ABC Enforcement
-        Components must inherit from the correct ABC or registration fails.
+    ### ✅ ABC Enforcement
+    Components must inherit from the correct ABC or registration fails.
 
-        ### ✅ Type Safety
-        Factories are generic and type-checked.
+    ### ✅ Type Safety
+    Factories are generic and type-checked.
 
-        ### ✅ Clean API
-        Single entry point for all component types.
+    ### ✅ Clean API
+    Single entry point for all component types.
 
-        ### ✅ Extensible
-        Register your own implementations easily!
+    ### ✅ Extensible
+    Register your own implementations easily!
 
-        ---
+    ---
 
-        **Next:** See `02_workflow_usage.py` for the VODWorkflow class.
-        """
-    )
+    **Next:** See `02_workflow_usage.py` for the VODWorkflow class.
+    """)
     return
 
 
