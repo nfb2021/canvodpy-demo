@@ -1,0 +1,10 @@
+inline_chunk_threshold_bytes: 512
+get_partial_values_concurrency: 1
+compression:
+  algorithm: zstd
+  level: 5
+max_concurrent_requests: null
+caching: null
+storage: null
+virtual_chunk_containers: null
+manifest: null

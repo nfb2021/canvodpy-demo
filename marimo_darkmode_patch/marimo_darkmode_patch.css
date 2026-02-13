@@ -1,0 +1,89 @@
+/* ===========================
+   xarray repr: marimo dark-mode
+   =========================== */
+
+/* 1) Define xarray CSS variables for marimo dark theme */
+body.dark-theme .xr-wrap {
+    --xr-font-color0: rgba(255, 255, 255, 1);
+    --xr-font-color2: rgba(255, 255, 255, 0.7);
+    --xr-font-color3: rgba(255, 255, 255, 0.45);
+
+    --xr-border-color: rgba(255, 255, 255, 0.18);
+    --xr-disabled-color: rgba(255, 255, 255, 0.35);
+
+    --xr-background-color: transparent;
+    --xr-background-color-row-even: rgba(255, 255, 255, 0.05);
+    --xr-background-color-row-odd: rgba(255, 255, 255, 0.08);
+}
+
+/* 2) In dark mode, inherit text color */
+body.dark-theme .xr-wrap,
+body.dark-theme .xr-wrap .xr-var-name,
+body.dark-theme .xr-wrap .xr-var-dims,
+body.dark-theme .xr-wrap .xr-var-dtype {
+    color: inherit !important;
+}
+
+/* 3) Remove any outlines/boxy focus rings around clickable labels/icons */
+body.dark-theme .xr-wrap :focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* 4) Ensure the xarray "clickable" labels stay borderless/transparent */
+body.dark-theme .xr-wrap .xr-section-item input + label,
+body.dark-theme .xr-wrap .xr-var-attrs-in + label,
+body.dark-theme .xr-wrap .xr-var-data-in + label,
+body.dark-theme .xr-wrap .xr-index-data-in + label {
+    border-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Keep xarray's header separator subtle */
+body.dark-theme .xr-wrap .xr-header {
+    border-bottom: 1px solid var(--xr-border-color) !important;
+}
+
+/* 5) Prevent hard-coded light backgrounds in tables/pre blocks */
+body.dark-theme .xr-wrap table,
+body.dark-theme .xr-wrap th,
+body.dark-theme .xr-wrap td,
+body.dark-theme .xr-wrap pre,
+body.dark-theme .xr-wrap .xr-var-data > pre,
+body.dark-theme .xr-wrap .xr-index-data > pre,
+body.dark-theme .xr-wrap .xr-var-data > table > tbody > tr {
+    background-color: transparent !important;
+}
+
+/* 6) Fix variable name backgrounds to match row colors */
+body.dark-theme .xr-wrap .xr-var-item > .xr-var-name span {
+    background-color: transparent !important;
+}
+
+/* 7) Dim clickable icons to reduce brightness */
+body.dark-theme .xr-wrap .xr-icon-database,
+body.dark-theme .xr-wrap .xr-icon-file-text2 {
+    opacity: 0.5;
+}
+
+body.dark-theme .xr-wrap .xr-var-attrs-in:checked + label > .xr-icon-file-text2,
+body.dark-theme .xr-wrap .xr-var-data-in:checked + label > .xr-icon-database,
+body.dark-theme .xr-wrap .xr-index-data-in:checked + label > .xr-icon-database {
+    opacity: 0.7;
+    filter: none;
+}
+
+/* 8) Hide checkboxes visually but keep them functional (Safari fix) */
+body.dark-theme .xr-wrap .xr-section-summary-in,
+body.dark-theme .xr-wrap .xr-var-attrs-in,
+body.dark-theme .xr-wrap .xr-var-data-in,
+body.dark-theme .xr-wrap .xr-index-data-in {
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+}
