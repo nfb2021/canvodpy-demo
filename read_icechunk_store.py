@@ -25,9 +25,7 @@ def _():
 
 @app.cell
 def _(Path):
-    # data_root = Path('/Users/work/Developer/GNSS/canvodpy-test-data/valid/01_Rosalia/03_Rinex_Testing')
-    # data_root = Path('/Volumes/SanDisk/GNSS/ComparedStores/Rosalia/rinex')
-    data_root = Path("/Volumes/SanDisk/GNSS/Rosalia/rinex")
+    data_root = Path(__file__).resolve().parent.parent / "packages" / "canvod-readers" / "tests" / "test_data" / "valid" / "stores" / "rosalia_rinex"
     data_root.exists()
     return (data_root,)
 
