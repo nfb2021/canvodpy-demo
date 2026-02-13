@@ -64,7 +64,7 @@ Extend canVODpy with your own implementations.
 pip install marimo
 
 # Run a notebook
-cd /Users/work/Developer/GNSS/canvodpy/demo
+cd /path/to/canvodpy/demo
 marimo edit 01_factory_basics.py
 ```
 
