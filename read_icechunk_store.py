@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.19.7"
+__generated_with = "0.20.1"
 app = marimo.App(
     width="medium",
     css_file="./marimo_darkmode_patch/marimo_darkmode_patch.css",
@@ -25,7 +25,19 @@ def _():
 
 @app.cell
 def _(Path):
-    data_root = Path(__file__).resolve().parent.parent / "packages" / "canvod-readers" / "tests" / "test_data" / "valid" / "stores" / "rosalia_rinex"
+    data_root = (
+        Path(__file__).resolve().parent.parent
+        / "packages"
+        / "canvod-readers"
+        / "tests"
+        / "test_data"
+        / "valid"
+        / "stores"
+        / "rosalia_rinex"
+    )
+    data_root = Path(
+        "/Volumes/SanDisk/GNSS/Meeting_Nathan/Icechunk_Stores_data_nathan/Rosalia/01_SBF_Icechunk"
+    )
     data_root.exists()
     return (data_root,)
 
@@ -38,13 +50,35 @@ def _(MyIcechunkStore, data_root):
 
 
 @app.cell
+def _(create_hemigrid, mystore):
+    from canvod.grids import store_grid
+
+    grid = create_hemigrid("equal_area", angular_resolution=2)
+    store_grid(grid, mystore, "equal_area_2deg")  # overwrites with correct attrs
+    return
+
+
+@app.cell
 def _(mystore):
     mystore.tree
+    return
+
+
+@app.cell
+def _(mystore):
+    mystore.get_history()
+    return
+
+
+@app.cell
+def _():
+    return
 
 
 @app.cell
 def _(mystore):
     from icechunk import IcechunkError
+
 
     def create_or_replace_branch(mystore, branch_name: str, snapshot_id: str):
         """Create branch at snapshot_id. If it exists, delete and recreate."""
@@ -57,27 +91,48 @@ def _(mystore):
 
         return branch_name  # or return whatever create_branch returns, if needed
 
+
     with mystore.writable_session() as _session:
         latest_commit = mystore.get_history()[0]["snapshot_id"]
         print(latest_commit)
-        new_branch = create_or_replace_branch(
-            mystore, "experimental_branch", latest_commit
-        )
+        new_branch = create_or_replace_branch(mystore, "experimental_branch", latest_commit)
 
     mystore
+    return
 
 
 @app.cell
 def _(mystore):
-    canopy_rinex_ds = mystore.read_group(branch="main", group_name="canopy_01")
+    canopy_rinex_ds = mystore.read_group(branch="main", group_name="canopy_02")
+    canopy_rinex_metadata_ds = mystore.read_group(branch="main", group_name="canopy_02/metadata/sbf_obs")
+
     canopy_rinex_ds
+    return
+
+
+@app.cell
+def _(mystore):
+    import xarray as xr
+    _rinex_ds = mystore.read_group(branch="main", group_name="canopy_02")
+    _rinex_metadata_ds = mystore.read_group(branch="main", group_name="canopy_02/metadata/sbf_obs")
+
+    _ds = xr.combine_by_coords([_rinex_ds, _rinex_metadata_ds], compat="override")
+    _ds
+    return
+
+
+@app.cell
+def _(np, snr):
+    mean = snr[~np.isnan(snr)].mean()
+    mean
+    return
 
 
 @app.cell
 def _(mystore):
     with mystore.readonly_session() as session:
         canopy_rinex_metadata = mystore.load_metadata(
-            store=session.store, group_name="canopy_01"
+            store=session.store, group_name="reference_01_canopy_01"
         )
 
     canopy_rinex_metadata
@@ -88,18 +143,21 @@ def _(mystore):
 def _(mystore):
     commit_history_main = mystore.get_history(branch="main")
     commit_history_main
+    return
 
 
 @app.cell
 def _(mystore):
     commit_history_exp = mystore.get_history(branch="experimental_branch")
     commit_history_exp
+    return
 
 
 @app.cell
 def _(mystore):
     # mystore.delete_branch('experimental_branch')
     mystore.plot_commit_graph()
+    return
 
 
 @app.cell
@@ -111,12 +169,14 @@ def _(canopy_rinex_metadata, mo):
 @app.cell
 def _(table):
     table
+    return
 
 
 @app.cell
 def _(canopy_rinex_metadata, mo):
     df = mo.ui.dataframe(canopy_rinex_metadata)
     df
+    return
 
 
 @app.cell
@@ -130,6 +190,7 @@ def _():
 def _(AdaptedVODWorkflow, data_root):
     wf = AdaptedVODWorkflow(vod_store_path=data_root)
     wf
+    return
 
 
 @app.cell
@@ -162,16 +223,19 @@ def _(add_cell_ids_to_ds_fast, ea_grid, mystore):
 @app.cell
 def _(canopy_rinex_grid_ds):
     canopy_rinex_grid_ds
+    return
 
 
 @app.cell
 def _(mystore):
     mystore
+    return
 
 
 @app.cell
 def _():
     import numpy as np
+
 
     def generate_zenith_data(grid):
         theta = grid.grid["theta"].to_numpy()
@@ -179,25 +243,26 @@ def _():
         data += 0.05 * np.random.randn(len(data))
         return data
 
-    return (generate_zenith_data,)
+    return (np,)
 
 
-@app.cell
-def _(create_hemigrid, generate_zenith_data):
+app._unparsable_cell(
+    r"""
     import matplotlib.pyplot as plt
     from canvod.viz import HemisphereVisualizer
 
-    grid_htm = create_hemigrid(angular_resolution=4, grid_type="equal_area")
+    grid_htm = create_hemigrid(angular_resolution=2, grid_type="geodesic")
     data_htm = generate_zenith_data(grid_htm)
-
+    data_htm = 
     # Create unified visualizer
     viz = HemisphereVisualizer(grid_htm)
 
     # 2D visualization
     fig_2d, ax_2d = viz.plot_2d(data=data_htm)
     plt.gca()
-
-    return data_htm, viz
+    """,
+    name="_"
+)
 
 
 @app.cell
@@ -205,6 +270,7 @@ def _(data_htm, viz):
     # 3D visualization
     fig_3d = viz.plot_3d(data=data_htm)
     fig_3d.show()
+    return
 
 
 @app.cell

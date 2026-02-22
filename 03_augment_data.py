@@ -157,7 +157,6 @@ def _(ProcessPoolExecutor, as_completed, mo, rinex_files, tqdm, xr):
     - **Dimensions**: {dict(daily_rinex.sizes)}
     - **Data Variables**: {list(daily_rinex.data_vars)}
     - **Time Range**: {daily_rinex.epoch.min().values} to {daily_rinex.epoch.max().values}
-    - **Satellites**: {len(daily_rinex.sv)} unique SVs
     - **Signal IDs**: {len(daily_rinex.sid)} unique signals
     """)
     return daily_rinex, ds
@@ -183,7 +182,8 @@ def _(TARGET_DATE, mo, os):
     FTP_SERVER = "ftp://gssc.esa.int/"  # ESA server (no authentication)
 
     # Get user email for potential NASA CDDIS fallback
-    user_email = os.environ.get("CDDIS_MAIL")
+    from canvod.utils.config import load_config
+    user_email = load_config().nasa_earthdata_acc_mail
 
     mo.md(f"""
     ### Download Configuration
@@ -402,11 +402,6 @@ def _(mo):
 
     **This follows gnssvodpy's _compute_spherical_coords_fast() approach.**
     """)
-
-
-@app.cell
-def _(aux_slice, ds, receiver_position):
-    ds_augmented = _compute_spherical_coords_fast(ds, aux_slice, receiver_position)
 
 
 @app.cell

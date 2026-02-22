@@ -17,7 +17,7 @@ Date: 2025-01-21
 
 import marimo
 
-__generated_with = "0.19.4"
+__generated_with = "0.19.10"
 app = marimo.App(width="medium")
 
 
@@ -381,15 +381,15 @@ def _(datasets, mo, pd, receiver_timings):
     else:
         # Create timing dataframe
         timing_data = []
-        for receiver, timing in receiver_timings.items():
-            ds = datasets[receiver]
+        for _receiver, timing in receiver_timings.items():
+            _ds = datasets[_receiver]
             timing_data.append(
                 {
-                    "Receiver": receiver,
-                    "Type": receiver.split("_")[0],
+                    "Receiver": _receiver,
+                    "Type": _receiver.split("_")[0],
                     "Time (s)": timing,
-                    "Epochs": len(ds.epoch) if "epoch" in ds.dims else 0,
-                    "Satellites": len(ds.sv) if "sv" in ds.dims else 0,
+                    "Epochs": len(_ds.epoch) if "epoch" in _ds.dims else 0,
+                    "Satellites": len(_ds.sv) if "sv" in _ds.dims else 0,
                 }
             )
 
@@ -458,6 +458,7 @@ def _(mo, plt, timing_df):
         plt.close(fig)
 
     viz_display
+    return
 
 
 @app.cell
@@ -514,6 +515,7 @@ def _(datasets, mo):
         """)
 
     quality_display
+    return
 
 
 @app.cell
@@ -567,6 +569,7 @@ def _(mo):
 
     **Happy processing! 🛰️**
     """)
+    return
 
 
 if __name__ == "__main__":

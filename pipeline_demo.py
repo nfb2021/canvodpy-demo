@@ -14,6 +14,12 @@ def _():
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
+    > **Note:** This notebook requires a configured research site (site config YAML,
+    > Icechunk store, RINEX data directory).  It cannot be run standalone from the
+    > repository without that infrastructure.  It documents the pipeline API structure
+    > and is useful for reference and interactive debugging when the infrastructure
+    > is available.
+
     # GNSS VOD Analysis - Complete Pipeline Demo
 
     This notebook demonstrates the complete pipeline for GNSS Vegetation Optical Depth (VOD) analysis using the Rosalia forest site data.
@@ -315,7 +321,8 @@ def _(AUX_DIR, agency_selector, download_aux_button, mo, product_selector):
         results = {}
 
         # Setup downloader
-        user_email = os.environ.get("CDDIS_MAIL")
+        from canvod.utils.config import load_config
+        user_email = load_config().nasa_earthdata_acc_mail
         downloader = FtpDownloader(user_email=user_email)
         ftp_server = "ftp://ftp.aiub.unibe.ch"
 

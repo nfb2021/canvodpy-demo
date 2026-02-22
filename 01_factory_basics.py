@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.19.7"
+__generated_with = "0.19.10"
 app = marimo.App()
 
 
@@ -137,8 +137,6 @@ def _(builder, mo):
         **Grid Built Successfully!**
 
         - Total cells: {grid.ncells}
-        - Bands: {grid.nbands}
-        - Grid definition: {grid.definition}
         """
     )
     return (grid,)
@@ -146,7 +144,7 @@ def _(builder, mo):
 
 @app.cell
 def _(grid):
-    grid.df.head(10)
+    grid.__dict__
     return
 
 
@@ -161,39 +159,36 @@ def _(mo):
 
 
 @app.cell
-def _():
-    import polars as pl
-    import altair as alt
+def _(grid):
+    import matplotlib.pyplot as plt
+    import numpy as np
 
-    return alt, pl
+    _df = grid.grid  # polars DataFrame — correct attribute is .grid, not .df
 
+    _phi_deg = (_df["phi"].to_numpy() * 180 / np.pi)
+    _theta_deg = (_df["theta"].to_numpy() * 180 / np.pi)
 
-@app.cell
-def _(alt, grid, pl):
-    _chart_data = grid.df.with_columns(
-        [
-            (pl.col("phi") * 180 / 3.14159).alias("phi_deg"),
-            (pl.col("theta") * 180 / 3.14159).alias("theta_deg"),
-        ]
+    _fig, _ax = plt.subplots(
+        figsize=(7, 5),
+        subplot_kw={"projection": "polar"},
+        constrained_layout=True,
     )
-
-    _chart = (
-        alt.Chart(_chart_data)
-        .mark_circle(size=60, opacity=0.6)
-        .encode(
-            x=alt.X("phi_deg:Q", title="Azimuth (°)"),
-            y=alt.Y("theta_deg:Q", title="Elevation (°)"),
-            color=alt.Color("theta_deg:Q", title="Elevation"),
-            tooltip=["phi_deg", "theta_deg", "cell_id"],
-        )
-        .properties(
-            title="Grid Cell Centers",
-            width=600,
-            height=400,
-        )
+    _sc = _ax.scatter(
+        np.deg2rad(_phi_deg),
+        _theta_deg,
+        c=_theta_deg,
+        cmap="viridis_r",
+        s=40,
+        alpha=0.7,
     )
-
-    _chart
+    _ax.set_theta_zero_location("N")
+    _ax.set_theta_direction(-1)
+    _ax.set_rlim(0, 90)
+    _ax.set_rticks([0, 30, 60, 90])
+    _ax.set_yticklabels(["0°", "30°", "60°", "90°"], fontsize=8)
+    _ax.set_title("Grid Cell Centers (polar view)", pad=15)
+    plt.colorbar(_sc, ax=_ax, label="Zenith angle [°]", shrink=0.7)
+    plt.gcf()
     return
 
 

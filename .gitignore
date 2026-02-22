@@ -1,0 +1,11 @@
+# macOS metadata
+.DS_Store
+
+# Marimo session cache
+__marimo__/
+
+# Pipeline outputs (stores, aux caches)
+outputs/
+
+# Unpublished / in-progress notebooks
+02_sbf_reader.py
