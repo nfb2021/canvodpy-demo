@@ -20,7 +20,10 @@ def _():
     import xarray as xr
     from canvodpy import Site
     from canvod.grids import create_hemigrid, store_grid
-    from canvod.grids.operations import add_cell_ids_to_vod_fast, store_dataset_with_cell_ids
+    from canvod.grids.operations import (
+        add_cell_ids_to_vod_fast,
+        store_dataset_with_cell_ids,
+    )
     from canvod.vod import TauOmegaZerothOrder
     from canvod.viz import HemisphereVisualizer
 
@@ -42,6 +45,7 @@ def _(Site, mo, shutil):
     mo.md(r"""## 1 · Site & Pipeline""")
 
     from pathlib import Path
+
     STORE_ROOT = Path("/tmp/canvodpy_demo")
     if STORE_ROOT.exists():
         shutil.rmtree(STORE_ROOT)
@@ -63,10 +67,12 @@ def _(Site, mo, shutil):
 @app.cell
 def _(Path, mo, pipeline, shutil):
     mo.md(r"""## 2 · Process Date 2025-001""")
-    aux_dir = Path('/Users/work/Developer/GNSS/canvodpy/packages/canvod-readers/tests/test_data/valid/aux/aux_2025001.zarr')
+    aux_dir = Path(
+        "/Users/work/Developer/GNSS/canvodpy/packages/canvod-readers/tests/test_data/valid/aux/aux_2025001.zarr"
+    )
     if aux_dir.exists():
         shutil.rmtree(aux_dir)
-    
+
     datasets = pipeline.process_date("2025001")
 
     mo.md(f"""
@@ -122,10 +128,12 @@ def _(mo, site):
         _latest = site.rinex_store.get_history()[0]["snapshot_id"]
         _create_or_replace(site.rinex_store, "experimental", _latest)
 
-    hist     = site.rinex_store.get_history()
+    hist = site.rinex_store.get_history()
     branches = site.rinex_store.get_branch_names()
 
-    mo.md(f"Branches: **{branches}** — latest snapshot: `{hist[0]['snapshot_id'][:12]}…`")
+    mo.md(
+        f"Branches: **{branches}** — latest snapshot: `{hist[0]['snapshot_id'][:12]}…`"
+    )
     return (hist,)
 
 
@@ -151,7 +159,7 @@ def _(TauOmegaZerothOrder, mo, site):
     mo.md(r"""## 5 · VOD Calculation — Tau-Omega Zeroth Order""")
 
     canopy_ds_vod = site.rinex_store.read_group("canopy_01")
-    ref_ds_vod    = site.rinex_store.read_group("reference_01_canopy_01")
+    ref_ds_vod = site.rinex_store.read_group("reference_01_canopy_01")
 
     vod_ds = TauOmegaZerothOrder.from_datasets(
         canopy_ds=canopy_ds_vod,
@@ -165,8 +173,8 @@ def _(TauOmegaZerothOrder, mo, site):
     mo.md(f"""
     | | |
     |---|---|
-    | Epochs | {vod_ds.sizes['epoch']:,} |
-    | SIDs | {vod_ds.sizes['sid']} |
+    | Epochs | {vod_ds.sizes["epoch"]:,} |
+    | SIDs | {vod_ds.sizes["sid"]} |
     """)
     return (vod_ds,)
 
@@ -181,7 +189,7 @@ def _(vod_ds):
 def _(create_hemigrid, mo, site, store_grid):
     mo.md(r"""## 6 · Equal-Area Hemisphere Grid (2°)""")
 
-    ea_grid   = create_hemigrid("equal_area", angular_resolution=2)
+    ea_grid = create_hemigrid("equal_area", angular_resolution=2)
     snap_grid = store_grid(ea_grid, site.rinex_store, "equal_area_2deg")
 
     mo.md(f"""
@@ -205,9 +213,9 @@ def _(
 ):
     mo.md(r"""## 7 · Assign Grid Cells to VOD Observations""")
 
-    GRID_NAME   = "equal_area_2deg"
+    GRID_NAME = "equal_area_2deg"
     vod_gridded = add_cell_ids_to_vod_fast(vod_ds, ea_grid, GRID_NAME)
-    snap_vod    = store_dataset_with_cell_ids(vod_gridded, site.rinex_store, "vod_rosalia")
+    snap_vod = store_dataset_with_cell_ids(vod_gridded, site.rinex_store, "vod_rosalia")
 
     _n = int((~np.isnan(vod_gridded[f"cell_id_{GRID_NAME}"].values)).sum())
     mo.md(f"**{_n:,}** observations assigned — snapshot `{snap_vod[:12]}…`")
@@ -218,10 +226,10 @@ def _(
 def _(GRID_NAME, ea_grid, np, vod_gridded):
     _vod_vals = vod_gridded["VOD"].values.ravel()
     _cell_ids = vod_gridded[f"cell_id_{GRID_NAME}"].values.ravel()
-    _valid    = ~(np.isnan(_vod_vals) | np.isnan(_cell_ids))
+    _valid = ~(np.isnan(_vod_vals) | np.isnan(_cell_ids))
 
     cell_mean_vod = np.full(ea_grid.ncells, np.nan)
-    _ids  = _cell_ids[_valid].astype(int)
+    _ids = _cell_ids[_valid].astype(int)
     _vals = _vod_vals[_valid]
     for _cid in np.unique(_ids):
         cell_mean_vod[_cid] = np.nanmean(_vals[_ids == _cid])

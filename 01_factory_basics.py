@@ -165,8 +165,8 @@ def _(grid):
 
     _df = grid.grid  # polars DataFrame — correct attribute is .grid, not .df
 
-    _phi_deg = (_df["phi"].to_numpy() * 180 / np.pi)
-    _theta_deg = (_df["theta"].to_numpy() * 180 / np.pi)
+    _phi_deg = _df["phi"].to_numpy() * 180 / np.pi
+    _theta_deg = _df["theta"].to_numpy() * 180 / np.pi
 
     _fig, _ax = plt.subplots(
         figsize=(7, 5),

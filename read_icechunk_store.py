@@ -79,7 +79,6 @@ def _():
 def _(mystore):
     from icechunk import IcechunkError
 
-
     def create_or_replace_branch(mystore, branch_name: str, snapshot_id: str):
         """Create branch at snapshot_id. If it exists, delete and recreate."""
         try:
@@ -91,11 +90,12 @@ def _(mystore):
 
         return branch_name  # or return whatever create_branch returns, if needed
 
-
     with mystore.writable_session() as _session:
         latest_commit = mystore.get_history()[0]["snapshot_id"]
         print(latest_commit)
-        new_branch = create_or_replace_branch(mystore, "experimental_branch", latest_commit)
+        new_branch = create_or_replace_branch(
+            mystore, "experimental_branch", latest_commit
+        )
 
     mystore
     return
@@ -104,7 +104,9 @@ def _(mystore):
 @app.cell
 def _(mystore):
     canopy_rinex_ds = mystore.read_group(branch="main", group_name="canopy_02")
-    canopy_rinex_metadata_ds = mystore.read_group(branch="main", group_name="canopy_02/metadata/sbf_obs")
+    canopy_rinex_metadata_ds = mystore.read_group(
+        branch="main", group_name="canopy_02/metadata/sbf_obs"
+    )
 
     canopy_rinex_ds
     return
@@ -113,8 +115,11 @@ def _(mystore):
 @app.cell
 def _(mystore):
     import xarray as xr
+
     _rinex_ds = mystore.read_group(branch="main", group_name="canopy_02")
-    _rinex_metadata_ds = mystore.read_group(branch="main", group_name="canopy_02/metadata/sbf_obs")
+    _rinex_metadata_ds = mystore.read_group(
+        branch="main", group_name="canopy_02/metadata/sbf_obs"
+    )
 
     _ds = xr.combine_by_coords([_rinex_ds, _rinex_metadata_ds], compat="override")
     _ds
@@ -236,7 +241,6 @@ def _(mystore):
 def _():
     import numpy as np
 
-
     def generate_zenith_data(grid):
         theta = grid.grid["theta"].to_numpy()
         data = np.exp(-3 * theta)
@@ -261,7 +265,7 @@ app._unparsable_cell(
     fig_2d, ax_2d = viz.plot_2d(data=data_htm)
     plt.gca()
     """,
-    name="_"
+    name="_",
 )
 
 

@@ -180,10 +180,10 @@ def _(mo, ds_snr):
     | Item | Value |
     |------|-------|
     | Dimensions | `{dict(ds_snr.sizes)}` |
-    | Epochs | **{ds_snr.sizes['epoch']}** × 30 s = {ds_snr.sizes['epoch'] * 30 // 60} min |
-    | Signal IDs | **{ds_snr.sizes['sid']}** unique `SV|Band|Code` combinations |
+    | Epochs | **{ds_snr.sizes["epoch"]}** × 30 s = {ds_snr.sizes["epoch"] * 30 // 60} min |
+    | Signal IDs | **{ds_snr.sizes["sid"]}** unique `SV|Band|Code` combinations |
     | Data variables | `{list(ds_snr.data_vars)}` |
-    | Global attribute "File Hash" | `{ds_snr.attrs.get('File Hash', 'n/a')}` |
+    | Global attribute "File Hash" | `{ds_snr.attrs.get("File Hash", "n/a")}` |
     """)
     return
 
@@ -281,9 +281,9 @@ def _(daily_ds, mo):
 
     | Item | Value |
     |------|-------|
-    | Files | {len([1 for _ in range(1)])} per 15 min → {daily_ds.sizes['epoch']} epochs total |
+    | Files | {len([1 for _ in range(1)])} per 15 min → {daily_ds.sizes["epoch"]} epochs total |
     | Time span | `{str(daily_ds.epoch.min().values)[:19]}` → `{str(daily_ds.epoch.max().values)[:19]}` |
-    | SIDs | {daily_ds.sizes['sid']} |
+    | SIDs | {daily_ds.sizes["sid"]} |
     | Missing data | NaN where satellite not observed |
     """)
     return
@@ -312,9 +312,7 @@ def _(mo):
 @app.cell
 def _(daily_ds):
     # All GPS satellites
-    ds_gps = daily_ds.sel(
-        sid=[s for s in daily_ds.sid.values if s.startswith("G")]
-    )
+    ds_gps = daily_ds.sel(sid=[s for s in daily_ds.sid.values if s.startswith("G")])
     ds_gps.sid.values
     return (ds_gps,)
 
@@ -322,9 +320,7 @@ def _(daily_ds):
 @app.cell
 def _(daily_ds):
     # All signals on any L1 band (L1C, L1X, L1W…)
-    ds_l1 = daily_ds.sel(
-        sid=[s for s in daily_ds.sid.values if "|L1" in s]
-    )
+    ds_l1 = daily_ds.sel(sid=[s for s in daily_ds.sid.values if "|L1" in s])
     ds_l1.sid.values
     return (ds_l1,)
 
