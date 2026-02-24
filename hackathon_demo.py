@@ -2,7 +2,7 @@
 
 import marimo
 
-__generated_with = "0.19.10"
+__generated_with = "0.20.2"
 app = marimo.App(width="medium")
 
 
@@ -24,19 +24,18 @@ def _():
         add_cell_ids_to_vod_fast,
         store_dataset_with_cell_ids,
     )
-    from canvod.vod import TauOmegaZerothOrder
     from canvod.viz import HemisphereVisualizer
 
     return (
         HemisphereVisualizer,
         Site,
-        TauOmegaZerothOrder,
         add_cell_ids_to_vod_fast,
         create_hemigrid,
         np,
         shutil,
         store_dataset_with_cell_ids,
         store_grid,
+        xr,
     )
 
 
@@ -51,7 +50,7 @@ def _(Site, mo, shutil):
         shutil.rmtree(STORE_ROOT)
 
     site = Site("Rosalia")
-    pipeline = site.pipeline(aux_agency="COD", n_workers=4)
+    pipeline = site.pipeline(n_workers=8)
 
     mo.md(f"""
     | | |
@@ -62,6 +61,12 @@ def _(Site, mo, shutil):
     | **RINEX store** | `{site.rinex_store.store_path}` |
     """)
     return Path, pipeline, site
+
+
+@app.cell
+def _(site):
+    site
+    return
 
 
 @app.cell
@@ -87,16 +92,17 @@ def _(Path, mo, pipeline, shutil):
 def _(mo, site):
     mo.md(r"""## 3 · Explore the Store""")
 
-    canopy_ds = site.rinex_store.read_group("canopy_01")
+    site.rinex_store
+    return
 
-    with site.rinex_store.readonly_session() as _sess:
-        meta_table = site.rinex_store.load_metadata(
-            store=_sess.store, group_name="canopy_01"
-        )
+
+@app.cell
+def _(mo, site):
+    canopy_ds = site.rinex_store.read_group("canopy_01")
     # Available groups: canopy_01, reference_01_canopy_01
 
     mo.md(f"Dataset loaded — `canopy_01`  {dict(canopy_ds.sizes)}")
-    return canopy_ds, meta_table
+    return (canopy_ds,)
 
 
 @app.cell
@@ -106,8 +112,19 @@ def _(canopy_ds):
 
 
 @app.cell
-def _(meta_table, mo):
+def _(mo, site):
+    with site.rinex_store.readonly_session() as _sess:
+        meta_table = site.rinex_store.load_metadata(
+            store=_sess.store, group_name="canopy_01"
+        )
+
     mo.ui.table(meta_table, pagination=True)
+    return (meta_table,)
+
+
+@app.cell
+def _(meta_table):
+    meta_table
     return
 
 
@@ -117,6 +134,7 @@ def _(mo, site):
 
     from icechunk import IcechunkError
 
+
     def _create_or_replace(s, name, snapshot_id):
         try:
             s.repo.create_branch(name, snapshot_id)
@@ -124,17 +142,31 @@ def _(mo, site):
             s.delete_branch(name)
             s.repo.create_branch(name, snapshot_id)
 
+
     with site.rinex_store.writable_session("main") as _sess:
         _latest = site.rinex_store.get_history()[0]["snapshot_id"]
         _create_or_replace(site.rinex_store, "experimental", _latest)
 
-    hist = site.rinex_store.get_history()
+    _hist = site.rinex_store.get_history()
     branches = site.rinex_store.get_branch_names()
 
-    mo.md(
-        f"Branches: **{branches}** — latest snapshot: `{hist[0]['snapshot_id'][:12]}…`"
+    mo.md(f"Branches: **{branches}** — latest snapshot: `{_hist[0]['snapshot_id'][:12]}…`")
+    return
+
+
+@app.cell
+def _(site):
+    site.rinex_store
+    return
+
+
+@app.cell
+def _(site):
+    experimental_canopy_ds = site.rinex_store.read_group(
+        branch="experimental", group_name="canopy_01"
     )
-    return (hist,)
+    experimental_canopy_ds
+    return (experimental_canopy_ds,)
 
 
 @app.cell
@@ -144,44 +176,224 @@ def _(site):
 
 
 @app.cell
-def _(hist, mo):
+def _(experimental_canopy_ds, np, xr):
+    from datetime import datetime, timezone
+
+    rng = np.random.default_rng(42)
+
+    # ── dimensions ──────────────────────────────────────────────────────────────
+    # copy sid structure directly from the real dataset
+    n_sid = experimental_canopy_ds.sizes["sid"]
+
+    # 15 min at 5 s cadence = 180 epochs
+    t0 = np.datetime64("2025-01-01T12:00:00", "ns")
+    epochs = t0 + np.arange(180) * np.timedelta64(5, "s")
+
+    # ── per-epoch, per-sid signals ───────────────────────────────────────────────
+    shape = (180, n_sid)
+
+    # SNR: 20–50 dB-Hz, masked where satellite below horizon (theta > π/2 → NaN)
+    snr = rng.uniform(20.0, 50.0, shape).astype(np.float32)
+
+    # theta: zenith angle 0 (overhead) – π/2 (horizon); satellites vary over time
+    theta_base = rng.uniform(0.05, np.pi / 2, n_sid)  # per-sid mean
+    theta_drift = rng.normal(0, 0.02, shape)  # small epoch noise
+    theta = np.clip(theta_base[None, :] + theta_drift, 0.0, np.pi / 2)
+
+    # mask low-elevation satellites (theta > 75° ≈ 1.31 rad) with NaN
+    below_horizon = theta > 1.31
+    snr[below_horizon] = np.nan
+
+    # phi: azimuth 0–2π, also drifts slowly
+    phi_base = rng.uniform(0.0, 2 * np.pi, n_sid)
+    phi_drift = rng.normal(0, 0.01, shape)
+    phi = (phi_base[None, :] + phi_drift) % (2 * np.pi)
+
+    # r: satellite–receiver range ~20 000–40 000 km (MEO / GEO range in metres)
+    r_base = rng.uniform(20_000_000.0, 40_000_000.0, n_sid)
+    r_noise = rng.normal(0, 1000.0, shape)
+    r = r_base[None, :] + r_noise
+
+    # ── build dataset ────────────────────────────────────────────────────────────
+    sid_coords = {
+        coord: experimental_canopy_ds[coord]
+        for coord in [
+            "sid",
+            "sv",
+            "system",
+            "band",
+            "code",
+            "freq_center",
+            "freq_min",
+            "freq_max",
+        ]
+    }
+
+    synthetic_ds = xr.Dataset(
+        {
+            "SNR": xr.Variable(
+                ("epoch", "sid"),
+                snr,
+                attrs=experimental_canopy_ds["SNR"].attrs,
+            ),
+            "r": xr.Variable(
+                ("epoch", "sid"),
+                r,
+                attrs=experimental_canopy_ds["r"].attrs,
+            ),
+            "phi": xr.Variable(
+                ("epoch", "sid"),
+                phi,
+                attrs=experimental_canopy_ds["phi"].attrs,
+            ),
+            "theta": xr.Variable(
+                ("epoch", "sid"),
+                theta,
+                attrs=experimental_canopy_ds["theta"].attrs,
+            ),
+        },
+        coords={
+            "epoch": xr.Variable(
+                "epoch",
+                epochs,
+                attrs=experimental_canopy_ds["epoch"].attrs,
+            ),
+            **sid_coords,
+        },
+        attrs=experimental_canopy_ds.attrs
+        | {
+            "Note": "Synthetic dataset — generated for testing",
+        },
+    )
+
+    synthetic_ds
+    return datetime, synthetic_ds, timezone
+
+
+@app.cell
+def _(datetime, site, synthetic_ds, timezone):
+    from icechunk.xarray import to_icechunk
+    import hashlib
+    import json
+
+    # ── 1. write the dataset ────────────────────────────────────────────────────
+
+    # give the synthetic dataset a unique hash so the store doesn't deduplicate it
+    synthetic_hash = hashlib.sha256(b"synthetic-15min-test").hexdigest()[:16]
+    synthetic_ds.attrs["RINEX File Hash"] = synthetic_hash
+
+    # Session 1: write data
+    with site.rinex_store.writable_session(branch="main") as _sess:
+        to_icechunk(synthetic_ds, _sess, group="canopy_01", append_dim="epoch")
+        snapshot_id = _sess.commit("Add synthetic 15-min dataset")
+
+    # Session 2: write metadata row (append_metadata_bulk opens its own clean session)
+    site.rinex_store.append_metadata_bulk(
+        group_name="canopy_01",
+        rows=[
+            {
+                "rinex_hash": synthetic_ds.attrs["RINEX File Hash"],
+                "start": synthetic_ds.epoch.values[0],
+                "end": synthetic_ds.epoch.values[-1],
+                "snapshot_id": snapshot_id,
+                "action": "insert",
+                "commit_msg": "Add synthetic 15-min dataset",
+                "written_at": datetime.now(timezone.utc).isoformat(),
+                "write_strategy": "append",
+                "attrs": json.dumps(dict(synthetic_ds.attrs), default=str),
+            }
+        ],
+    )
+
+    site.rinex_store
+    return snapshot_id, to_icechunk
+
+
+@app.cell
+def _(mo, site, snapshot_id):
     import pandas as pd
 
+    _ = snapshot_id  # depend on snapshot_id so this re-runs after each write
+    main_hist = site.rinex_store.get_history()
     mo.ui.table(
-        pd.DataFrame(hist)[["snapshot_id", "commit_msg", "written_at"]],
+        pd.DataFrame(main_hist)[["snapshot_id", "commit_msg", "written_at"]],
+        pagination=True,
+    )
+    return (pd,)
+
+
+@app.cell
+def _(mo, pd, site, snapshot_id):
+    _ = snapshot_id
+    experimental_hist = site.rinex_store.get_history(branch="experimental")
+    mo.ui.table(
+        pd.DataFrame(experimental_hist)[["snapshot_id", "commit_msg", "written_at"]],
         pagination=True,
     )
     return
 
 
 @app.cell
-def _(TauOmegaZerothOrder, mo, site):
+def _(site, snapshot_id):
+    _ = snapshot_id  # re-run graph whenever a new commit lands
+    site.rinex_store.plot_commit_graph()
+    return
+
+
+@app.cell
+def _(mo, np, site, to_icechunk, xr):
+    from canvod.store import MyIcechunkStore, create_vod_store
+    from canvod.vod import TauOmegaZerothOrder
+
     mo.md(r"""## 5 · VOD Calculation — Tau-Omega Zeroth Order""")
 
-    canopy_ds_vod = site.rinex_store.read_group("canopy_01")
-    ref_ds_vod = site.rinex_store.read_group("reference_01_canopy_01")
+
+    rinex_store = MyIcechunkStore(site.rinex_store.store_path)
+
+    with rinex_store.readonly_session(branch="experimental") as session:
+
+        _canopy_ds = xr.open_zarr(store=session.store, group="canopy_01")
+        _reference_ds = xr.open_zarr(store=session.store, group="reference_01_canopy_01")
+
+        c_anopy_ds = _canopy_ds.sortby("epoch")
+        _, index = np.unique(_canopy_ds["epoch"], return_index=True)
+        _canopy_ds = _canopy_ds.isel(epoch=index)
+
+        _reference_ds = _reference_ds.sortby("epoch")
+        _, index = np.unique(_reference_ds["epoch"], return_index=True)
+        _reference_ds = _reference_ds.isel(epoch=index)
+
 
     vod_ds = TauOmegaZerothOrder.from_datasets(
-        canopy_ds=canopy_ds_vod,
-        sky_ds=ref_ds_vod,
-        align=True,
+        canopy_ds=_canopy_ds, sky_ds=_reference_ds, align=True
     )
-    vod_ds = vod_ds.unify_chunks().chunk({"epoch": 34560, "sid": -1})
-    for _var in vod_ds.data_vars:
-        vod_ds[_var].encoding = {}
 
+    vod_ds = vod_ds.unify_chunks()
+
+    vod_ds = vod_ds.chunk({"epoch": 34560, "sid": -1})
+
+    for var in vod_ds.data_vars:
+        vod_ds[var].encoding = {}
+
+    vod_store = create_vod_store(site.vod_store.store_path)
+
+    with vod_store.writable_session() as session:
+        to_icechunk(
+            vod_ds, session, group="reference_01_canopy_01", mode="w", safe_chunks=False
+        )
+        _snapshot_id = session.commit("Initial VOD calculation")
+    vod_store
+    return (vod_ds,)
+
+
+@app.cell
+def _(mo, vod_ds):
     mo.md(f"""
     | | |
     |---|---|
     | Epochs | {vod_ds.sizes["epoch"]:,} |
     | SIDs | {vod_ds.sizes["sid"]} |
     """)
-    return (vod_ds,)
-
-
-@app.cell
-def _(vod_ds):
-    vod_ds
     return
 
 
@@ -190,7 +402,7 @@ def _(create_hemigrid, mo, site, store_grid):
     mo.md(r"""## 6 · Equal-Area Hemisphere Grid (2°)""")
 
     ea_grid = create_hemigrid("equal_area", angular_resolution=2)
-    snap_grid = store_grid(ea_grid, site.rinex_store, "equal_area_2deg")
+    snap_grid = store_grid(ea_grid, site.vod_store, "equal_area_2deg")
 
     mo.md(f"""
     | | |
@@ -212,6 +424,7 @@ def _(
     vod_ds,
 ):
     mo.md(r"""## 7 · Assign Grid Cells to VOD Observations""")
+
 
     GRID_NAME = "equal_area_2deg"
     vod_gridded = add_cell_ids_to_vod_fast(vod_ds, ea_grid, GRID_NAME)
@@ -239,16 +452,19 @@ def _(GRID_NAME, ea_grid, np, vod_gridded):
 
 
 @app.cell
-def _(HemisphereVisualizer, cell_mean_vod, ea_grid, mo):
+def _(HemisphereVisualizer, cell_mean_vod, ea_grid, mo, np):
     mo.md(r"""## 8 · Hemisphere Visualisation""")
 
     viz = HemisphereVisualizer(ea_grid)
+    _vmin = float(np.nanmin(cell_mean_vod))
+    _vmax = float(np.nanmax(cell_mean_vod))
+
     fig_2d, _ax = viz.plot_2d(
         data=cell_mean_vod,
         title="Mean VOD — Rosalia 2025-001",
-        cmap="YlGn",
-        vmin=0,
-        vmax=1,
+        cmap='YlGn',
+        vmin=_vmin,
+        vmax=_vmax,
     )
     return (fig_2d,)
 
