@@ -189,6 +189,7 @@ def _(
 
     if load_button.value and day_selector.value:
         import xarray as xr
+
         from canvod.readers import Rnxv3Obs
 
         # Get directory
@@ -312,8 +313,6 @@ def _(AUX_DIR, agency_selector, download_aux_button, mo, product_selector):
     _download_output = None
 
     if download_aux_button.value and _obs_date:
-        import os
-
         from canvod.auxiliary.clock.reader import ClkFile
         from canvod.auxiliary.core.downloader import FtpDownloader
         from canvod.auxiliary.ephemeris.reader import Sp3File

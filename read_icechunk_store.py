@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.20.1"
+__generated_with = "0.20.2"
 app = marimo.App(
     width="medium",
     css_file="./marimo_darkmode_patch/marimo_darkmode_patch.css",
@@ -35,9 +35,7 @@ def _(Path):
         / "stores"
         / "rosalia_rinex"
     )
-    data_root = Path(
-        "/Volumes/SanDisk/GNSS/Meeting_Nathan/Icechunk_Stores_data_nathan/Rosalia/01_SBF_Icechunk"
-    )
+    data_root = Path("/Volumes/ExtremePro/comparison_stores_readers_packages/Rosalia/canvodpy_SBF_Icechunk_Store_final_ephe")
     data_root.exists()
     return (data_root,)
 
@@ -79,6 +77,7 @@ def _():
 def _(mystore):
     from icechunk import IcechunkError
 
+
     def create_or_replace_branch(mystore, branch_name: str, snapshot_id: str):
         """Create branch at snapshot_id. If it exists, delete and recreate."""
         try:
@@ -90,12 +89,11 @@ def _(mystore):
 
         return branch_name  # or return whatever create_branch returns, if needed
 
+
     with mystore.writable_session() as _session:
         latest_commit = mystore.get_history()[0]["snapshot_id"]
         print(latest_commit)
-        new_branch = create_or_replace_branch(
-            mystore, "experimental_branch", latest_commit
-        )
+        new_branch = create_or_replace_branch(mystore, "experimental_branch", latest_commit)
 
     mystore
     return
@@ -103,33 +101,60 @@ def _(mystore):
 
 @app.cell
 def _(mystore):
-    canopy_rinex_ds = mystore.read_group(branch="main", group_name="canopy_02")
-    canopy_rinex_metadata_ds = mystore.read_group(
-        branch="main", group_name="canopy_02/metadata/sbf_obs"
-    )
+    reference_rinex_ds = mystore.read_group(branch="main", group_name="canopy_01")
+    # canopy_rinex_metadata_ds = mystore.read_group(
+    #     branch="main", group_name="canopy_02/metadata/sbf_obs"
+    # )
 
-    canopy_rinex_ds
-    return
+    reference_rinex_ds
+    return (reference_rinex_ds,)
 
 
 @app.cell
 def _(mystore):
-    import xarray as xr
+    canopy_rinex_ds = mystore.read_group(branch="main", group_name="reference_01_canopy_01")
+    # canopy_rinex_metadata_ds = mystore.read_group(
+    #     branch="main", group_name="canopy_02/metadata/sbf_obs"
+    # )
 
-    _rinex_ds = mystore.read_group(branch="main", group_name="canopy_02")
-    _rinex_metadata_ds = mystore.read_group(
-        branch="main", group_name="canopy_02/metadata/sbf_obs"
-    )
+    canopy_rinex_ds
+    return (canopy_rinex_ds,)
 
-    _ds = xr.combine_by_coords([_rinex_ds, _rinex_metadata_ds], compat="override")
-    _ds
+
+@app.cell
+def _(canopy_rinex_ds, reference_rinex_ds):
+    delta_rec = canopy_rinex_ds - reference_rinex_ds
+    delta_rec
+    return (delta_rec,)
+
+
+@app.cell
+def _():
+    # import xarray as xr
+
+    # _rinex_ds = mystore.read_group(branch="main", group_name="canopy_01")
+    # _rinex_metadata_ds = mystore.read_group(
+    #     branch="main", group_name="canopy_02/metadata/sbf_obs"
+    # )
+
+    # _ds = xr.combine_by_coords([_rinex_ds, _rinex_metadata_ds], compat="override")
+    # _ds
     return
 
 
 @app.cell
-def _(np, snr):
-    mean = snr[~np.isnan(snr)].mean()
-    mean
+def _(canopy_rinex_ds, np):
+    snr_can = canopy_rinex_ds["SNR"].values
+    mean_can = snr_can[~np.isnan(snr_can)].mean()
+    mean_can
+    return
+
+
+@app.cell
+def _(np, reference_rinex_ds):
+    snr_ref = reference_rinex_ds["SNR"].values
+    mean_ref = snr_ref[~np.isnan(snr_ref)].mean()
+    mean_ref
     return
 
 
@@ -241,32 +266,32 @@ def _(mystore):
 def _():
     import numpy as np
 
+
     def generate_zenith_data(grid):
         theta = grid.grid["theta"].to_numpy()
         data = np.exp(-3 * theta)
         data += 0.05 * np.random.randn(len(data))
         return data
 
-    return (np,)
+    return generate_zenith_data, np
 
 
-app._unparsable_cell(
-    r"""
+@app.cell
+def _(create_hemigrid, generate_zenith_data):
     import matplotlib.pyplot as plt
+
     from canvod.viz import HemisphereVisualizer
 
-    grid_htm = create_hemigrid(angular_resolution=2, grid_type="geodesic")
+    grid_htm = create_hemigrid(angular_resolution=2, grid_type="equal_area")
     data_htm = generate_zenith_data(grid_htm)
-    data_htm = 
+
     # Create unified visualizer
     viz = HemisphereVisualizer(grid_htm)
 
     # 2D visualization
     fig_2d, ax_2d = viz.plot_2d(data=data_htm)
     plt.gca()
-    """,
-    name="_",
-)
+    return HemisphereVisualizer, data_htm, viz
 
 
 @app.cell
@@ -274,6 +299,63 @@ def _(data_htm, viz):
     # 3D visualization
     fig_3d = viz.plot_3d(data=data_htm)
     fig_3d.show()
+    return
+
+
+@app.cell
+def _(delta_rec):
+    delta_rec["VOD"] = delta_rec["SNR"]
+    return
+
+
+@app.cell
+def _(delta_rec, ea_grid, mo, np):
+    mo.md(r"""## 7 · Assign Grid Cells to VOD Observations""")
+    from canvod.grids.operations import (
+        add_cell_ids_to_vod_fast,
+        store_dataset_with_cell_ids,
+    )
+
+    GRID_NAME = "equal_area_2deg"
+    vod_gridded = add_cell_ids_to_vod_fast(delta_rec, ea_grid, GRID_NAME)
+    _vod_vals = vod_gridded["SNR"].values.ravel()
+    _cell_ids = vod_gridded[f"cell_id_{GRID_NAME}"].values.ravel()
+    _valid = ~(np.isnan(_vod_vals) | np.isnan(_cell_ids))
+
+    cell_mean_vod = np.full(ea_grid.ncells, np.nan)
+    _ids = _cell_ids[_valid].astype(int)
+    _vals = _vod_vals[_valid]
+    for _cid in np.unique(_ids):
+        cell_mean_vod[_cid] = np.nanmean(_vals[_ids == _cid])
+
+    cell_mean_vod
+    _n = int((~np.isnan(vod_gridded[f"cell_id_{GRID_NAME}"].values)).sum())
+    return (cell_mean_vod,)
+
+
+@app.cell
+def _(cell_mean_vod):
+    cell_mean_vod
+    return
+
+
+@app.cell
+def _(HemisphereVisualizer, cell_mean_vod, ea_grid, mo, np):
+    mo.md(r"""## 8 · Hemisphere Visualisation""")
+
+    _viz = HemisphereVisualizer(ea_grid)
+    _vmin = float(np.nanmin(cell_mean_vod))
+    _vmax = float(np.nanmax(cell_mean_vod))
+
+    print(f"VOD value range for visualization: vmin={_vmin}, vmax={_vmax}")
+    _fig_2d, _ax = _viz.plot_2d(
+        data=cell_mean_vod,
+        title="Mean VOD — Rosalia 2025-001",
+        cmap="YlGn",
+        vmin=_vmin,
+        vmax=_vmax,
+    )
+    _fig_2d
     return
 
 

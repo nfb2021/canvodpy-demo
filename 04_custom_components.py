@@ -40,11 +40,13 @@ def _(mo):
 @app.cell
 def _():
     from abc import abstractmethod
+
     import numpy as np
     import polars as pl
+    from canvodpy.factories import GridFactory
+
     from canvod.grids.core.grid_builder import BaseGridBuilder
     from canvod.grids.core.grid_data import GridData
-    from canvodpy.factories import GridFactory
 
     return (
         BaseGridBuilder,

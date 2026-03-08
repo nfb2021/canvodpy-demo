@@ -651,8 +651,8 @@ def _(TARGET_DATE, calculate_vod, mo, pd, site, time):
         try:
             # Calculate VOD for each configured pair
             for analysis_name, config in site.vod_analyses.items():
-                canopy_rx = config["canopy_receiver"]
-                reference_rx = config["reference_receiver"]
+                canopy_rx = config.canopy_receiver
+                reference_rx = config.reference_receiver
 
                 # ✨ Calculate VOD - simple function call
                 vod_ds = calculate_vod(

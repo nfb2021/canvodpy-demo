@@ -14,7 +14,7 @@ Features:
 Author: Nicolas François Bader
 Institution: TU Wien - Climate and Environmental Remote Sensing (CLIMERS)
 Date: 2025-01-22
-License: Apache 2.0
+License: Apache-2.0
 """
 
 import marimo
@@ -230,7 +230,7 @@ def _(SITE_NAME, Site, mo, time):
 
         **VOD Analyses**: {n_analyses} configured
         ```
-        {chr(10).join(f"  • {name}: {cfg["canopy_receiver"]} vs {cfg["reference_receiver"]}" for name, cfg in vod_analyses.items())}
+        {chr(10).join(f"  • {name}: {cfg['canopy_receiver']} vs {cfg['reference_receiver']}" for name, cfg in vod_analyses.items())}
         ```
 
         **Storage**: Icechunk-based versioned stores
@@ -641,7 +641,7 @@ def _(datasets, mo, np, process_success):
         quality_display = mo.md("⚠️ No data to check")
     else:
         # Pick one dataset for detailed inspection
-        sample_receiver = list(datasets.keys())[0]
+        sample_receiver = next(iter(datasets.keys()))
         sample_ds = datasets[sample_receiver]
 
         # Get dimensions
@@ -890,7 +890,7 @@ def _(mo):
 
     **Developed by**: Nicolas François Bader
     **Institution**: TU Wien - CLIMERS
-    **License**: Apache 2.0
+    **License**: Apache-2.0
     **Citation**: [Your paper here]
 
     **Built on**:

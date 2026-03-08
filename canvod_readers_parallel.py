@@ -9,6 +9,7 @@ Note: Functions must be at module level (not nested) for pickling.
 from pathlib import Path
 
 import xarray as xr
+
 from canvod.readers import Rnxv3Obs
 
 
@@ -27,4 +28,4 @@ def read_rinex_file(fpath: Path) -> xr.Dataset:
 
     """
     obs = Rnxv3Obs(fpath=fpath)
-    return obs.to_ds(keep_rnx_data_vars=["SNR"], write_global_attrs=True)
+    return obs.to_ds(keep_data_vars=["SNR"], write_global_attrs=True)

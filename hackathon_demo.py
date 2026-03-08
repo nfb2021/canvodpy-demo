@@ -16,15 +16,17 @@ def _():
 @app.cell
 def _():
     import shutil
+
     import numpy as np
     import xarray as xr
-    from canvodpy import Site
+
     from canvod.grids import create_hemigrid, store_grid
     from canvod.grids.operations import (
         add_cell_ids_to_vod_fast,
         store_dataset_with_cell_ids,
     )
     from canvod.viz import HemisphereVisualizer
+    from canvodpy import Site
 
     return (
         HemisphereVisualizer,
@@ -134,14 +136,12 @@ def _(mo, site):
 
     from icechunk import IcechunkError
 
-
     def _create_or_replace(s, name, snapshot_id):
         try:
             s.repo.create_branch(name, snapshot_id)
         except IcechunkError:
             s.delete_branch(name)
             s.repo.create_branch(name, snapshot_id)
-
 
     with site.rinex_store.writable_session("main") as _sess:
         _latest = site.rinex_store.get_history()[0]["snapshot_id"]
@@ -150,7 +150,9 @@ def _(mo, site):
     _hist = site.rinex_store.get_history()
     branches = site.rinex_store.get_branch_names()
 
-    mo.md(f"Branches: **{branches}** — latest snapshot: `{_hist[0]['snapshot_id'][:12]}…`")
+    mo.md(
+        f"Branches: **{branches}** — latest snapshot: `{_hist[0]['snapshot_id'][:12]}…`"
+    )
     return
 
 
@@ -272,15 +274,16 @@ def _(experimental_canopy_ds, np, xr):
 
 @app.cell
 def _(datetime, site, synthetic_ds, timezone):
-    from icechunk.xarray import to_icechunk
     import hashlib
     import json
+
+    from icechunk.xarray import to_icechunk
 
     # ── 1. write the dataset ────────────────────────────────────────────────────
 
     # give the synthetic dataset a unique hash so the store doesn't deduplicate it
     synthetic_hash = hashlib.sha256(b"synthetic-15min-test").hexdigest()[:16]
-    synthetic_ds.attrs["RINEX File Hash"] = synthetic_hash
+    synthetic_ds.attrs["File Hash"] = synthetic_hash
 
     # Session 1: write data
     with site.rinex_store.writable_session(branch="main") as _sess:
@@ -292,7 +295,7 @@ def _(datetime, site, synthetic_ds, timezone):
         group_name="canopy_01",
         rows=[
             {
-                "rinex_hash": synthetic_ds.attrs["RINEX File Hash"],
+                "rinex_hash": synthetic_ds.attrs["File Hash"],
                 "start": synthetic_ds.epoch.values[0],
                 "end": synthetic_ds.epoch.values[-1],
                 "snapshot_id": snapshot_id,
@@ -347,13 +350,13 @@ def _(mo, np, site, to_icechunk, xr):
 
     mo.md(r"""## 5 · VOD Calculation — Tau-Omega Zeroth Order""")
 
-
     rinex_store = MyIcechunkStore(site.rinex_store.store_path)
 
     with rinex_store.readonly_session(branch="experimental") as session:
-
         _canopy_ds = xr.open_zarr(store=session.store, group="canopy_01")
-        _reference_ds = xr.open_zarr(store=session.store, group="reference_01_canopy_01")
+        _reference_ds = xr.open_zarr(
+            store=session.store, group="reference_01_canopy_01"
+        )
 
         c_anopy_ds = _canopy_ds.sortby("epoch")
         _, index = np.unique(_canopy_ds["epoch"], return_index=True)
@@ -362,7 +365,6 @@ def _(mo, np, site, to_icechunk, xr):
         _reference_ds = _reference_ds.sortby("epoch")
         _, index = np.unique(_reference_ds["epoch"], return_index=True)
         _reference_ds = _reference_ds.isel(epoch=index)
-
 
     vod_ds = TauOmegaZerothOrder.from_datasets(
         canopy_ds=_canopy_ds, sky_ds=_reference_ds, align=True
@@ -425,7 +427,6 @@ def _(
 ):
     mo.md(r"""## 7 · Assign Grid Cells to VOD Observations""")
 
-
     GRID_NAME = "equal_area_2deg"
     vod_gridded = add_cell_ids_to_vod_fast(vod_ds, ea_grid, GRID_NAME)
     snap_vod = store_dataset_with_cell_ids(vod_gridded, site.rinex_store, "vod_rosalia")
@@ -462,7 +463,7 @@ def _(HemisphereVisualizer, cell_mean_vod, ea_grid, mo, np):
     fig_2d, _ax = viz.plot_2d(
         data=cell_mean_vod,
         title="Mean VOD — Rosalia 2025-001",
-        cmap='YlGn',
+        cmap="YlGn",
         vmin=_vmin,
         vmax=_vmax,
     )

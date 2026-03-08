@@ -155,7 +155,7 @@ def _(mo):
 
     `to_ds()` assembles all epochs into a 2-D array `(epoch, sid)`.
 
-    By default only **SNR** is included. Pass `keep_rnx_data_vars` to request
+    By default only **SNR** is included. Pass `keep_data_vars` to request
     additional observation types.  The returned dataset carries full CF-convention
     metadata on every dimension, coordinate and variable.
     """)
@@ -165,7 +165,7 @@ def _(mo):
 @app.cell
 def _(obs):
     ds_snr = obs.to_ds(
-        keep_rnx_data_vars=["SNR"],
+        keep_data_vars=["SNR"],
         write_global_attrs=True,
     )
     ds_snr
@@ -202,7 +202,7 @@ def _(mo):
 @app.cell
 def _(obs):
     ds_full = obs.to_ds(
-        keep_rnx_data_vars=["SNR", "Pseudorange", "Phase", "Doppler"],
+        keep_data_vars=["SNR", "Pseudorange", "Phase", "Doppler"],
         write_global_attrs=True,
     )
     ds_full
@@ -259,7 +259,7 @@ def _(RINEX_FILES, Rnxv3Obs):
     import xarray as xr
 
     _datasets = [
-        Rnxv3Obs(fpath=f).to_ds(keep_rnx_data_vars=["SNR"], write_global_attrs=True)
+        Rnxv3Obs(fpath=f).to_ds(keep_data_vars=["SNR"], write_global_attrs=True)
         for f in RINEX_FILES
     ]
 
@@ -403,7 +403,7 @@ def _(mo):
     |------|-----|
     | Load a RINEX file | `Rnxv3Obs(fpath=...)` |
     | Inspect header | `.header` |
-    | Convert to xarray | `.to_ds(keep_rnx_data_vars=[...])` |
+    | Convert to xarray | `.to_ds(keep_data_vars=[...])` |
     | Concatenate files | `xr.concat([ds1, ds2, ...], dim="epoch")` |
     | Select by satellite | `ds.sel(sid=[s for s in ds.sid.values if s.startswith("G")])` |
     | Select by band | `ds.sel(sid=[s for s in ds.sid.values if "|L1C|" in s])` |

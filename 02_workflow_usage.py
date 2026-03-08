@@ -38,8 +38,9 @@ def _(mo):
 
 @app.cell
 def _():
-    from canvodpy import VODWorkflow
     from datetime import date
+
+    from canvodpy import VODWorkflow
 
     return VODWorkflow, date
 
