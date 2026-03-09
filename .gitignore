@@ -1,6 +1,14 @@
 # macOS metadata
 .DS_Store
 
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Runtime caches
+*.db
+
 # Marimo session cache
 __marimo__/
 
