@@ -33,8 +33,8 @@
   --popover-foreground:    var(--g5);
   --card:                  var(--g2);
   --card-foreground:       var(--g5);
-  --border:                #96B07A;
-  --input:                 #96B07A;
+  --border:                var(--g3);
+  --input:                 var(--g3);
   --primary:               var(--g4);
   --primary-foreground:    var(--g1);
   --secondary:             var(--g2);
@@ -210,10 +210,10 @@
   background-color: hsla(100, 50%, 45%, 0.25) !important;
 }
 .marimo-cell {
-  border-color: var(--gray-5) !important;
+  border-color: var(--gray-4) !important;
 }
 .marimo-cell:hover {
-  border-color: var(--gray-7) !important;
+  border-color: var(--gray-6) !important;
 }
 
 /* Matching brackets — green */
@@ -240,7 +240,7 @@ table, th, td {
   border-color: var(--gray-5) !important;
 }
 th {
-  background-color: var(--gray-4) !important;
+  background-color: var(--gray-3) !important;
 }
 
 /* Code blocks in rendered markdown */
@@ -290,9 +290,9 @@ table tbody tr:hover {
   --success:               var(--g3);
   --success-foreground:    #0d0d0d;
 
-  --action:                #2d4a2d;
-  --action-hover:          #3a5a3a;
-  --action-foreground:     var(--g1);
+  --action:                #2a3a2a;
+  --action-hover:          #354535;
+  --action-foreground:     var(--g2);
 
   --link:                  var(--g3);
   --link-visited:          var(--g2);
@@ -673,16 +673,4 @@ body.dark-theme .xr-wrap .xr-index-data-in,
   padding: 0 !important;
   -webkit-appearance: none !important;
   appearance: none !important;
-}
-
-/* =========================================================
-   Accessibility: reduced motion
-   ========================================================= */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
 }
