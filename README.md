@@ -39,10 +39,10 @@ From the **monorepo root**:
 
 ```bash
 # Interactive editing (browser)
-just notebook-edit hackathon_demo
+just open-notebook hackathon_demo
 
 # Read-only app mode (browser)
-just notebook-run hackathon_demo
+just app-notebook hackathon_demo
 
 # Or directly
 uv run marimo edit demo/hackathon_demo.py

@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.19.5"
-app = marimo.App()
+app = marimo.App(css_file="canvod_nordic.css")
 
 
 @app.cell

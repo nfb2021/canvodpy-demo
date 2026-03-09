@@ -18,7 +18,7 @@ Date: 2025-01-22
 import marimo
 
 __generated_with = "0.19.4"
-app = marimo.App(width="medium")
+app = marimo.App(width="medium", css_file="canvod_nordic.css")
 
 
 @app.cell(hide_code=True)

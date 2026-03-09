@@ -3,7 +3,7 @@ import marimo
 __generated_with = "0.19.4"
 app = marimo.App(
     width="medium",
-    css_file="marimo_darkmode_patch/marimo_darkmode_patch.css",
+    css_file="canvod_nordic.css",
 )
 
 

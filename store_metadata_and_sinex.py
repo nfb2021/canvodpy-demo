@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.20.1"
-app = marimo.App(width="medium")
+app = marimo.App(width="medium", css_file="canvod_nordic.css")
 
 
 @app.cell
@@ -16,25 +16,15 @@ def _(mo):
     mo.md(r"""
     # Store Metadata & IGS Satellite Catalog
 
-    This notebook demonstrates two canVODpy subsystems:
+    An interactive explorer for two canVODpy subsystems that power data
+    provenance and satellite awareness across the GNSS-T pipeline.
 
-    **Part A — Store Metadata** (`canvod-store-metadata`):
-    Rich provenance metadata attached to Icechunk stores, aligned with
-    DataCite 4.5, ACDD 1.3, and STAC 1.1.
+    | System | Package | Purpose |
+    |--------|---------|---------|
+    | **Store Metadata** | `canvod-store-metadata` | Rich provenance metadata for Icechunk stores — DataCite 4.5, ACDD 1.3, STAC 1.1 |
+    | **Satellite Catalog** | `canvod-readers` | Time-aware GNSS satellite metadata from the IGS SINEX file |
 
-    **Part B — Satellite Catalog** (`SatelliteCatalog`):
-    Time-aware GNSS satellite metadata parsed from the IGS
-    `igs_satellite_metadata.snx` SINEX file — PRN↔SVN mapping, transmit
-    power, mass, orbital plane, and GLONASS frequency channels.
-
-    ## Contents
-
-    1. Inspect store metadata (schema, collection, validation)
-    2. Load the IGS satellite catalog
-    3. Query PRN assignments and reassignments
-    4. Export to Polars DataFrame
-    5. Visualise TX power by constellation
-    6. Enrich an xarray Dataset with satellite metadata
+    Use the tabs and controls below to explore each system interactively.
     """)
     return
 
@@ -49,10 +39,16 @@ def _(mo):
 
     # Part A — Store Metadata
 
-    `canvod-store-metadata` captures 11 metadata sections (~90 fields) that
-    describe an Icechunk store: identity, creator, temporal/spatial extent,
-    instruments, software provenance, environment, configuration snapshot,
-    references, and aggregate summaries.
+    Every Icechunk store in canVODpy carries **11 metadata sections** (~90 fields)
+    written to the Zarr root attributes. This metadata enables:
+
+    - **Reproducibility** — full software versions, config snapshots, and environment capture
+    - **Discovery** — DataCite-compatible identifiers, keywords, and spatial/temporal extent
+    - **Compliance** — automated validation against DataCite 4.5, ACDD 1.3, STAC 1.1, and FAIR principles
+    - **Cataloging** — `scan_stores()` builds a Polars inventory across all stores on disk
+
+    The metadata is collected automatically by the orchestrator on first ingest
+    and updated on subsequent writes.
     """)
     return
 
@@ -98,7 +94,6 @@ def _(
     StoreMetadata,
     Summaries,
     TemporalExtent,
-    mo,
 ):
     # Build a representative metadata object
     demo_meta = StoreMetadata(
@@ -165,30 +160,50 @@ def _(
             variables=["SNR"],
         ),
     )
-
-    mo.md(f"""
-    ### Constructed `StoreMetadata` object
-
-    The metadata has **{len(demo_meta.model_fields)}** top-level sections. Below is
-    the full JSON-serializable representation that gets written to the Zarr
-    store's root attributes.
-    """)
     return (demo_meta,)
 
 
 @app.cell
 def _(demo_meta, mo):
+    _sections = list(demo_meta.model_fields.keys())
+    section_select = mo.ui.dropdown(
+        options=_sections,
+        value="identity",
+        label="Inspect metadata section",
+    )
+    section_select
+    return (section_select,)
+
+
+@app.cell
+def _(demo_meta, mo, section_select):
     import json
 
+    _section = getattr(demo_meta, section_select.value)
+    _data = _section.model_dump() if hasattr(_section, "model_dump") else _section
+
     mo.md(f"""
-    ### Serialised metadata (what goes into the store)
+    ### Section: `{section_select.value}`
+
+    {_section.__class__.__doc__ or ""}
 
     ```json
-    {json.dumps(demo_meta.model_dump(), indent=2, default=str)[:3000]}
-    ...
+    {json.dumps(_data, indent=2, default=str)}
     ```
     """)
     return (json,)
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ### Standards compliance validation
+
+    `validate_all()` checks the metadata against four standards. Each standard
+    defines mandatory and recommended fields. Issues indicate missing or
+    incomplete metadata that would prevent compliance.
+    """)
+    return
 
 
 @app.cell
@@ -201,14 +216,15 @@ def _(demo_meta, mo):
 
     summary_rows = []
     for standard, issues in results.items():
-        status = "pass" if not issues else f"{len(issues)} issue(s)"
-        summary_rows.append({"Standard": standard, "Status": status, "Issues": "; ".join(issues) if issues else "All checks passed"})
+        status = "PASS" if not issues else f"{len(issues)} issue(s)"
+        summary_rows.append({
+            "Standard": standard,
+            "Status": status,
+            "Issues": "; ".join(issues) if issues else "All checks passed",
+        })
 
     mo.md(f"""
-    ### Validation against standards
-
-    `validate_all()` checks DataCite 4.5, ACDD 1.3, STAC 1.1, and FAIR
-    compliance. Total issues: **{total_issues}**
+    **Validation result:** {"All standards passed" if total_issues == 0 else f"{total_issues} issue(s) found"}
     """)
     return results, summary_rows, total_issues, validate_all
 
@@ -219,6 +235,32 @@ def _(mo, summary_rows):
 
     mo.ui.table(pl.DataFrame(summary_rows))
     return (pl,)
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ### How metadata flows through the pipeline
+
+    ```
+    First ingest                          Subsequent writes
+    ───────────                           ─────────────────
+    orchestrator                          orchestrator
+      │                                     │
+      ├─ collect_metadata()                 ├─ update_metadata()
+      │    ├─ config → identity,            │    ├─ temporal.updated = now
+      │    │   creator, spatial             │    ├─ temporal.collected_end = max
+      │    ├─ runtime → environment,        │    └─ summaries = recompute
+      │    │   processing                   │
+      │    └─ store → summaries             └─ commit snapshot
+      │
+      ├─ write_metadata(store, meta)
+      │    └─ zarr root attrs["canvod_metadata"] = {...}
+      │
+      └─ commit snapshot
+    ```
+    """)
+    return
 
 
 # ── Part B: Satellite Catalog ───────────────────────────────────────────
@@ -232,9 +274,16 @@ def _(mo):
     # Part B — IGS Satellite Catalog
 
     The `SatelliteCatalog` parses the IGS `igs_satellite_metadata.snx` SINEX
-    file — an authoritative, time-aware catalog of all GNSS satellite vehicles.
-    It contains PRN↔SVN assignments, satellite block types, transmit power,
-    mass, GLONASS frequency channels, and orbital plane/slot assignments.
+    file — a single authoritative source maintained by the International GNSS
+    Service (updated every 2–4 weeks by DLR).
+
+    **Why it matters for GNSS-T:**
+
+    - **PRN reassignments** break time-series continuity (different satellite = different TX power, antenna pattern, orbit)
+    - **Transmit power** directly affects SNR — higher-power satellites produce stronger signals
+    - **Satellite generation** (block type) determines signal characteristics relevant to VOD retrieval
+
+    The catalog ships with a bundled fallback copy and **never fails offline**.
     """)
     return
 
@@ -251,18 +300,18 @@ def _():
 def _(catalog, mo):
     s = catalog.summary()
     mo.md(f"""
-    ### Catalog summary
+    ### Catalog contents
 
-    | Metric | Value |
-    |--------|-------|
-    | Total SVNs | **{s['total_svns']}** |
+    | Metric | Count |
+    |--------|------:|
+    | Satellite vehicles (SVNs) | **{s['total_svns']}** |
     | PRN assignments | **{s['prn_assignments']}** |
     | TX power records | **{s['tx_power_records']}** |
     | Mass records | **{s['mass_records']}** |
-    | Frequency channels | **{s['frequency_channels']}** |
-    | Plane/slot records | **{s['plane_slots']}** |
+    | GLONASS frequency channels | **{s['frequency_channels']}** |
+    | Orbital plane/slot records | **{s['plane_slots']}** |
 
-    **Constellations:** {', '.join(f'{k} ({v})' for k, v in s['constellations'].items())}
+    **Constellations:** {', '.join(f'{k} ({v} SVNs)' for k, v in s['constellations'].items())}
     """)
     return (s,)
 
@@ -270,11 +319,11 @@ def _(catalog, mo):
 @app.cell
 def _(mo):
     mo.md(r"""
-    ### PRN ↔ SVN queries
+    ### Interactive PRN query
 
-    PRN codes (like `G01`) are **not permanent**. They can be reassigned to
-    different satellite vehicles. The catalog tracks every assignment with
-    validity periods.
+    Select a PRN code and date to look up the satellite behind it. PRN codes
+    are **not permanent** — they can be reassigned when a satellite is
+    decommissioned and its slot is taken by a replacement.
     """)
     return
 
@@ -283,93 +332,156 @@ def _(mo):
 def _(catalog, mo):
     from datetime import date
 
-    query_date = date(2025, 1, 1)
+    # Build PRN options from all known PRNs
+    _all_prns = sorted({a.prn for a in catalog.prn_assignments})
 
-    # What satellite is behind G01?
-    svn_g01 = catalog.prn_to_svn("G01", query_date)
-    block_g01 = catalog.satellite_block(svn_g01) if svn_g01 else None
-    power_g01 = catalog.tx_power(svn_g01, query_date) if svn_g01 else None
-    mass_g01 = catalog.mass(svn_g01, query_date) if svn_g01 else None
-
-    # G01 reassignment history
-    history = catalog.prn_history("G01")
-
-    history_text = "\n".join(
-        f"    | {a.svn} | {a.start} | {a.end or 'active'} |"
-        for a in history
+    prn_input = mo.ui.dropdown(
+        options=_all_prns,
+        value="G01",
+        label="PRN code",
+    )
+    date_input = mo.ui.date(
+        value=date(2025, 1, 1),
+        label="Query date",
     )
 
-    mo.md(f"""
-    **G01 on {query_date}:**
-
-    | Property | Value |
-    |----------|-------|
-    | SVN | {svn_g01} |
-    | Block | {block_g01} |
-    | TX power | {power_g01} W |
-    | Mass | {mass_g01} kg |
-
-    **Full PRN history for G01:**
-
-    | SVN | Start | End |
-    |-----|-------|-----|
-    {history_text}
-    """)
-    return date, history, query_date
+    mo.hstack([prn_input, date_input], justify="start")
+    return date, date_input, prn_input
 
 
 @app.cell
-def _(catalog, date, mo):
-    # Detect reassignments in a time range
-    reassignments = catalog.reassignments_in_range("G01", date(2000, 1, 1), date(2025, 12, 31))
+def _(catalog, date_input, mo, prn_input):
+    _prn = prn_input.value
+    _qdate = date_input.value
 
-    if reassignments:
-        r_text = "\n".join(
-            f"    | {r.old_svn} → {r.new_svn} | {r.new_start} |"
-            for r in reassignments
+    _svn = catalog.prn_to_svn(_prn, _qdate)
+
+    if _svn:
+        _block = catalog.satellite_block(_svn)
+        _power = catalog.tx_power(_svn, _qdate)
+        _mass = catalog.mass(_svn, _qdate)
+        _plane_slot = catalog.plane_and_slot(_svn, _qdate)
+
+        mo.md(f"""
+    **{_prn} on {_qdate}:**
+
+    | Property | Value |
+    |----------|------:|
+    | SVN | {_svn} |
+    | Block type | {_block or "—"} |
+    | TX power | {f"{_power} W" if _power else "—"} |
+    | Mass | {f"{_mass} kg" if _mass else "—"} |
+    | Orbital plane / slot | {f"{_plane_slot[0]}/{_plane_slot[1]}" if _plane_slot and _plane_slot[0] else "—"} |
+    """)
+    else:
+        mo.md(f"**{_prn}** was not active on {_qdate}.")
+    return
+
+
+@app.cell
+def _(catalog, date_input, mo, prn_input):
+    _prn = prn_input.value
+    _history = catalog.prn_history(_prn)
+
+    if _history:
+        _rows = "\n".join(
+            f"    | {a.svn} | {a.start} | {a.end or '**active**'} |"
+            for a in _history
         )
         mo.md(f"""
-    ### Reassignment events for G01
+    ### Assignment history for {_prn}
+
+    Each row represents a period when this PRN code was assigned to a
+    specific satellite vehicle. Gaps between assignments mean the PRN
+    was temporarily unused.
+
+    | SVN | Start | End |
+    |-----|-------|-----|
+    {_rows}
+    """)
+    else:
+        mo.md(f"No assignment history found for {_prn}.")
+    return
+
+
+@app.cell
+def _(catalog, date, mo, prn_input):
+    _prn = prn_input.value
+    _reassignments = catalog.reassignments_in_range(
+        _prn, date(1990, 1, 1), date(2030, 12, 31)
+    )
+
+    if _reassignments:
+        _rows = "\n".join(
+            f"    | {r.old_svn} → {r.new_svn} | {r.new_start} |"
+            for r in _reassignments
+        )
+        mo.md(f"""
+    ### Reassignment events for {_prn}
+
+    A reassignment means the physical satellite behind this PRN changed.
+    This affects transmit power, antenna gain pattern, and signal
+    characteristics — important for long-term VOD time series.
 
     | Transition | Date |
     |-----------|------|
-    {r_text}
+    {_rows}
     """)
     else:
-        mo.md("### No reassignments detected for G01 in 2000–2025")
-    return (reassignments,)
+        mo.md(f"""
+    ### No reassignments for {_prn}
+
+    This PRN has been assigned to the same satellite vehicle throughout
+    its operational history — no continuity concerns for time-series analysis.
+    """)
+    return
 
 
 @app.cell
 def _(mo):
     mo.md(r"""
-    ### Polars DataFrame export
+    ---
 
-    `to_dataframe(on_date)` produces a snapshot of all active PRNs with
-    resolved metadata. Without a date, it returns the full assignment history.
+    ### Constellation snapshot
+
+    The table below shows all active PRNs on the selected date with their
+    resolved metadata. Use the search and sort controls to explore.
     """)
     return
 
 
 @app.cell
-def _(catalog, mo, query_date):
-    df_snapshot = catalog.to_dataframe(on_date=query_date)
+def _(catalog, date_input, mo):
+    df_snapshot = catalog.to_dataframe(on_date=date_input.value)
 
-    mo.md(f"""
-    **Snapshot on {query_date}:** {len(df_snapshot)} active PRNs
-    """)
+    mo.md(f"**{len(df_snapshot)} active PRNs on {date_input.value}**")
     return (df_snapshot,)
 
 
 @app.cell
 def _(df_snapshot, mo):
-    mo.ui.table(df_snapshot.head(30))
+    mo.ui.table(df_snapshot, page_size=20, selection=None)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ### Transmit power by constellation
+
+    Transmit power varies significantly across constellations and satellite
+    generations. Higher TX power improves signal-to-noise ratio at the
+    receiver, which directly affects VOD retrieval quality.
+
+    GPS Block III satellites (launched from 2018) transmit at ~280 W,
+    while earlier Block IIA (1990s) satellites transmitted at ~50 W —
+    a factor of 5× difference in received signal strength.
+    """)
     return
 
 
 @app.cell
 def _(df_snapshot, mo, pl):
-    # TX power statistics by constellation
     power_stats = (
         df_snapshot
         .filter(pl.col("tx_power_watts").is_not_null())
@@ -383,83 +495,36 @@ def _(df_snapshot, mo, pl):
         .sort("constellation")
     )
 
-    mo.md(r"""
-    ### Transmit power by constellation
-
-    Transmit power varies significantly across constellations and satellite
-    generations. Higher TX power generally improves signal-to-noise ratio
-    at the receiver.
-    """)
+    mo.ui.table(power_stats, selection=None)
     return (power_stats,)
 
 
 @app.cell
-def _(mo, power_stats):
-    mo.ui.table(power_stats)
-    return
+def _(df_snapshot, mo, pl):
+    import altair as alt
 
-
-@app.cell
-def _(mo):
-    mo.md(r"""
-    ### Dataset enrichment
-
-    `enrich_dataset()` adds satellite metadata as `sid`-level coordinates
-    on an existing `xarray.Dataset`. This enables filtering by satellite
-    generation, TX power class, or orbital plane.
-    """)
-    return
-
-
-@app.cell
-def _(catalog, mo, query_date):
-    import numpy as np
-    import xarray as xr
-
-    # Create a small synthetic dataset to demonstrate enrichment
-    sids = ["G01|L1|C", "G07|L1|C", "E01|E1|C", "R01|G1|C", "C01|B1I|C"]
-    epochs = np.array(
-        [np.datetime64(f"2025-01-01T{h:02d}:00:00") for h in range(24)],
-        dtype="datetime64[ns]",
-    )
-    rng = np.random.default_rng(42)
-    snr = rng.uniform(30, 50, size=(len(epochs), len(sids))).astype(np.float32)
-
-    demo_ds = xr.Dataset(
-        {"SNR": (["epoch", "sid"], snr)},
-        coords={"epoch": epochs, "sid": sids},
+    _chart_data = (
+        df_snapshot
+        .filter(pl.col("tx_power_watts").is_not_null())
+        .select(["prn", "constellation", "tx_power_watts", "block"])
+        .sort("constellation", "tx_power_watts")
+        .to_pandas()
     )
 
-    # Enrich with catalog metadata
-    enriched = catalog.enrich_dataset(demo_ds, on_date=query_date)
+    _chart = (
+        alt.Chart(_chart_data)
+        .mark_bar()
+        .encode(
+            x=alt.X("prn:N", sort="-y", title="PRN"),
+            y=alt.Y("tx_power_watts:Q", title="TX Power (W)"),
+            color=alt.Color("constellation:N", title="Constellation"),
+            tooltip=["prn", "block", "tx_power_watts", "constellation"],
+        )
+        .properties(width=700, height=300, title="Transmit Power by Satellite")
+    )
 
-    # Show the new coordinates
-    coord_info = []
-    for coord_name in ["svn", "block", "tx_power_watts", "mass_kg", "plane", "slot"]:
-        if coord_name in enriched.coords:
-            vals = enriched.coords[coord_name].values
-            coord_info.append(f"    | `{coord_name}` | {list(vals)} |")
-
-    coord_text = "\n".join(coord_info)
-
-    mo.md(f"""
-    **Enriched dataset coordinates (per SID):**
-
-    | Coordinate | Values |
-    |-----------|--------|
-    {coord_text}
-
-    These coordinates enable selections like:
-
-    ```python
-    # Only GPS-IIF satellites
-    iif = enriched.sel(sid=enriched.coords["block"] == "GPS-IIF")
-
-    # Satellites with TX power > 200W
-    high_power = enriched.sel(sid=enriched.coords["tx_power_watts"] > 200)
-    ```
-    """)
-    return demo_ds, enriched, epochs, np, rng, sids, snr, xr
+    mo.ui.altair_chart(_chart)
+    return
 
 
 @app.cell
@@ -467,13 +532,83 @@ def _(mo):
     mo.md(r"""
     ---
 
-    ## Summary
+    ### Dataset enrichment
 
-    - **Store metadata** provides reproducible provenance for every Icechunk
-      store, validated against DataCite/ACDD/STAC standards
-    - **SatelliteCatalog** gives time-aware access to IGS satellite metadata
-      with offline-first design (bundled fallback, never fails without internet)
-    - Both integrate seamlessly with the canVODpy pipeline and marimo notebooks
+    `enrich_dataset()` adds satellite metadata as `sid`-level coordinates
+    on any `(epoch, sid)` xarray Dataset. This enables powerful filtering
+    by satellite generation, TX power class, or orbital plane — without
+    any manual lookups.
+    """)
+    return
+
+
+@app.cell
+def _(catalog, date_input, mo):
+    import numpy as np
+    import xarray as xr
+
+    # Create a small synthetic dataset to demonstrate enrichment
+    _sids = ["G01|L1|C", "G07|L1|C", "E01|E1|C", "R01|G1|C", "C01|B1I|C"]
+    _epochs = np.array(
+        [np.datetime64(f"2025-01-01T{h:02d}:00:00") for h in range(24)],
+        dtype="datetime64[ns]",
+    )
+    _rng = np.random.default_rng(42)
+    _snr = _rng.uniform(30, 50, size=(len(_epochs), len(_sids))).astype(np.float32)
+
+    _demo_ds = xr.Dataset(
+        {"SNR": (["epoch", "sid"], _snr)},
+        coords={"epoch": _epochs, "sid": _sids},
+    )
+
+    enriched = catalog.enrich_dataset(_demo_ds, on_date=date_input.value)
+
+    # Build coordinate table
+    _coord_rows = []
+    for _coord_name in ["svn", "block", "tx_power_watts", "mass_kg", "plane", "slot"]:
+        if _coord_name in enriched.coords:
+            _vals = enriched.coords[_coord_name].values
+            _coord_rows.append(f"    | `{_coord_name}` | {list(_vals)} |")
+
+    _coord_text = "\n".join(_coord_rows)
+
+    mo.md(f"""
+    **Enriched coordinates added to each SID:**
+
+    | Coordinate | Values |
+    |-----------|--------|
+    {_coord_text}
+
+    After enrichment, you can filter by satellite properties:
+
+    ```python
+    # Only GPS Block III satellites (highest TX power)
+    gps3 = enriched.sel(sid=enriched.coords["block"].str.startswith("GPS-III"))
+
+    # Satellites with TX power > 200 W
+    high_power = enriched.sel(sid=enriched.coords["tx_power_watts"] > 200)
+    ```
+    """)
+    return enriched, np, xr
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ---
+
+    ## Key takeaways
+
+    - **Store metadata** is collected automatically on first ingest and kept
+      up to date — no manual annotation needed
+    - **Validation** checks compliance against 4 standards in one call
+    - **SatelliteCatalog** resolves PRN→SVN mappings with full time awareness,
+      critical for multi-year GNSS-T time series
+    - **Enrichment** adds satellite properties directly to xarray Datasets,
+      enabling physics-informed filtering and analysis
+
+    Both systems are designed offline-first: bundled fallbacks ensure they
+    work without internet access.
     """)
     return
 
