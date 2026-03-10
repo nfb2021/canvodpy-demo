@@ -47,13 +47,11 @@ def _():
 
 
 @app.cell
-def _(Path):
-    _root = Path(__file__).resolve().parent.parent
-    _test_data = _root / "packages" / "canvod-readers" / "tests" / "test_data" / "valid"
-    _base = _test_data / "rinex_v3_04" / "01_Rosalia"
-    CANOPY_DIR = _base / "02_canopy" / "01_GNSS" / "01_raw" / "25001"
-    REFERENCE_DIR = _base / "01_reference" / "01_GNSS" / "01_raw" / "25001"
-    AUX_DATA_DIR = _test_data / "aux_data"
+def _():
+    from _paths import AUX_DATA_DIR, ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR
+
+    CANOPY_DIR = ROSALIA_CANOPY_DIR / "25001"
+    REFERENCE_DIR = ROSALIA_REFERENCE_DIR / "25001"
     CANOPY_FILE = sorted(CANOPY_DIR.glob("*.rnx"))[0]
     REFERENCE_FILE = sorted(REFERENCE_DIR.glob("*.rnx"))[0]
 

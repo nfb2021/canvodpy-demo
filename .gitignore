@@ -14,3 +14,9 @@ __marimo__/
 
 # Pipeline outputs (stores, aux caches)
 outputs/
+
+# Test data (cloned separately for standalone use)
+test_data/
+
+# Legacy data directory (use test_data instead)
+data/

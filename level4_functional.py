@@ -116,10 +116,11 @@ def _(mo, read_rinex):
     try:
         from pathlib import Path
 
-        # Locate a RINEX file from demo data
-        demo_dir = Path(__file__).parent / "data" / "01_Rosalia"
-        ref_dir = demo_dir / "01_reference" / "01_GNSS" / "01_raw" / "25001"
-        rinex_file = next(ref_dir.glob("*.25o"))
+        # Locate a RINEX file from test data
+        from _paths import ROSALIA_REFERENCE_DIR
+
+        ref_dir = ROSALIA_REFERENCE_DIR / "25001"
+        rinex_file = next(ref_dir.glob("*.rnx"))
 
         ds = read_rinex(path=rinex_file, reader="rinex3")
         data_ok = True

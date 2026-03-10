@@ -41,12 +41,10 @@ def _():
 
 
 @app.cell
-def _(Path):
-    _root = Path(__file__).resolve().parent.parent
-    _test_data = _root / "packages" / "canvod-readers" / "tests" / "test_data" / "valid"
-    RINEX_DIR = (
-        _test_data / "rinex_v3_04" / "01_Rosalia" / "02_canopy" / "01_GNSS" / "01_raw" / "25001"
-    )
+def _():
+    from _paths import ROSALIA_CANOPY_DIR
+
+    RINEX_DIR = ROSALIA_CANOPY_DIR / "25001"
     RINEX_FILES = sorted(RINEX_DIR.glob("*.rnx"))[:4]
 
     return RINEX_DIR, RINEX_FILES

@@ -55,39 +55,24 @@ def _(mo):
 def _(mo):
     from pathlib import Path
 
-    # Demo data directory (from submodule)
-    DEMO_ROOT = Path(__file__).parent
-    DEMO_DATA = DEMO_ROOT / "data"
+    from _paths import AUX_DATA_DIR, ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR, SP3_DIR, CLK_DIR
 
-    # Rosalia site paths
-    ROSALIA_DIR = DEMO_DATA / "01_Rosalia"
-    ROSALIA_REFERENCE = ROSALIA_DIR / "01_reference/01_GNSS/01_raw"
-    ROSALIA_CANOPY = ROSALIA_DIR / "02_canopy/01_GNSS/01_raw"
-    AUX_DIR = DEMO_DATA / "00_aux_files"
+    ROSALIA_REFERENCE = ROSALIA_REFERENCE_DIR
+    ROSALIA_CANOPY = ROSALIA_CANOPY_DIR
+    AUX_DIR = SP3_DIR.parent  # parent of 01_SP3 = 01_Rosalia or aux dir
 
     # Output directory
-    OUTPUT_DIR = DEMO_ROOT / "outputs"
+    OUTPUT_DIR = Path(__file__).parent / "outputs"
     OUTPUT_DIR.mkdir(exist_ok=True)
 
-    # Check directories exist
-    if not DEMO_DATA.exists():
-        mo.md("""
-        ⚠️ **Demo data not found!**
+    mo.md(f"""
+    ✅ **Test Data Located**
 
-        Make sure the demo submodule is initialized:
-        ```bash
-        git submodule update --init demo
-        ```
-        """)
-    else:
-        mo.md(f"""
-        ✅ **Demo Data Located**
-
-        - **Reference RINEX**: `{ROSALIA_REFERENCE}`
-        - **Canopy RINEX**: `{ROSALIA_CANOPY}`
-        - **Auxiliary Files**: `{AUX_DIR}`
-        - **Output**: `{OUTPUT_DIR}`
-        """)
+    - **Reference RINEX**: `{ROSALIA_REFERENCE}`
+    - **Canopy RINEX**: `{ROSALIA_CANOPY}`
+    - **Auxiliary Files**: `{AUX_DIR}`
+    - **Output**: `{OUTPUT_DIR}`
+    """)
 
     return AUX_DIR, OUTPUT_DIR, ROSALIA_CANOPY, ROSALIA_REFERENCE
 
@@ -134,7 +119,7 @@ def _(ROSALIA_CANOPY, ROSALIA_REFERENCE, day_selector, mo, receiver_selector):
             _selected_dir = ROSALIA_CANOPY / day_selector.value
 
         # List RINEX files
-        _rinex_files = sorted(_selected_dir.glob("*.[0-9][0-9]o"))
+        _rinex_files = sorted(_selected_dir.glob("*.rnx"))
 
         if _rinex_files:
             mo.md(f"""
@@ -199,7 +184,7 @@ def _(
             _dir = ROSALIA_CANOPY / day_selector.value
 
         # Get files
-        _files = sorted(_dir.glob("*.[0-9][0-9]o"))[: file_count_selector.value]
+        _files = sorted(_dir.glob("*.rnx"))[: file_count_selector.value]
 
         # Load datasets
         _datasets = []

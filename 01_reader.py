@@ -39,23 +39,11 @@ def _(mo):
 def _():
     from pathlib import Path
 
-    # Test data bundled with canvod-readers
-    _TEST_DATA = (
-        Path(__file__).resolve().parent.parent
-        / "packages"
-        / "canvod-readers"
-        / "tests"
-        / "test_data"
-        / "valid"
-        / "rinex_v3_04"
-        / "01_Rosalia"
-        / "02_canopy"
-        / "01_GNSS"
-        / "01_raw"
-        / "25001"
-    )
+    from _paths import ROSALIA_CANOPY_DIR
 
-    RINEX_FILES = sorted(_TEST_DATA.glob("*.25o"))
+    _TEST_DATA = ROSALIA_CANOPY_DIR / "25001"
+
+    RINEX_FILES = sorted(_TEST_DATA.glob("*.25o")) or sorted(_TEST_DATA.glob("*.rnx"))
     RINEX_FILES
     return (RINEX_FILES,)
 

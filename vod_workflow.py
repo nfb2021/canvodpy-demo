@@ -44,18 +44,11 @@ def _():
 
 
 @app.cell
-def _(Path):
-    # Resolve test-data paths relative to this notebook
-    _root = Path(__file__).resolve().parent.parent
-    _test_data = _root / "packages" / "canvod-readers" / "tests" / "test_data" / "valid"
+def _():
+    from _paths import AUX_DATA_DIR, ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR
 
-    RINEX_CANOPY_DIR = (
-        _test_data / "rinex_v3_04" / "01_Rosalia" / "02_canopy" / "01_GNSS" / "01_raw" / "25001"
-    )
-    RINEX_REFERENCE_DIR = (
-        _test_data / "rinex_v3_04" / "01_Rosalia" / "01_reference" / "01_GNSS" / "01_raw" / "25001"
-    )
-    AUX_DATA_DIR = _test_data / "aux_data"
+    RINEX_CANOPY_DIR = ROSALIA_CANOPY_DIR / "25001"
+    RINEX_REFERENCE_DIR = ROSALIA_REFERENCE_DIR / "25001"
 
     return AUX_DATA_DIR, RINEX_CANOPY_DIR, RINEX_REFERENCE_DIR
 

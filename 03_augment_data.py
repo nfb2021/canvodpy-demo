@@ -53,42 +53,27 @@ def _(mo):
     from datetime import date
     from pathlib import Path
 
-    # Demo data paths
-    DEMO_ROOT = Path(__file__).parent
-    DEMO_DATA = DEMO_ROOT / "data"
-    ROSALIA_DIR = DEMO_DATA / "01_Rosalia"
-    ROSALIA_CANOPY = ROSALIA_DIR / "02_canopy/01_GNSS/01_raw"
-    AUX_DIR = DEMO_DATA / "00_aux_files"
+    from _paths import AUX_DATA_DIR, ROSALIA_CANOPY_DIR
 
     # Output directory
-    OUTPUT_DIR = DEMO_ROOT / "outputs"
+    OUTPUT_DIR = Path(__file__).parent / "outputs"
     OUTPUT_DIR.mkdir(exist_ok=True)
 
     # Target date
     TARGET_DATE = date(2025, 1, 1)  # 2025 DOY 001
-    DOY_DIR = ROSALIA_CANOPY / "25001"
+    DOY_DIR = ROSALIA_CANOPY_DIR / "25001"
+    AUX_DIR = AUX_DATA_DIR
 
-    # Check data exists
-    if not DOY_DIR.exists():
-        mo.md("""
-        ⚠️ **Demo data not found!**
+    rinex_count = len(list(DOY_DIR.glob("*.rnx")))
+    mo.md(f"""
+    ✅ **Test Data Ready**
 
-        Initialize the demo submodule:
-        ```bash
-        git submodule update --init demo
-        ```
-        """)
-    else:
-        rinex_count = len(list(DOY_DIR.glob("*.25o")))
-        mo.md(f"""
-        ✅ **Demo Data Ready**
-
-        - **RINEX Directory**: `{DOY_DIR}`
-        - **RINEX Files**: {rinex_count} files (15-minute intervals)
-        - **Auxiliary Storage**: `{AUX_DIR}`
-        - **Output**: `{OUTPUT_DIR}`
-        - **Target Date**: {TARGET_DATE} (2025-001)
-        """)
+    - **RINEX Directory**: `{DOY_DIR}`
+    - **RINEX Files**: {rinex_count} files (15-minute intervals)
+    - **Auxiliary Storage**: `{AUX_DIR}`
+    - **Output**: `{OUTPUT_DIR}`
+    - **Target Date**: {TARGET_DATE} (2025-001)
+    """)
     return AUX_DIR, DOY_DIR, OUTPUT_DIR, TARGET_DATE, os
 
 
@@ -111,7 +96,7 @@ def _(DOY_DIR, mo, os):
     from tqdm import tqdm
 
     # Get all RINEX files for the day
-    rinex_files = natsorted(DOY_DIR.glob("*.25o"))
+    rinex_files = natsorted(DOY_DIR.glob("*.rnx"))
 
     mo.md(f"""
     ### Reading {len(rinex_files)} RINEX Files

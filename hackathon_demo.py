@@ -74,9 +74,9 @@ def _(site):
 @app.cell
 def _(Path, mo, pipeline, shutil):
     mo.md(r"""## 2 · Process Date 2025-001""")
-    aux_dir = Path(
-        "/Users/work/Developer/GNSS/canvodpy/packages/canvod-readers/tests/test_data/valid/aux/aux_2025001.zarr"
-    )
+    from _paths import AUX_DATA_DIR
+
+    aux_dir = AUX_DATA_DIR / "aux" / "aux_2025001.zarr"
     if aux_dir.exists():
         shutil.rmtree(aux_dir)
 

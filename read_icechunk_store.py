@@ -25,17 +25,9 @@ def _():
 
 @app.cell
 def _(Path):
-    data_root = (
-        Path(__file__).resolve().parent.parent
-        / "packages"
-        / "canvod-readers"
-        / "tests"
-        / "test_data"
-        / "valid"
-        / "stores"
-        / "rosalia_rinex"
-    )
-    data_root = Path("/Volumes/ExtremePro/comparison_stores_readers_packages/Rosalia/canvodpy_SBF_Icechunk_Store_final_ephe")
+    from _paths import STORES_DIR
+
+    data_root = STORES_DIR / "rosalia_rinex"
     data_root.exists()
     return (data_root,)
 
