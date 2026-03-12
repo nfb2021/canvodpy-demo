@@ -34,5 +34,10 @@ AUX_DATA_DIR = TEST_DATA / "aux_data"
 SP3_DIR = ROSALIA / "01_SP3"
 CLK_DIR = ROSALIA / "02_CLK"
 
+# ── SBF paths ─────────────────────────────────────────────────────
+SBF_DIR = TEST_DATA / "sbf" / "01_Rosalia"
+SBF_CANOPY_DIR = SBF_DIR / "02_canopy"
+SBF_REFERENCE_DIR = SBF_DIR / "01_reference"
+
 # ── Icechunk test stores ────────────────────────────────────────────
 STORES_DIR = TEST_DATA / "stores"
