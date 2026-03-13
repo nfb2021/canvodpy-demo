@@ -1,7 +1,11 @@
 import marimo
 
-__generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="Store Operations", css_file="canvod_nordic.css")
+__generated_with = "0.20.4"
+app = marimo.App(
+    width="medium",
+    app_title="Store Operations",
+    css_file="canvod_nordic.css",
+)
 
 
 @app.cell
@@ -23,7 +27,6 @@ def _():
 
     """
     )
-
     return (mo,)
 
 
@@ -33,12 +36,7 @@ def _():
 
     from _paths import STORES_DIR
 
-    return Path, STORES_DIR
-
-
-# ---------------------------------------------------------------------------
-# Section: opening and inspecting
-# ---------------------------------------------------------------------------
+    return (STORES_DIR,)
 
 
 @app.cell
@@ -73,13 +71,7 @@ def _(STORES_DIR, mo):
     originated from RINEX or SBF files.
     """
     )
-
-    return MyIcechunkStore, store, store_path
-
-
-# ---------------------------------------------------------------------------
-# Section: reading data from store
-# ---------------------------------------------------------------------------
+    return (store,)
 
 
 @app.cell
@@ -123,13 +115,7 @@ def _(mo, store):
     {_table}
     """
     )
-
-    return (xr,)
-
-
-# ---------------------------------------------------------------------------
-# Section: commit history
-# ---------------------------------------------------------------------------
+    return
 
 
 @app.cell
@@ -164,19 +150,12 @@ def _(mo, store):
     {_table}
     """
     )
-
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: branching
-# ---------------------------------------------------------------------------
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Branching for experiments
 
     Branches enable experimental analyses without affecting the main
@@ -202,15 +181,8 @@ def _(mo):
     Branches share storage with `main` through Icechunk's
     copy-on-write mechanism: only modified chunks are duplicated.
     Creating a branch is nearly instant regardless of store size.
-    """
-    )
-
+    """)
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: metadata ledger
-# ---------------------------------------------------------------------------
 
 
 @app.cell
@@ -258,19 +230,12 @@ def _(mo, store):
     and temporal overlaps.
     """
     )
-
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: exporting data
-# ---------------------------------------------------------------------------
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Exporting data
 
     Data can be exported from Icechunk to standard formats:
@@ -302,29 +267,71 @@ def _(mo):
         # Process in chunks without loading everything
         daily_mean = ds.resample(epoch="1D").mean().compute()
     ```
-    """
-    )
 
+    ### Per-SID temporal aggregation
+
+    When aggregating GNSS-T observations, it is essential to aggregate
+    **per satellite independently**.  Each SID (satellite + band + code)
+    observes the canopy from a different sky position ($\theta$, $\phi$).
+    Mixing VOD or SNR values across satellites within a time bin conflates
+    **spatial** variability (different view angles through the canopy)
+    with **temporal** variability — producing a physically meaningless
+    average.
+
+    #### Why geometry must also be averaged
+
+    When you average VOD over a time bin, the contributing observations
+    came from many sky positions as the satellite moved.  The aggregated
+    geometry ($\theta$, $\phi$) should be the **centroid** (mean) of those
+    positions — not the first observation's position, which is an arbitrary
+    pick that doesn't represent the average.
+
+    #### Recommended: `TemporalAggregate`
+
+    The `TemporalAggregate` operation (from `canvod-ops`) handles all of
+    this correctly — it groups by `(time_bin, sid)` before computing the
+    mean or median, and averages geometry coords per-SID:
+
+    ```python
+    from canvod.ops import TemporalAggregate
+
+    op = TemporalAggregate(freq="1min", method="mean")
+    ds_agg, result = op(ds)
+    # Each SID is aggregated independently within each 1-minute bin.
+    # Coordinates (phi, theta) are also averaged per-SID (centroid).
+    # sid-only coords (e.g. sv, band) are preserved unchanged.
+    ```
+
+    #### Quick-look: `store.safe_temporal_aggregate()`
+
+    For interactive exploration, the store provides a convenience method:
+
+    ```python
+    ds_agg = store.safe_temporal_aggregate("canopy_01", freq="1D")
+    ```
+
+    This uses xarray's `.resample()` which preserves the `sid` dimension
+    (each satellite is aggregated independently).  For production
+    analyses, prefer `TemporalAggregate`.
+
+    #### Anti-pattern: naive resampling
+
+    A plain `ds.resample(epoch="1D").mean()` is correct only when
+    variables are already spatial averages (e.g. hemispheric mean VOD).
+    It should **not** be used on raw per-satellite observations.
+    """)
     return
-
-
-# ---------------------------------------------------------------------------
-# Footer
-# ---------------------------------------------------------------------------
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ---
 
     **Previous**: [18 — Batch Processing](./18_workflow_batch_processing.py)
 
     *canVODpy — Apache 2.0*
-    """
-    )
-
+    """)
     return
 
 

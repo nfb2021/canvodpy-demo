@@ -18,12 +18,12 @@ def _():
     # Ephemeris and Coordinate Augmentation
 
     The **canvod-auxiliary** package augments GNSS observation datasets with
-    satellite geometry — the azimuth and zenith angle from the receiver
+    satellite geometry — the azimuth and polar angle from the receiver
     to each satellite at each epoch.
 
     These angles are essential for GNSS-T:
 
-    - **Zenith angle ($\theta$)** enters the VOD formula directly:
+    - **Polar angle ($\theta$)** enters the VOD formula directly:
       $\text{VOD} = -\ln(T) \cdot \cos(\theta)$.  It corrects for the
       varying path length through the canopy at different satellite
       elevations.
@@ -263,7 +263,7 @@ def _(mo):
 
     1. **ECEF to ENU**: rotate the satellite-receiver vector into the local
        East-North-Up frame at the receiver location
-    2. **ENU to spherical**: compute range ($r$), zenith angle ($\theta$),
+    2. **ENU to spherical**: compute range ($r$), polar angle ($\theta$),
        and azimuth ($\phi$)
 
     ### Coordinate conventions
@@ -271,7 +271,7 @@ def _(mo):
     | Coordinate | Symbol | Range | Convention |
     |-----------|--------|-------|------------|
     | **Range** | $r$ | > 0 | Distance in metres |
-    | **Zenith angle** | $\theta$ | [0, $\pi$] | 0 = overhead, $\pi/2$ = horizon |
+    | **Polar angle** | $\theta$ | [0, $\pi$] | 0 = overhead, $\pi/2$ = horizon |
     | **Azimuth** | $\phi$ | [0, $2\pi$) | 0 = North, $\pi/2$ = East (navigation) |
 
     Observations below the horizon ($\theta > \pi/2$) are masked to NaN.
@@ -317,14 +317,14 @@ def _(ds_aux, ds_single, mo, np, rx_pos):
     )
     ```
 
-    | Statistic | $\\theta$ (zenith) | $\\phi$ (azimuth) |
+    | Statistic | $\\theta$ (polar) | $\\phi$ (azimuth) |
     |-----------|-------------------|-------------------|
     | **Valid values** | {_valid_theta.sum():,} | {np.isfinite(_phi).sum():,} |
     | **Min** | {np.nanmin(_theta):.4f} rad ({np.rad2deg(np.nanmin(_theta)):.2f} deg) | {np.nanmin(_phi):.4f} rad |
     | **Max** | {np.nanmax(_theta):.4f} rad ({np.rad2deg(np.nanmax(_theta)):.2f} deg) | {np.nanmax(_phi):.4f} rad |
     | **Mean** | {np.nanmean(_theta):.4f} rad ({np.rad2deg(np.nanmean(_theta)):.2f} deg) | {np.nanmean(_phi):.4f} rad |
 
-    Zenith angles cluster around 0.4--1.4 rad (23--80 degrees from zenith),
+    Polar angles cluster around 0.4--1.4 rad (23--80 degrees from zenith),
     reflecting the typical elevation range of visible GNSS satellites.
     Values near $\\pi/2$ (1.57 rad, 90 degrees) correspond to satellites
     close to the horizon, which are typically excluded from VOD analysis
@@ -374,7 +374,7 @@ def _(ds_aux, ds_single, mo, np, rx_pos):
 
     | Variable | Shape | Units | Description |
     |----------|-------|-------|-------------|
-    | `theta` | (epoch, sid) | radians | Zenith angle |
+    | `theta` | (epoch, sid) | radians | Polar angle |
     | `phi` | (epoch, sid) | radians | Azimuth |
     | `r` | (epoch, sid) | metres | Range to satellite |
 

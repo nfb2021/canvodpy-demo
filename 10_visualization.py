@@ -120,7 +120,7 @@ def _(grid, mo):
 
     The polar axis convention matches the hemispheric grid definition:
 
-    - **Radial axis**: zenith angle $\theta$ (0° at centre = overhead,
+    - **Radial axis**: polar angle $\theta$ (0° at centre = overhead,
       90° at edge = horizon)
     - **Angular axis**: azimuth $\phi$ (0° = North, clockwise)
     """
@@ -143,7 +143,7 @@ def _(fig_empty):
 
 @app.cell
 def _(grid, mo, np, viz):
-    # Simulate data: a smooth gradient based on zenith angle (theta)
+    # Simulate data: a smooth gradient based on polar angle (theta)
     _theta_centres = grid.grid["theta"].to_numpy()
     _data = np.cos(_theta_centres)  # cos(theta): 1 at zenith, 0 at horizon
 
@@ -164,7 +164,7 @@ def _(grid, mo, np, viz):
     ## 2D polar plot with data
 
     When a 1-D array of length `ncells` is provided, each cell is
-    colour-mapped to its data value.  Here we simulate a zenith-dependent
+    colour-mapped to its data value.  Here we simulate a polar-angle-dependent
     VOD field using $\\cos(\\theta)$, which produces maximum attenuation
     overhead and zero at the horizon.
 

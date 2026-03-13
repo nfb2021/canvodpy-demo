@@ -600,7 +600,7 @@ def _(ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR, Rnxv3Obs, mo, np):
 
     $$\\text{{VOD}} = -\\ln(T) \\cdot \\cos(\\theta)$$
 
-    where $\\theta$ is the zenith angle to the satellite.
+    where $\\theta$ is the polar angle to the satellite.
     """
     )
     return

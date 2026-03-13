@@ -25,7 +25,7 @@ def _():
     The hemisphere is parameterised in spherical coordinates:
 
     - **$\phi$ (azimuth)**: 0 to $2\pi$ radians (0 = North, clockwise)
-    - **$\theta$ (zenith angle)**: 0 to $\pi/2$ radians (0 = overhead,
+    - **$\theta$ (polar angle)**: 0 to $\pi/2$ radians (0 = overhead,
       $\pi/2$ = horizon)
 
     Seven grid types are available, each with different trade-offs between
@@ -74,7 +74,7 @@ def _(mo):
     | **`HTM`** | Hierarchical triangular mesh | Database indexing |
 
     The **equal-area** grid is the default for canvodpy.  It divides the
-    hemisphere into concentric zenith-angle bands, then subdivides each
+    hemisphere into concentric polar-angle bands, then subdivides each
     band into azimuthal sectors such that every cell subtends the same
     solid angle.  This ensures that observations at different elevations
     contribute equally to spatial averages.
@@ -122,7 +122,7 @@ def _(mo):
     | **Grid type** | `{grid_2deg.grid_type}` |
     | **Cells** | {grid_2deg.ncells:,} |
     | **Angular resolution** | 2.0 degrees |
-    | **Zenith bands** | {len(grid_2deg.theta_lims) - 1} |
+    | **Polar angle bands** | {len(grid_2deg.theta_lims) - 1} |
     """
     )
 
@@ -148,7 +148,7 @@ def _(grid_2deg, mo, np):
 
     - **`grid`**: a Polars DataFrame with one row per cell
       (columns include `cell_id`, `phi`, `theta`, cell boundaries)
-    - **`theta_lims`**: zenith-angle band boundaries
+    - **`theta_lims`**: polar-angle band boundaries
     - **`phi_lims`**: azimuthal boundaries per band
     - **`solid_angles`**: solid angle per cell (steradians)
 
@@ -205,7 +205,7 @@ def _(create_hemigrid, mo, np):
     The **CV (coefficient of variation)** of solid angles measures how
     uniform the cells are.  Equal-area and HEALPix grids achieve near-zero
     CV by construction.  Equal-angle grids have cells that shrink toward
-    the zenith (small $\\theta$), producing higher CV.
+    the pole (small $\\theta$), producing higher CV.
     """
     )
 

@@ -316,7 +316,7 @@ def _(mo):
 
     The metadata dataset (`sbf_obs`) contains:
 
-    - **Zenith angle** (`theta`) and **azimuth** (`phi`) from the receiver's
+    - **Polar angle** (`theta`) and **azimuth** (`phi`) from the receiver's
       real-time navigation solution
     - **DOP values** (PDOP, HDOP, VDOP) per epoch
     - **Rise/set state** per satellite
@@ -378,7 +378,7 @@ def _(ds_meta, mo, np):
     |----------|-------|-------------|
     {chr(10).join(_rows)}
 
-    The `theta` (zenith angle) and `phi` (azimuth) variables are in
+    The `theta` (polar angle) and `phi` (azimuth) variables are in
     **degrees** (geographic convention: 0=N, 90=E).  Note that the canvodpy
     pipeline internally uses **radians** (mathematical convention: phi=0 at
     East, counter-clockwise).  The coordinate transform is handled

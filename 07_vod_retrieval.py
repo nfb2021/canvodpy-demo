@@ -40,7 +40,7 @@ def _():
 
     - $T$ is the **canopy transmittance** (ratio of signal power reaching
       the below-canopy receiver to the unobstructed reference)
-    - $\theta$ is the **zenith angle** to the satellite
+    - $\theta$ is the **polar angle** to the satellite
 
     The transmittance is derived from the SNR difference between the two
     receivers:
@@ -234,7 +234,7 @@ def _(ds_vod, mo, np):
 
     - **`VOD`**: Vegetation Optical Depth (dimensionless)
     - **`phi`**: azimuth from the canopy receiver (radians)
-    - **`theta`**: zenith angle from the canopy receiver (radians)
+    - **`theta`**: polar angle from the canopy receiver (radians)
 
     Note that `phi` and `theta` are taken from the **canopy** dataset
     (not the reference), because they describe the signal path through
