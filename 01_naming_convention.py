@@ -1,21 +1,29 @@
 import marimo
 
-__generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="Naming Convention & Validation", css_file="canvod_nordic.css")
-
-
-# ---------------------------------------------------------------------------
-# Title
-# ---------------------------------------------------------------------------
+__generated_with = "0.21.1"
+app = marimo.App(
+    width="medium",
+    app_title="Naming Convention & Validation",
+    css_file="canvod_nordic.css",
+)
 
 
 @app.cell
 def _():
     import marimo as mo
 
-    mo.md(
-        r"""
+    return (mo,)
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
     # Naming Convention and File Validation
+
+    GNSS-Transmissometry campaigns generate thousands of files across
+    multiple receivers, days, and sampling intervals.  Without a strict
+    naming convention, duplicate or misattributed files can silently
+    corrupt a dataset.
 
     The **canvod-virtualiconvname** package is the single source of truth for
     GNSS filename conventions in canvodpy.  It provides:
@@ -34,42 +42,26 @@ def _():
     and time periods.
 
     ---
-
-    """
-    )
-
-    return (mo,)
-
-
-# ---------------------------------------------------------------------------
-# Imports
-# ---------------------------------------------------------------------------
+    """)
+    return
 
 
 @app.cell
 def _():
-    from pathlib import Path
-
     from _paths import ROSALIA_CANOPY_DIR
 
-    return Path, ROSALIA_CANOPY_DIR
-
-
-# ---------------------------------------------------------------------------
-# Section: the convention
-# ---------------------------------------------------------------------------
+    return (ROSALIA_CANOPY_DIR,)
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## The canVOD filename convention
 
     ```
     ROSA01TUW_R_20250010000_15M_05S_AA.rnx
     ^^^|^|^^^   ^^^^|^^^|^^^^ ^^^ ^^^ ^^
-    SIT T NN AGC  YYYY DOY HHMM PER SMP CT  TYPE
+    SIT T NN AGC  YYYY DOY HHMM PER SMP PH  TYPE
     ```
 
     | Field | Chars | Description | Example |
@@ -84,27 +76,28 @@ def _(mo):
     | **HHMM** | 4 | Start hour and minute (UTC) | `0000` |
     | **PER** | 3 | File duration (`15M`, `01H`, `01D`) | `15M` |
     | **SMP** | 3 | Sampling interval (`05S`, `01S`) | `05S` |
-    | **CT** | 2 | Content code (`AA`=all obs, all systems) | `AA` |
+    | **PH** | 2 | Reserved; ignored during parsing | `AA` |
     | **TYPE** | 3+ | File extension (`rnx`, `sbf`, `nmea`) | `rnx` |
 
-    This convention extends the IGS long-name standard with a receiver-type
-    field (`T`) that distinguishes reference and canopy receivers at the
-    same site.
-    """
-    )
+    This convention extends the
+    [IGS long-name standard](http://acc.igs.org/misc/rinex304.pdf)
+    (page 14f) with a receiver-type field (`T`) that distinguishes
+    reference and canopy receivers at the same site.
 
+    ![IGS long-name convention](public/IGS_long_name_convention.png)
+    """)
     return
 
 
-# ---------------------------------------------------------------------------
-# Section: parsing filenames
-# ---------------------------------------------------------------------------
+@app.cell
+def _():
+    from canvod.virtualiconvname import CanVODFilename
+
+    return (CanVODFilename,)
 
 
 @app.cell
-def _(ROSALIA_CANOPY_DIR, mo):
-    from canvod.virtualiconvname import CanVODFilename
-
+def _(CanVODFilename, ROSALIA_CANOPY_DIR, mo):
     _file = sorted(ROSALIA_CANOPY_DIR.glob("25001/*.rnx"))[0]
     parsed = CanVODFilename.from_filename(_file.name)
 
@@ -137,19 +130,18 @@ def _(ROSALIA_CANOPY_DIR, mo):
     `CanVODFilename.from_filename(parsed.name)` produces an identical object.
     """
     )
-
-    return CanVODFilename, parsed
-
-
-# ---------------------------------------------------------------------------
-# Section: pattern matching
-# ---------------------------------------------------------------------------
+    return
 
 
 @app.cell
-def _(mo):
+def _():
     from canvod.virtualiconvname import BUILTIN_PATTERNS, match_pattern
 
+    return BUILTIN_PATTERNS, match_pattern
+
+
+@app.cell
+def _(BUILTIN_PATTERNS, mo):
     _rows = []
     for _name, _pat in BUILTIN_PATTERNS.items():
         _globs = ", ".join(f"`{g}`" for g in _pat.file_globs)
@@ -168,8 +160,7 @@ def _(mo):
     {chr(10).join(_rows)}
     """
     )
-
-    return BUILTIN_PATTERNS, match_pattern
+    return
 
 
 @app.cell
@@ -203,17 +194,11 @@ def _(match_pattern, mo):
     {chr(10).join(_rows)}
     """
     )
-
     return
 
 
-# ---------------------------------------------------------------------------
-# Section: listing test data files
-# ---------------------------------------------------------------------------
-
-
 @app.cell
-def _(ROSALIA_CANOPY_DIR, CanVODFilename, mo):
+def _(CanVODFilename, ROSALIA_CANOPY_DIR, mo):
     _files = sorted(ROSALIA_CANOPY_DIR.glob("25001/*.rnx"))
 
     _first_five = []
@@ -242,19 +227,12 @@ def _(ROSALIA_CANOPY_DIR, CanVODFilename, mo):
     by the receiver configuration.
     """
     )
-
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: why validation matters
-# ---------------------------------------------------------------------------
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Pre-pipeline validation
 
     Before any data is read, the `DataDirectoryValidator` performs a
@@ -293,21 +271,13 @@ def _(mo):
         # report.unmatched, report.overlaps contain diagnostics
         ...
     ```
-    """
-    )
-
+    """)
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: FilenameMapper
-# ---------------------------------------------------------------------------
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Filename virtualisation
 
     The `FilenameMapper` bridges the gap between physical files on disk
@@ -344,30 +314,24 @@ def _(mo):
     for vf in virtual_files:
         print(f"{vf.physical_path.name} -> {vf.canonical_str}")
     ```
-    """
-    )
-
+    """)
     return
-
-
-# ---------------------------------------------------------------------------
-# Footer
-# ---------------------------------------------------------------------------
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ---
 
-    **Previous**: [03 — Satellite Catalog](./03_satellite_catalog.py)
-    | **Next**: [05 — Ephemeris & Coordinates](./05_ephemeris_coordinates.py)
+    With canonical naming and pre-pipeline validation, data integrity is
+    guaranteed before any processing begins.  Every file is unambiguously
+    identified, and temporal overlaps or naming inconsistencies are caught
+    at the gate.
+
+    **Next**: [02 — RINEX Reading](./02_rinex_reading.py)
 
     *canVODpy — Apache 2.0*
-    """
-    )
-
+    """)
     return
 
 
