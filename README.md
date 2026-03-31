@@ -1,12 +1,27 @@
-[![canVODpy](https://img.shields.io/badge/canVODpy-demo-2d6a4f)](https://github.com/nfb2021/canvodpy)
+<!-- Identity & Affiliation -->
+[![canVODpy](https://img.shields.io/badge/canVODpy-submodule-2d6a4f)](https://github.com/nfb2021/canvodpy)
+[![VODnet](https://img.shields.io/badge/-VODnet-2d6a4f?labelColor=555555&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAAXNSR0IArs4c6QAAAHhlWElmTU0AKgAAAAgABAEaAAUAAAABAAAAPgEbAAUAAAABAAAARgEoAAMAAAABAAIAAIdpAAQAAAABAAAATgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAQABAACgAgAEAAAAAQAAAA6gAwAEAAAAAQAAAA4AAAAAjn8NzQAAAAlwSFlzAAALEwAACxMBAJqcGAAAAflJREFUKBWtUEtoE1EUPe+9SczHiam/aixtqi1E7aai4kK0CAVBDFZwrQs3xp2KIriYtiKuav3QRVxYKIjFVihWrCBIaaWioKidQBsxi3SwYmMmkxidYWaemYEEKUgRPHDhXu4575x3gf+NKfVD3UQ2u/Zv7wrLF8mPfV2ZH1ZCNIM7xUCAHHjyfN6wQ8mZo3vvE4Av57tzOjfd/WZpivfJSW5wkzvomnzFe2SFTyyU+iFJtCpk1eaRfOIw84TuRsN7kEkVMDzyEjPvUtga2YiDTRFM5+m+F8XYHMZuzDqaWlQf8yVMpmJ0/DUu9g6hVNQAy8au3W04NHAV85oFRulZS+LDkIjtWmcyHT6vQHYoXwrouTWKkv4LLOAHE4N4K6dxZ2AISl4DpawVDVrYcXSFZtTPGSV8IatjUVErJ+Cwbdstx3Vw8CG+pmQIHg+HUVlWo7aSp/qz9Kn3W5p5S/x4DJ8/lfGt4kAow7bmBpQ9fuQ3RUFtM4Uz61Qk/vijbpLbgtc61n05zjQ1hCvXHmB9fT3OnT8NOWfi+uxP0IJxE4S4jrXzxrffm1xlb75Aud/cEFmD9vYW6KaNUoUmCpS3BblUPNk45sR0UBM6Qzx2qd9LVnfqujGS+64puaX8olEuj4uMHHnc2dTrcFZGtCOMxv11KxP/kfEbTTzNcyb5ar0AAAAASUVORK5CYII=&logoColor=white)](https://vodnet.netlify.app)
+[![CLIMERS @ TU Wien](https://img.shields.io/badge/CLIMERS-TU_Wien-006699)](https://www.tuwien.at/en/mg/geo/climers)
+
+<!-- Python & Tooling -->
+[![Python](https://img.shields.io/badge/python-3.14-blue.svg)](https://www.python.org/)
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![marimo](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits&logoColor=white)](https://conventionalcommits.org)
+
+<!-- License -->
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-# canvodpy-demo
+# canVODpy — Demo Notebooks
 
 Interactive [marimo](https://marimo.io) notebooks for the [canVODpy](https://github.com/nfb2021/canvodpy) GNSS-Transmissometry (GNSS-T) VOD retrieval ecosystem. The notebooks cover the full pipeline — from raw GNSS file reading to vegetation optical depth retrieval, versioned storage, and visualisation.
 
-> **Pre-release note:** canvodpy is not yet published to PyPI. Until the first release, the standalone setup below requires cloning both repositories. Once canvodpy is on PyPI, only `uv sync` is needed. See `pyproject.toml` for the transition instructions.
+> [!CAUTION]
+> **Confidential — Pre-release Software.**
+> This repository is shared under restricted access. Distribution, redistribution, or publication of this code or any derived results is **not permitted** without explicit written authorization from the author (Nicolas F. Bader, nicolas.bader@tuwien.ac.at). Access is granted solely to individuals authorized by the author.
+
+> [!NOTE]
+> canvodpy is not yet published to PyPI. Until the first release, the standalone setup below requires cloning both repositories. Once canvodpy is on PyPI, only `uv sync` is needed. See `pyproject.toml` for the transition instructions.
 
 ---
 
@@ -142,6 +157,21 @@ Path resolution is handled automatically by `_paths.py`:
 
 ---
 
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](https://github.com/nfb2021/canvodpy/blob/main/CONTRIBUTING.md) in the canvodpy repository for guidelines.
+
+---
+
 ## License
 
 [Apache License 2.0](LICENSE)
+
+---
+
+## Affiliation
+
+Founded by **Nicolas François Bader**
+
+[Climate and Environmental Remote Sensing Research Unit (CLIMERS)](https://www.tuwien.at/en/mg/geo/climers)
+Department of Geodesy and Geoinformation, TU Wien
