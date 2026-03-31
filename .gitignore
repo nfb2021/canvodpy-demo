@@ -20,3 +20,5 @@ test_data/
 
 # Legacy data directory (use test_data instead)
 data/
+.coverage
+*.lcov
