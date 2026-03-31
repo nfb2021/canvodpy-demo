@@ -1,7 +1,9 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="L4 — Functional API", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium", app_title="L4 — Functional API", css_file="canvod_nordic.css"
+)
 
 
 @app.cell
@@ -86,17 +88,24 @@ def _(mo):
 @app.cell
 def _(mo):
     _funcs = [
-        ("read_rinex", "path, reader='rinex3'", "xr.Dataset", "Read one RINEX/SBF file"),
-        ("augment_with_ephemeris", "ds, rx_pos, source, agency, date", "xr.Dataset", "Add θ, φ, r coordinates"),
+        (
+            "read_rinex",
+            "path, reader='rinex3'",
+            "xr.Dataset",
+            "Read one RINEX/SBF file",
+        ),
+        (
+            "augment_with_ephemeris",
+            "ds, rx_pos, source, agency, date",
+            "xr.Dataset",
+            "Add θ, φ, r coordinates",
+        ),
         ("create_grid", "grid_type, **params", "GridData", "Create hemispheric grid"),
         ("assign_grid_cells", "ds, grid", "xr.Dataset", "Add cell_id variable"),
         ("calculate_vod", "canopy_ds, sky_ds, calculator", "xr.Dataset", "Compute VOD"),
     ]
 
-    _rows = "\n".join(
-        f"| `{n}` | `{p}` | `{r}` | {d} |"
-        for n, p, r, d in _funcs
-    )
+    _rows = "\n".join(f"| `{n}` | `{p}` | `{r}` | {d} |" for n, p, r, d in _funcs)
 
     mo.md(
         f"""

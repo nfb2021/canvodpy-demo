@@ -63,9 +63,9 @@ def _(STORES_DIR, mo):
     | Property | Value |
     |----------|-------|
     | **Path** | `{store_path}` |
-    | **Branches** | {', '.join(f'`{b}`' for b in _branches)} |
-    | **Groups** | {', '.join(f'`{g}`' for g in _groups) if _groups else '(empty)'} |
-    | **Source format** | `{_attrs.get('source_format', 'unknown')}` |
+    | **Branches** | {", ".join(f"`{b}`" for b in _branches)} |
+    | **Groups** | {", ".join(f"`{g}`" for g in _groups) if _groups else "(empty)"} |
+    | **Source format** | `{_attrs.get("source_format", "unknown")}` |
 
     The `source_format` root attribute indicates whether data
     originated from RINEX or SBF files.
@@ -128,11 +128,15 @@ def _(mo, store):
         _ts = str(_h.get("timestamp", "---"))[:19]
         _rows.append(f"| `{_ts}` | {_msg} |")
 
-    _table = f"""
+    _table = (
+        f"""
     | Timestamp | Message |
     |-----------|---------|
     {chr(10).join(_rows)}
-    """ if _rows else "No commits found."
+    """
+        if _rows
+        else "No commits found."
+    )
 
     mo.md(
         f"""
@@ -196,8 +200,10 @@ def _(mo, store):
             with store.readonly_session() as _session:
                 _meta = store.read_metadata_table(_session, _group)
             _n_files = len(_meta)
-            _meta_info = f"Group `{_group}` has **{_n_files}** files in its metadata ledger."
-        except (KeyError, FileNotFoundError):
+            _meta_info = (
+                f"Group `{_group}` has **{_n_files}** files in its metadata ledger."
+            )
+        except KeyError, FileNotFoundError:
             _meta_info = f"Group `{_group}` exists but has no metadata ledger (store was not created via the full pipeline)."
 
     mo.md(

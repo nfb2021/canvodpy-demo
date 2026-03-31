@@ -1,7 +1,9 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="Single-Day Workflow", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium", app_title="Single-Day Workflow", css_file="canvod_nordic.css"
+)
 
 
 @app.cell
@@ -40,7 +42,6 @@ def _():
 
     import numpy as np
     import xarray as xr
-
     from _paths import AUX_DATA_DIR, ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR
 
     return AUX_DATA_DIR, Path, ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR, np, xr
@@ -72,8 +73,8 @@ def _(ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR, mo):
     The number of files per day depends on the receiver's file duration
     setting.  This test data has **{len(_can_files)} files** per receiver.
 
-    First file: `{_can_files[0].name if _can_files else 'none'}`
-    Last file: `{_can_files[-1].name if _can_files else 'none'}`
+    First file: `{_can_files[0].name if _can_files else "none"}`
+    Last file: `{_can_files[-1].name if _can_files else "none"}`
     """
     )
 
@@ -93,8 +94,14 @@ def _(ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR, mo, xr):
     _can_files = sorted(ROSALIA_CANOPY_DIR.glob("25001/*.rnx"))[:4]
     _ref_files = sorted(ROSALIA_REFERENCE_DIR.glob("25001/*.rnx"))[:4]
 
-    _can_datasets = [Rnxv3Obs(fpath=f).to_ds(keep_data_vars=["SNR"], write_global_attrs=True) for f in _can_files]
-    _ref_datasets = [Rnxv3Obs(fpath=f).to_ds(keep_data_vars=["SNR"], write_global_attrs=True) for f in _ref_files]
+    _can_datasets = [
+        Rnxv3Obs(fpath=f).to_ds(keep_data_vars=["SNR"], write_global_attrs=True)
+        for f in _can_files
+    ]
+    _ref_datasets = [
+        Rnxv3Obs(fpath=f).to_ds(keep_data_vars=["SNR"], write_global_attrs=True)
+        for f in _ref_files
+    ]
 
     ds_canopy = xr.concat(_can_datasets, dim="epoch")
     ds_reference = xr.concat(_ref_datasets, dim="epoch")
@@ -119,8 +126,8 @@ def _(ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR, mo, xr):
 
     | | Canopy | Reference |
     |-|--------|-----------|
-    | **Epochs** | {ds_canopy.sizes['epoch']:,} | {ds_reference.sizes['epoch']:,} |
-    | **SIDs** | {ds_canopy.sizes['sid']} | {ds_reference.sizes['sid']} |
+    | **Epochs** | {ds_canopy.sizes["epoch"]:,} | {ds_reference.sizes["epoch"]:,} |
+    | **SIDs** | {ds_canopy.sizes["sid"]} | {ds_reference.sizes["sid"]} |
     | **Variables** | {list(ds_canopy.data_vars)} | {list(ds_reference.data_vars)} |
     """
     )
@@ -151,7 +158,10 @@ def _(AUX_DATA_DIR, ds_canopy, ds_reference, mo, np, xr):
         aux_sel = aux.sel(sid=shared_s, epoch=shared_e)
         ds_sel = ds.sel(sid=shared_s, epoch=shared_e)
         r, theta, phi = compute_spherical_coordinates(
-            aux_sel["X"].values, aux_sel["Y"].values, aux_sel["Z"].values, rx,
+            aux_sel["X"].values,
+            aux_sel["Y"].values,
+            aux_sel["Z"].values,
+            rx,
         )
         return add_spherical_coords_to_dataset(ds_sel, r, theta, phi)
 
@@ -173,8 +183,8 @@ def _(AUX_DATA_DIR, ds_canopy, ds_reference, mo, np, xr):
 
     | | Canopy | Reference |
     |-|--------|-----------|
-    | **Epochs** | {ds_can_aug.sizes['epoch']:,} | {ds_ref_aug.sizes['epoch']:,} |
-    | **SIDs** | {ds_can_aug.sizes['sid']} | {ds_ref_aug.sizes['sid']} |
+    | **Epochs** | {ds_can_aug.sizes["epoch"]:,} | {ds_ref_aug.sizes["epoch"]:,} |
+    | **SIDs** | {ds_can_aug.sizes["sid"]} | {ds_ref_aug.sizes["sid"]} |
     | **Variables** | {list(ds_can_aug.data_vars)} | {list(ds_ref_aug.data_vars)} |
 
     Both datasets now contain `SNR`, `theta`, `phi`, and `r`.
@@ -264,10 +274,12 @@ def _(ds_can_aug, ds_ref_aug, mo, np):
 
     _ds_vod = _T.from_datasets(canopy_ds=ds_can_aug, sky_ds=ds_ref_aug, align=True)
     ds_vod_gridded = add_cell_ids_to_vod_fast(
-        _ds_vod, _grid, grid_name="equal_area_2deg",
+        _ds_vod,
+        _grid,
+        grid_name="equal_area_2deg",
     )
 
-    _cell_var = f"cell_id_equal_area_2deg"
+    _cell_var = "cell_id_equal_area_2deg"
     _cells = ds_vod_gridded[_cell_var].values
     _unique = np.unique(_cells[np.isfinite(_cells)])
 

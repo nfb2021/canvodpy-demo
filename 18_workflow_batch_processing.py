@@ -1,7 +1,9 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="Batch Processing Workflows", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium", app_title="Batch Processing Workflows", css_file="canvod_nordic.css"
+)
 
 
 @app.cell

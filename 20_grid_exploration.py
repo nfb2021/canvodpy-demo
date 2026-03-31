@@ -1,7 +1,9 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="Grid Exploration", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium", app_title="Grid Exploration", css_file="canvod_nordic.css"
+)
 
 
 @app.cell
@@ -114,7 +116,9 @@ def _(grid, np):
     _rng = np.random.default_rng(42)
     ncells = grid.ncells
 
-    _synthetic_mean = 0.3 + 0.5 * np.cos(grid.grid["theta"].to_numpy()) + _rng.normal(0, 0.05, ncells)
+    _synthetic_mean = (
+        0.3 + 0.5 * np.cos(grid.grid["theta"].to_numpy()) + _rng.normal(0, 0.05, ncells)
+    )
     _synthetic_std = 0.05 + 0.1 * _rng.random(ncells)
     _synthetic_median = _synthetic_mean + _rng.normal(0, 0.02, ncells)
     _synthetic_count = _rng.integers(10, 500, ncells).astype(float)

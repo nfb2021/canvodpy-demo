@@ -1,7 +1,9 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="Configuration & Utilities", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium", app_title="Configuration & Utilities", css_file="canvod_nordic.css"
+)
 
 
 @app.cell
@@ -256,9 +258,7 @@ def _(AuxDataConfig, mo):
         ("IGS", "final", "IGS combined, ~2 cm, 12-18 days"),
     ]
 
-    _rows = "\n".join(
-        f"| `{a}` | `{p}` | {d} |" for a, p, d in _agencies
-    )
+    _rows = "\n".join(f"| `{a}` | `{p}` | {d} |" for a, p, d in _agencies)
 
     _default = AuxDataConfig()
 
@@ -300,10 +300,22 @@ def _(ProcessingParams, mo):
 
     _fields = [
         ("resource_mode", _default.resource_mode, "auto or manual worker allocation"),
-        ("ephemeris_source", _default.ephemeris_source, "final (SP3/CLK) or broadcast (SBF)"),
+        (
+            "ephemeris_source",
+            _default.ephemeris_source,
+            "final (SP3/CLK) or broadcast (SBF)",
+        ),
         ("batch_hours", _default.batch_hours, "Hours per processing batch"),
-        ("aggregate_glonass_fdma", _default.aggregate_glonass_fdma, "Merge FDMA frequency channels"),
-        ("store_radial_distance", _default.store_radial_distance, "Include range (r) in store"),
+        (
+            "aggregate_glonass_fdma",
+            _default.aggregate_glonass_fdma,
+            "Merge FDMA frequency channels",
+        ),
+        (
+            "store_radial_distance",
+            _default.store_radial_distance,
+            "Include range (r) in store",
+        ),
         ("file_pairing", _default.file_pairing, "complete or paired file discovery"),
     ]
 
@@ -390,7 +402,7 @@ def _(SidsConfig, mo):
     _preset = SidsConfig(mode="preset", preset="gps_galileo_l1")
 
     mo.md(
-        f"""
+        """
     ## Signal ID filtering
 
     The `SidsConfig` model controls which satellite signals are
@@ -628,7 +640,10 @@ def _(mo):
     # Create a small test dataset
     _ds = _xr.Dataset(
         {
-            "SNR": (["epoch", "sid"], _np.random.default_rng(42).normal(40, 5, (100, 20))),
+            "SNR": (
+                ["epoch", "sid"],
+                _np.random.default_rng(42).normal(40, 5, (100, 20)),
+            ),
         },
         coords={
             "epoch": _np.arange(100),
@@ -667,7 +682,7 @@ def _(mo):
     """
     )
 
-    return track_dataset, xr
+    return track_dataset, xr  # type: ignore[unresolved-reference]
 
 
 # ---------------------------------------------------------------------------

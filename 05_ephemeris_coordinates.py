@@ -1,7 +1,11 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="Ephemeris & Coordinate Augmentation", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium",
+    app_title="Ephemeris & Coordinate Augmentation",
+    css_file="canvod_nordic.css",
+)
 
 
 # ---------------------------------------------------------------------------
@@ -63,8 +67,7 @@ def _():
     from pathlib import Path
 
     import numpy as np
-
-    from _paths import AUX_DATA_DIR, ROSALIA_CANOPY_DIR, SP3_DIR, CLK_DIR
+    from _paths import AUX_DATA_DIR, CLK_DIR, ROSALIA_CANOPY_DIR, SP3_DIR
 
     return AUX_DATA_DIR, CLK_DIR, Path, ROSALIA_CANOPY_DIR, SP3_DIR, np
 
@@ -214,8 +217,11 @@ def _(AUX_DATA_DIR, mo, np):
     _var_rows = []
     for _v in ds_aux.data_vars:
         _arr = ds_aux[_v]
-        _valid_pct = (np.isfinite(_arr.values).sum() / _arr.values.size * 100
-                      if _arr.values.dtype.kind == "f" else 100.0)
+        _valid_pct = (
+            np.isfinite(_arr.values).sum() / _arr.values.size * 100
+            if _arr.values.dtype.kind == "f"
+            else 100.0
+        )
         _unit = _arr.attrs.get("units", "---")
         _var_rows.append(f"| `{_v}` | `{_arr.dtype}` | {_unit} | {_valid_pct:.0f}% |")
 
@@ -236,8 +242,8 @@ def _(AUX_DATA_DIR, mo, np):
     of the position time series.  `clock_offset` is the satellite clock
     correction interpolated from CLK 30-second samples.
 
-    The store contains **{ds_aux.sizes['sid']}** SIDs across all
-    constellations and **{ds_aux.sizes['epoch']:,}** epochs (one full day
+    The store contains **{ds_aux.sizes["sid"]}** SIDs across all
+    constellations and **{ds_aux.sizes["epoch"]:,}** epochs (one full day
     at 5-second intervals).
     """
     )
@@ -342,7 +348,8 @@ def _(ds_aux, ds_single, mo, np, rx_pos):
 
 @app.cell
 def _(ds_aux, ds_single, mo, np, rx_pos):
-    from canvod.auxiliary import add_spherical_coords_to_dataset, compute_spherical_coordinates as _csc
+    from canvod.auxiliary import add_spherical_coords_to_dataset
+    from canvod.auxiliary import compute_spherical_coordinates as _csc
 
     _shared_sids = np.intersect1d(ds_single.sid.values, ds_aux.sid.values)
     _shared_epochs = np.intersect1d(ds_single.epoch.values, ds_aux.epoch.values)

@@ -1,7 +1,11 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="Store Metadata & FAIR Compliance", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium",
+    app_title="Store Metadata & FAIR Compliance",
+    css_file="canvod_nordic.css",
+)
 
 
 @app.cell
@@ -156,14 +160,27 @@ def _(StoreMetadata, mo):
     from canvod.store_metadata import validate_all
     from canvod.store_metadata.schema import (
         Creator as _C,
+    )
+    from canvod.store_metadata.schema import (
         SiteInfo as _Si,
+    )
+    from canvod.store_metadata.schema import (
         SpatialExtent as _Sp,
+    )
+    from canvod.store_metadata.schema import (
         StoreIdentity as _Id,
+    )
+    from canvod.store_metadata.schema import (
         TemporalExtent as _Te,
     )
 
     _meta = StoreMetadata(
-        identity=_Id(id="test_site/rinex_store", title="Test", store_type="rinex_store", source_format="rinex3"),
+        identity=_Id(
+            id="test_site/rinex_store",
+            title="Test",
+            store_type="rinex_store",
+            source_format="rinex3",
+        ),
         creator=_C(name="Test", email="test@example.com", institution="Test"),
         temporal=_Te(created="2025-01-01T00:00:00Z", updated="2025-01-01T00:00:00Z"),
         spatial=_Sp(site=_Si(name="Test")),

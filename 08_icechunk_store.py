@@ -1,7 +1,9 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="Icechunk Store", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium", app_title="Icechunk Store", css_file="canvod_nordic.css"
+)
 
 
 @app.cell
@@ -74,8 +76,8 @@ def _(STORES_DIR, mo):
     | Property | Value |
     |----------|-------|
     | **Path** | `{store_path}` |
-    | **Branches** | {', '.join(f'`{b}`' for b in _branches)} |
-    | **Groups** | {', '.join(f'`{g}`' for g in _groups) if _groups else '(empty)'} |
+    | **Branches** | {", ".join(f"`{b}`" for b in _branches)} |
+    | **Groups** | {", ".join(f"`{g}`" for g in _groups) if _groups else "(empty)"} |
     """
     )
 
@@ -194,7 +196,7 @@ def _(mo, store):
         session.commit("experimental VOD with different grid")
     ```
 
-    **Current branches**: {', '.join(f'`{b}`' for b in _branches)}
+    **Current branches**: {", ".join(f"`{b}`" for b in _branches)}
 
     This is analogous to Git branching: the `main` branch contains the
     canonical dataset, while feature branches hold exploratory results.
@@ -304,11 +306,15 @@ def _(mo, store):
         _val = str(_v)[:80]
         _rows.append(f"| `{_k}` | `{_val}` |")
 
-    _table = f"""
+    _table = (
+        f"""
     | Key | Value |
     |-----|-------|
     {chr(10).join(_rows)}
-    """ if _rows else "No root attributes set."
+    """
+        if _rows
+        else "No root attributes set."
+    )
 
     mo.md(
         f"""

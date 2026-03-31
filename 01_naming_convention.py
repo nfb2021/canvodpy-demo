@@ -101,8 +101,7 @@ def _(CanVODFilename, ROSALIA_CANOPY_DIR, mo):
     _file = sorted(ROSALIA_CANOPY_DIR.glob("25001/*.rnx"))[0]
     parsed = CanVODFilename.from_filename(_file.name)
 
-    mo.md(
-        f"""
+    mo.md(f"""
     ## Parsing a filename
 
     ```python
@@ -128,8 +127,7 @@ def _(CanVODFilename, ROSALIA_CANOPY_DIR, mo):
 
     The model is frozen (immutable) and round-trips perfectly:
     `CanVODFilename.from_filename(parsed.name)` produces an identical object.
-    """
-    )
+    """)
     return
 
 
@@ -147,8 +145,7 @@ def _(BUILTIN_PATTERNS, mo):
         _globs = ", ".join(f"`{g}`" for g in _pat.file_globs)
         _rows.append(f"| `{_name}` | {_globs} |")
 
-    mo.md(
-        f"""
+    mo.md(f"""
     ## Built-in filename patterns
 
     `BUILTIN_PATTERNS` is a registry of named regex patterns for different
@@ -158,8 +155,7 @@ def _(BUILTIN_PATTERNS, mo):
     | Pattern | Glob(s) |
     |---------|---------|
     {chr(10).join(_rows)}
-    """
-    )
+    """)
     return
 
 
@@ -179,8 +175,7 @@ def _(match_pattern, mo):
         else:
             _rows.append(f"| `{_fn}` | *no match* |")
 
-    mo.md(
-        f"""
+    mo.md(f"""
     ### Auto-detection
 
     ```python
@@ -192,8 +187,7 @@ def _(match_pattern, mo):
     | Filename | Matched pattern |
     |----------|----------------|
     {chr(10).join(_rows)}
-    """
-    )
+    """)
     return
 
 
@@ -210,8 +204,7 @@ def _(CanVODFilename, ROSALIA_CANOPY_DIR, mo):
 
     _last = CanVODFilename.from_filename(_files[-1].name)
 
-    mo.md(
-        f"""
+    mo.md(f"""
     ## Test data: one full day
 
     The canopy receiver directory contains **{len(_files)}** RINEX files
@@ -225,8 +218,7 @@ def _(CanVODFilename, ROSALIA_CANOPY_DIR, mo):
 
     The file period (`{_last.period}`) and total count are determined
     by the receiver configuration.
-    """
-    )
+    """)
     return
 
 

@@ -1,7 +1,9 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="VOD Retrieval", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium", app_title="VOD Retrieval", css_file="canvod_nordic.css"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -68,7 +70,6 @@ def _():
 def _():
     import numpy as np
     import xarray as xr
-
     from _paths import AUX_DATA_DIR, ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR
 
     return AUX_DATA_DIR, ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR, np, xr
@@ -111,8 +112,12 @@ def _(AUX_DATA_DIR, ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR, np, xr):
     _can_file = sorted(ROSALIA_CANOPY_DIR.glob("25001/*.rnx"))[0]
     _ref_file = sorted(ROSALIA_REFERENCE_DIR.glob("25001/*.rnx"))[0]
 
-    ds_can_raw = Rnxv3Obs(fpath=_can_file).to_ds(keep_data_vars=["SNR"], write_global_attrs=True)
-    ds_ref_raw = Rnxv3Obs(fpath=_ref_file).to_ds(keep_data_vars=["SNR"], write_global_attrs=True)
+    ds_can_raw = Rnxv3Obs(fpath=_can_file).to_ds(
+        keep_data_vars=["SNR"], write_global_attrs=True
+    )
+    ds_ref_raw = Rnxv3Obs(fpath=_ref_file).to_ds(
+        keep_data_vars=["SNR"], write_global_attrs=True
+    )
 
     # Load auxiliary data
     _aux = xr.open_zarr(str(AUX_DATA_DIR / "aux_2025001.zarr"))
@@ -124,7 +129,10 @@ def _(AUX_DATA_DIR, ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR, np, xr):
     _aux_c = _aux.sel(sid=_shared_s, epoch=_shared_e)
     _ds_c = ds_can_raw.sel(sid=_shared_s, epoch=_shared_e)
     _r, _t, _p = compute_spherical_coordinates(
-        _aux_c["X"].values, _aux_c["Y"].values, _aux_c["Z"].values, _rx,
+        _aux_c["X"].values,
+        _aux_c["Y"].values,
+        _aux_c["Z"].values,
+        _rx,
     )
     ds_canopy = add_spherical_coords_to_dataset(_ds_c, _r, _t, _p)
 
@@ -135,7 +143,10 @@ def _(AUX_DATA_DIR, ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR, np, xr):
     _aux_r = _aux.sel(sid=_shared_s2, epoch=_shared_e2)
     _ds_r = ds_ref_raw.sel(sid=_shared_s2, epoch=_shared_e2)
     _r2, _t2, _p2 = compute_spherical_coordinates(
-        _aux_r["X"].values, _aux_r["Y"].values, _aux_r["Z"].values, _rx_ref,
+        _aux_r["X"].values,
+        _aux_r["Y"].values,
+        _aux_r["Z"].values,
+        _rx_ref,
     )
     ds_reference = add_spherical_coords_to_dataset(_ds_r, _r2, _t2, _p2)
 
@@ -162,8 +173,8 @@ def _(ds_canopy, ds_reference, mo, np):
 
     | | Canopy | Reference |
     |-|--------|-----------|
-    | **Epochs** | {ds_canopy.sizes['epoch']} | {ds_reference.sizes['epoch']} |
-    | **SIDs** | {ds_canopy.sizes['sid']} | {ds_reference.sizes['sid']} |
+    | **Epochs** | {ds_canopy.sizes["epoch"]} | {ds_reference.sizes["epoch"]} |
+    | **SIDs** | {ds_canopy.sizes["sid"]} | {ds_reference.sizes["sid"]} |
     | **Variables** | {list(ds_canopy.data_vars)} | {list(ds_reference.data_vars)} |
 
     **Shared**: {len(_shared_epochs)} epochs x {len(_shared_sids)} SIDs

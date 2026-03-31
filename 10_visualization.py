@@ -1,7 +1,9 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="Visualization", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium", app_title="Visualization", css_file="canvod_nordic.css"
+)
 
 
 @app.cell
@@ -147,7 +149,7 @@ def _(grid, mo, np, viz):
     _theta_centres = grid.grid["theta"].to_numpy()
     _data = np.cos(_theta_centres)  # cos(theta): 1 at zenith, 0 at horizon
 
-    _style_data = PolarPlotStyle(
+    _style_data = PolarPlotStyle(  # type: ignore[unresolved-reference]
         title="Simulated VOD — cos(θ) gradient",
         figsize=(8, 8),
         cmap="YlGn",
@@ -461,8 +463,9 @@ def _(PolarPlotStyle, create_hemigrid, mo, np):
         except Exception:
             pass  # skip unavailable grid types (e.g. healpix requires healpy)
 
-    fig_comp, _axes = plt.subplots(1, len(_types), figsize=(6 * len(_types), 6),
-                                     subplot_kw={"projection": "polar"})
+    fig_comp, _axes = plt.subplots(
+        1, len(_types), figsize=(6 * len(_types), 6), subplot_kw={"projection": "polar"}
+    )
     if len(_types) == 1:
         _axes = [_axes]
 

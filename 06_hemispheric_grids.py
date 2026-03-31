@@ -1,7 +1,9 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="Hemispheric Grids", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium", app_title="Hemispheric Grids", css_file="canvod_nordic.css"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -154,7 +156,7 @@ def _(grid_2deg, mo, np):
 
     **Cell DataFrame** ({_df.shape[0]} rows x {_df.shape[1]} columns):
 
-    Columns: {', '.join(f'`{c}`' for c in _df.columns)}
+    Columns: {", ".join(f"`{c}`" for c in _df.columns)}
 
     **Solid angle uniformity**:
 
@@ -190,7 +192,9 @@ def _(create_hemigrid, mo, np):
             _g = create_hemigrid(_t, angular_resolution=_res)
             _sa = _g.get_solid_angles()
             _cv = np.std(_sa) / np.mean(_sa) * 100 if len(_sa) > 1 else 0
-            _rows.append(f"| `{_t}` | {_g.ncells:,} | {np.mean(_sa):.5f} | {_cv:.1f}% |")
+            _rows.append(
+                f"| `{_t}` | {_g.ncells:,} | {np.mean(_sa):.5f} | {_cv:.1f}% |"
+            )
         except Exception as _e:
             _rows.append(f"| `{_t}` | — | — | {_e} |")
 
@@ -259,7 +263,7 @@ def _(grid_2deg, mo):
     _rows = []
     for _v in _vars:
         _da = ds_grid[_v]
-        _rows.append(f"| `{_v}` | `{', '.join(_da.dims)}` | `{_da.dtype}` |")
+        _rows.append(f"| `{_v}` | `{', '.join(_da.dims)}` | `{_da.dtype}` |")  # type: ignore[no-matching-overload]
 
     mo.md(
         f"""
@@ -275,7 +279,7 @@ def _(grid_2deg, mo):
     |----------|-----------|-------|
     {chr(10).join(_rows)}
 
-    **Attributes**: {', '.join(f'`{k}`' for k in ds_grid.attrs)}
+    **Attributes**: {", ".join(f"`{k}`" for k in ds_grid.attrs)}
     """
     )
 

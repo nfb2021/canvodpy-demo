@@ -10,7 +10,9 @@ from pathlib import Path
 _here = Path(__file__).resolve().parent
 
 # Monorepo: demo/ is inside canvodpy/
-_monorepo = _here.parent / "packages" / "canvod-readers" / "tests" / "test_data" / "valid"
+_monorepo = (
+    _here.parent / "packages" / "canvod-readers" / "tests" / "test_data" / "valid"
+)
 
 # Standalone: user cloned canvodpy-test-data into demo/test_data/
 _standalone = _here / "test_data" / "valid"

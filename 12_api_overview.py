@@ -1,7 +1,9 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="API Levels Overview", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium", app_title="API Levels Overview", css_file="canvod_nordic.css"
+)
 
 
 @app.cell
@@ -274,9 +276,9 @@ def _(mo):
 
     | Factory | Registered components |
     |---------|-----------------------|
-    | `ReaderFactory` | {', '.join(f'`{r}`' for r in _readers)} |
-    | `GridFactory` | {', '.join(f'`{g}`' for g in _grids)} |
-    | `VODFactory` | {', '.join(f'`{v}`' for v in _vods)} |
+    | `ReaderFactory` | {", ".join(f"`{r}`" for r in _readers)} |
+    | `GridFactory` | {", ".join(f"`{g}`" for g in _grids)} |
+    | `VODFactory` | {", ".join(f"`{v}`" for v in _vods)} |
 
     Custom components must implement the corresponding abstract base
     class (`GNSSDataReader`, `GridBuilder`, or `VODCalculator`).

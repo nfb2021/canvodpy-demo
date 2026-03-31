@@ -1,7 +1,9 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="SBF Binary Reading", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium", app_title="SBF Binary Reading", css_file="canvod_nordic.css"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -150,7 +152,7 @@ def _(mo, sbf_reader):
     | **End** | {sbf_reader.end_time} |
     | **Epochs** | {sbf_reader.num_epochs} |
     | **Satellites** | {sbf_reader.num_satellites} |
-    | **Systems** | {', '.join(sbf_reader.systems)} |
+    | **Systems** | {", ".join(sbf_reader.systems)} |
     | **Source format** | `{sbf_reader.source_format}` |
     | **File hash** | `{sbf_reader.file_hash[:16]}...` |
     """
@@ -248,8 +250,8 @@ def _(ds_sbf, mo):
     | Property | Value |
     |----------|-------|
     | **Dimensions** | `{dict(ds_sbf.sizes)}` |
-    | **Epochs** | {ds_sbf.sizes['epoch']} |
-    | **SIDs** | {ds_sbf.sizes['sid']} |
+    | **Epochs** | {ds_sbf.sizes["epoch"]} |
+    | **SIDs** | {ds_sbf.sizes["sid"]} |
     | **Valid SNR** | {_valid.sum():,} of {_snr.size:,} ({_valid.sum() / _snr.size * 100:.1f}%) |
     | **SNR range** | {np.nanmin(_snr):.1f} -- {np.nanmax(_snr):.1f} dB-Hz |
     | **SNR dtype** | `{_snr.dtype}` |
@@ -361,7 +363,9 @@ def _(ds_meta, mo, np):
     _rows = []
     for _v in _vars:
         _arr = ds_meta[_v].values
-        _n_valid = np.isfinite(_arr).sum() if _arr.dtype.kind == "f" else (_arr != -1).sum()
+        _n_valid = (
+            np.isfinite(_arr).sum() if _arr.dtype.kind == "f" else (_arr != -1).sum()
+        )
         _rows.append(f"| `{_v}` | `{_arr.dtype}` | {_n_valid:,} |")
 
     mo.md(
@@ -370,7 +374,7 @@ def _(ds_meta, mo, np):
 
     **Dimensions**: `{dict(ds_meta.sizes)}`
 
-    **Epoch-level coordinates** (1-D): {', '.join(f'`{c}`' for c in _coords_1d)}
+    **Epoch-level coordinates** (1-D): {", ".join(f"`{c}`" for c in _coords_1d)}
 
     **Data variables** (2-D: epoch x sid):
 

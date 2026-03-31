@@ -1,7 +1,9 @@
 import marimo
 
 __generated_with = "0.12.0"
-app = marimo.App(width="medium", app_title="Satellite Catalog", css_file="canvod_nordic.css")
+app = marimo.App(
+    width="medium", app_title="Satellite Catalog", css_file="canvod_nordic.css"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -84,7 +86,9 @@ def _(catalog, mo):
     _rows = []
     for _p, _name in _prefixes.items():
         _prns = catalog.active_prns(_p, on_date=_ref_date)
-        _rows.append(f"| {_name} (`{_p}`) | {len(_prns)} | `{', '.join(sorted(_prns)[:6])}`, ... |")
+        _rows.append(
+            f"| {_name} (`{_p}`) | {len(_prns)} | `{', '.join(sorted(_prns)[:6])}`, ... |"
+        )
 
     mo.md(
         f"""
@@ -272,7 +276,9 @@ def _(catalog, date, mo):
     for _prn in _glonass[:12]:
         _svn = catalog.prn_to_svn(_prn, on_date=_ref)
         _ch = catalog.glonass_channel(_svn, on_date=_ref) if _svn else None
-        _rows.append(f"| `{_prn}` | `{_svn or '?'}` | {_ch if _ch is not None else '---'} |")
+        _rows.append(
+            f"| `{_prn}` | `{_svn or '?'}` | {_ch if _ch is not None else '---'} |"
+        )
 
     mo.md(
         f"""
@@ -321,7 +327,7 @@ def _(catalog, date, mo):
 
     **Shape**: {df_catalog.shape[0]} rows x {df_catalog.shape[1]} columns
 
-    **Columns**: {', '.join(f'`{c}`' for c in df_catalog.columns)}
+    **Columns**: {", ".join(f"`{c}`" for c in df_catalog.columns)}
     """
     )
 
