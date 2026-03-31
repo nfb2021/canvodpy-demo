@@ -84,7 +84,23 @@ def _(mo):
     (page 14f) with a receiver-type field (`T`) that distinguishes
     reference and canopy receivers at the same site.
 
-    ![IGS long-name convention](public/IGS_long_name_convention.png)
+    ```mermaid
+    flowchart LR
+        SIT["**SIT**\n3 chars\nSite code\nROS"]
+        T["**T**\n1 char\nRx type\nA=canopy · R=reference"]
+        NN["**NN**\n2 chars\nStation #\n01"]
+        AGC["**AGC**\n3 chars\nAgency\nTUW"]
+        SEP["**_R_**\nseparator"]
+        YYYY["**YYYY**\n4 chars\nYear\n2025"]
+        DOY["**DOY**\n3 chars\nDay of year\n001"]
+        HHMM["**HHMM**\n4 chars\nStart time UTC\n0000"]
+        PER["**PPP**\n3 chars\nDuration\n15M"]
+        SMP["**SSS**\n3 chars\nSampling\n05S"]
+        CT["**CC**\n2 chars\nContent\nAA"]
+        FMT["**TTT**\n3+ chars\nFormat\nrnx"]
+
+        SIT --- T --- NN --- AGC --- SEP --- YYYY --- DOY --- HHMM --- PER --- SMP --- CT --- FMT
+    ```
     """)
     return
 
