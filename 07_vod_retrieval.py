@@ -1,7 +1,9 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvodpy>=0.2.2",
+#   "canvod-readers>=0.2.3",
+#   "canvod-auxiliary>=0.2.3",
+#   "canvod-vod>=0.2.3",
 #   "marimo>=0.21.1",
 # ]
 # ///
@@ -128,7 +130,7 @@ def _(AUX_DATA_DIR, ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR, np, xr):
     )
 
     # Load auxiliary data
-    _aux = xr.open_zarr(str(AUX_DATA_DIR / "aux_2025001.zarr"))
+    _aux = xr.open_zarr(str(AUX_DATA_DIR / "aux_2025001.zarr"), decode_timedelta=False)
 
     # Augment canopy
     _rx = ECEFPosition.from_ds_metadata(ds_can_raw)
