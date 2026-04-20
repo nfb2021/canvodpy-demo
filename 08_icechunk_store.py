@@ -1,7 +1,7 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvodpy>=0.2.2",
+#   "canvod-store>=0.2.3",
 #   "marimo>=0.21.1",
 # ]
 # ///
@@ -65,7 +65,7 @@ def _():
 def _(STORES_DIR, mo):
     from canvod.store import MyIcechunkStore
 
-    store_path = STORES_DIR / "my_site_rinex"
+    store_path = STORES_DIR / "rosalia_rinex"
     store = MyIcechunkStore(store_path=store_path)
 
     _branches = store.get_branch_names()
@@ -153,8 +153,8 @@ def _(mo, store):
     if _history:
         _rows = []
         for _h in _history:
-            _msg = _h.get("message", "---")[:60]
-            _ts = str(_h.get("timestamp", "---"))[:19]
+            _msg = _h.get("commit_msg", "---")[:60]
+            _ts = str(_h.get("written_at", "---"))[:19]
             _rows.append(f"| `{_ts}` | {_msg} |")
         _table = f"""
     | Timestamp | Message |
