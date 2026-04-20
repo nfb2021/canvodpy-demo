@@ -1,7 +1,8 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvodpy>=0.2.2",
+#   "canvod-grids>=0.2.3",
+#   "canvod-viz>=0.2.2",
 #   "marimo>=0.21.1",
 # ]
 # ///
