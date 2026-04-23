@@ -398,8 +398,8 @@ def _(mo):
         r"""
     ---
 
-    **Previous**: [02 — SBF Reading](./02_sbf_reading.py)
-    | **Next**: [04 — Naming Convention](./04_naming_convention.py)
+    **Previous**: [02 — RINEX Reading](./02_rinex_reading.py)
+    | **Next**: [04 — SBF Reading](./04_sbf_reading.py)
 
     *canVODpy — Apache 2.0*
     """

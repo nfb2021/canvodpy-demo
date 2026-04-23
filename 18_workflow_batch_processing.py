@@ -33,7 +33,7 @@ def _():
     which provides the right balance of control and convenience for
     batch operations.
 
-    —
+    ---
 
     """
     )
@@ -324,7 +324,7 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-    —
+    ---
 
     **Previous**: [17 — Single-Day Workflow](./17_workflow_single_day.py)
     | **Next**: [19 — Store Operations](./19_workflow_store_operations.py)

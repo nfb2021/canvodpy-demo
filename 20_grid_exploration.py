@@ -334,5 +334,19 @@ def _(mo):
     return
 
 
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+    ---
+
+    **Previous**: [19 — Store Operations](./19_workflow_store_operations.py)
+
+    *canVODpy — Apache 2.0*
+    """
+    )
+    return
+
+
 if __name__ == "__main__":
     app.run()

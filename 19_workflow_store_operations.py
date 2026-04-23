@@ -344,6 +344,7 @@ def _(mo):
     ---
 
     **Previous**: [18 — Batch Processing](./18_workflow_batch_processing.py)
+    | **Next**: [20 — Grid Exploration](./20_grid_exploration.py)
 
     *canVODpy — Apache 2.0*
     """)

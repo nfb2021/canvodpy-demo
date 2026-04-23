@@ -525,8 +525,8 @@ def _(mo):
         r"""
     ---
 
-    **Previous**: [01 — RINEX Reading](./01_rinex_reading.py)
-    | **Next**: [03 — Satellite Catalog](./03_satellite_catalog.py)
+    **Previous**: [03 — Satellite Catalog](./03_satellite_catalog.py)
+    | **Next**: [05 — Ephemeris & Coordinates](./05_ephemeris_coordinates.py)
 
     *canVODpy — Apache 2.0*
     """

@@ -652,7 +652,7 @@ def _(mo):
     mo.md(r"""
     ---
 
-    **Next**: [02 — SBF Binary Reading](./02_sbf_reading.py)
+    **Next**: [03 — Satellite Catalog](./03_satellite_catalog.py)
 
     *canVODpy — Apache 2.0*
     """)
