@@ -1,6 +1,14 @@
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#   "canvod-grids>=0.2.3",
+#   "marimo>=0.21.1",
+# ]
+# ///
+
 import marimo
 
-__generated_with = "0.12.0"
+__generated_with = "0.21.1"
 app = marimo.App(
     width="medium", app_title="Grid Exploration", css_file="canvod_nordic.css"
 )
@@ -321,6 +329,20 @@ def _(mo):
     **Note:** This notebook uses synthetic data for demonstration.
     To use real data, open an Icechunk store and pass actual per-cell
     timeseries datasets via `AnalysisStorage.load_percell_timeseries()`.
+    """
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+    ---
+
+    **Previous**: [19 — Store Operations](./19_workflow_store_operations.py)
+
+    *canVODpy — Apache 2.0*
     """
     )
     return

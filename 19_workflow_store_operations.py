@@ -1,6 +1,15 @@
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#   "canvod-store>=0.2.3",
+#   "canvod-ops>=0.2.2",
+#   "marimo>=0.21.1",
+# ]
+# ///
+
 import marimo
 
-__generated_with = "0.20.4"
+__generated_with = "0.21.1"
 app = marimo.App(
     width="medium",
     app_title="Store Operations",
@@ -124,8 +133,8 @@ def _(mo, store):
 
     _rows = []
     for _h in _history:
-        _msg = _h.get("message", "---")[:50]
-        _ts = str(_h.get("timestamp", "---"))[:19]
+        _msg = _h.get("commit_msg", "---")[:50]
+        _ts = str(_h.get("written_at", "---"))[:19]
         _rows.append(f"| `{_ts}` | {_msg} |")
 
     _table = (
@@ -203,7 +212,7 @@ def _(mo, store):
             _meta_info = (
                 f"Group `{_group}` has **{_n_files}** files in its metadata ledger."
             )
-        except KeyError, FileNotFoundError:
+        except (KeyError, FileNotFoundError):
             _meta_info = f"Group `{_group}` exists but has no metadata ledger (store was not created via the full pipeline)."
 
     mo.md(
@@ -335,6 +344,7 @@ def _(mo):
     ---
 
     **Previous**: [18 — Batch Processing](./18_workflow_batch_processing.py)
+    | **Next**: [20 — Grid Exploration](./20_grid_exploration.py)
 
     *canVODpy — Apache 2.0*
     """)

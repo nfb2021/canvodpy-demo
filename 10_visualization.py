@@ -1,6 +1,15 @@
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#   "canvod-grids>=0.2.3",
+#   "canvod-viz>=0.2.2",
+#   "marimo>=0.21.1",
+# ]
+# ///
+
 import marimo
 
-__generated_with = "0.12.0"
+__generated_with = "0.21.1"
 app = marimo.App(
     width="medium", app_title="Visualization", css_file="canvod_nordic.css"
 )

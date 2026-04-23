@@ -1,6 +1,14 @@
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#   "canvod-store-metadata>=0.2.2",
+#   "marimo>=0.21.1",
+# ]
+# ///
+
 import marimo
 
-__generated_with = "0.12.0"
+__generated_with = "0.21.1"
 app = marimo.App(
     width="medium",
     app_title="Store Metadata & FAIR Compliance",

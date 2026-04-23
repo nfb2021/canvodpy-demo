@@ -1,6 +1,14 @@
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#   "canvod-readers>=0.2.3",
+#   "marimo>=0.21.1",
+# ]
+# ///
+
 import marimo
 
-__generated_with = "0.12.0"
+__generated_with = "0.21.1"
 app = marimo.App(
     width="medium", app_title="Satellite Catalog", css_file="canvod_nordic.css"
 )
@@ -390,8 +398,8 @@ def _(mo):
         r"""
     ---
 
-    **Previous**: [02 — SBF Reading](./02_sbf_reading.py)
-    | **Next**: [04 — Naming Convention](./04_naming_convention.py)
+    **Previous**: [02 — RINEX Reading](./02_rinex_reading.py)
+    | **Next**: [04 — SBF Reading](./04_sbf_reading.py)
 
     *canVODpy — Apache 2.0*
     """

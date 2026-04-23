@@ -1,6 +1,15 @@
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#   "canvod-readers>=0.2.3",
+#   "canvod-auxiliary>=0.2.3",
+#   "marimo>=0.21.1",
+# ]
+# ///
+
 import marimo
 
-__generated_with = "0.12.0"
+__generated_with = "0.21.1"
 app = marimo.App(
     width="medium",
     app_title="Ephemeris & Coordinate Augmentation",
@@ -212,7 +221,7 @@ def _(AUX_DATA_DIR, mo, np):
     import xarray as xr
 
     _zarr_path = AUX_DATA_DIR / "aux_2025001.zarr"
-    ds_aux = xr.open_zarr(str(_zarr_path))
+    ds_aux = xr.open_zarr(str(_zarr_path), decode_timedelta=False)
 
     _var_rows = []
     for _v in ds_aux.data_vars:
@@ -523,7 +532,7 @@ def _(mo):
         r"""
     ---
 
-    **Previous**: [04 — Naming Convention](./04_naming_convention.py)
+    **Previous**: [04 — SBF Reading](./04_sbf_reading.py)
     | **Next**: [06 — Hemispheric Grids](./06_hemispheric_grids.py)
 
     *canVODpy — Apache 2.0*

@@ -1,6 +1,14 @@
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#   "canvod-grids>=0.2.3",
+#   "marimo>=0.21.1",
+# ]
+# ///
+
 import marimo
 
-__generated_with = "0.12.0"
+__generated_with = "0.21.1"
 app = marimo.App(
     width="medium", app_title="Hemispheric Grids", css_file="canvod_nordic.css"
 )

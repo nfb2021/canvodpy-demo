@@ -1,6 +1,14 @@
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#   "canvodpy>=0.2.2",
+#   "marimo>=0.21.1",
+# ]
+# ///
+
 import marimo
 
-__generated_with = "0.12.0"
+__generated_with = "0.21.1"
 app = marimo.App(
     width="medium", app_title="Batch Processing Workflows", css_file="canvod_nordic.css"
 )
@@ -25,7 +33,7 @@ def _():
     which provides the right balance of control and convenience for
     batch operations.
 
-    —
+    ---
 
     """
     )
@@ -316,7 +324,7 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-    —
+    ---
 
     **Previous**: [17 — Single-Day Workflow](./17_workflow_single_day.py)
     | **Next**: [19 — Store Operations](./19_workflow_store_operations.py)

@@ -1,6 +1,17 @@
+# /// script
+# requires-python = ">=3.14"
+# dependencies = [
+#   "canvod-readers>=0.2.3",
+#   "canvod-auxiliary>=0.2.3",
+#   "canvod-grids>=0.2.3",
+#   "canvod-vod>=0.2.3",
+#   "marimo>=0.21.1",
+# ]
+# ///
+
 import marimo
 
-__generated_with = "0.12.0"
+__generated_with = "0.21.1"
 app = marimo.App(
     width="medium", app_title="Single-Day Workflow", css_file="canvod_nordic.css"
 )
@@ -148,7 +159,7 @@ def _(AUX_DATA_DIR, ds_canopy, ds_reference, mo, np, xr):
         compute_spherical_coordinates,
     )
 
-    _aux = xr.open_zarr(str(AUX_DATA_DIR / "aux_2025001.zarr"))
+    _aux = xr.open_zarr(str(AUX_DATA_DIR / "aux_2025001.zarr"), decode_timedelta=False)
 
     def _augment(ds, aux):
         """Augment a dataset with satellite geometry."""

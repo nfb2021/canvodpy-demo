@@ -1,13 +1,25 @@
 """Resolve test data directory for demo notebooks.
 
-Resolution order:
+Resolution order (checked in order):
   1. Monorepo  — ../packages/canvod-readers/tests/test_data/valid/   (dev)
   2. Standalone — ./test_data/valid/                                  (git clone)
   3. Pooch cache — ~/.cache/canvodpy/canvodpy-test-data-v0.1.0/      (auto-download)
 
 The Pooch path downloads canvodpy-test-data v0.1.0 from Zenodo on first use
 (1.69 GB zip, DOI: 10.5281/zenodo.19708759) and caches it locally.
-Subsequent imports are instant.
+Subsequent calls are instant (cache hit).
+
+Usage
+-----
+In a notebook setup cell::
+
+    import _paths
+    _paths.ensure_data()          # terminal progress bar (tqdm)
+
+Or with a marimo progress bar::
+
+    from _download import marimo_downloader
+    _paths.ensure_data(downloader=marimo_downloader)
 """
 
 from pathlib import Path
@@ -32,7 +44,7 @@ _ZENODO_HASH = "md5:08be83eb1fb3961f23ce1d4b66296cb9"
 _ZENODO_VERSION = "canvodpy-test-data-v0.1.0"
 
 
-def _zenodo_valid_dir() -> Path:
+def _zenodo_valid_dir(downloader=None) -> Path:
     """Download test data from Zenodo and return path to valid/."""
     try:
         import pooch
@@ -57,6 +69,7 @@ def _zenodo_valid_dir() -> Path:
         known_hash=_ZENODO_HASH,
         fname=f"{_ZENODO_VERSION}.zip",
         path=cache_root,
+        downloader=downloader or pooch.HTTPDownloader(progressbar=True),
         processor=pooch.Unzip(extract_dir=str(extract_dir)),
     )
 
@@ -70,25 +83,71 @@ def _zenodo_valid_dir() -> Path:
 
 
 # ── Resolve TEST_DATA ────────────────────────────────────────────────
+# Paths 1 and 2 resolve immediately. Path 3 is deferred: TEST_DATA is
+# set to None and resolved lazily via ensure_data() so notebooks can
+# inject a marimo-aware progress bar before the download starts.
+
 if _monorepo.is_dir():
     TEST_DATA = _monorepo
 elif _standalone.is_dir():
     TEST_DATA = _standalone
 else:
-    TEST_DATA = _zenodo_valid_dir()
+    TEST_DATA = None  # resolved by ensure_data()
 
-# ── Rosalia site paths ──────────────────────────────────────────────
-ROSALIA = TEST_DATA / "rinex_v3_04" / "01_Rosalia"
-ROSALIA_CANOPY_DIR = ROSALIA / "02_canopy" / "01_GNSS" / "01_raw"
-ROSALIA_REFERENCE_DIR = ROSALIA / "01_reference" / "01_GNSS" / "01_raw"
-AUX_DATA_DIR = TEST_DATA / "aux_data"
-SP3_DIR = AUX_DATA_DIR / "01_SP3"
-CLK_DIR = AUX_DATA_DIR / "02_CLK"
 
-# ── SBF paths ───────────────────────────────────────────────────────
-SBF_DIR = TEST_DATA / "sbf" / "01_Rosalia"
-SBF_CANOPY_DIR = SBF_DIR / "02_canopy"
-SBF_REFERENCE_DIR = SBF_DIR / "01_reference"
+def ensure_data(downloader=None) -> Path:
+    """Ensure test data is available and return the valid/ path.
 
-# ── Icechunk test stores ─────────────────────────────────────────────
-STORES_DIR = TEST_DATA / "stores"
+    Call this in a notebook setup cell before using any path constants.
+    If data is already present (monorepo or standalone clone), returns
+    immediately. Otherwise triggers Zenodo download.
+
+    Parameters
+    ----------
+    downloader:
+        Optional Pooch-compatible downloader. Defaults to tqdm terminal
+        progress bar. Pass ``_download.marimo_downloader`` for a marimo
+        progress bar inside notebooks.
+    """
+    global TEST_DATA
+    if TEST_DATA is not None:
+        return TEST_DATA
+    TEST_DATA = _zenodo_valid_dir(downloader=downloader)
+    _refresh_path_constants()
+    return TEST_DATA
+
+
+def _refresh_path_constants() -> None:
+    """Recompute all path constants after TEST_DATA is resolved."""
+    import sys
+    mod = sys.modules[__name__]
+
+    rosalia = TEST_DATA / "rinex_v3_04" / "01_Rosalia"
+    mod.ROSALIA = rosalia
+    mod.ROSALIA_CANOPY_DIR = rosalia / "02_canopy" / "01_GNSS" / "01_raw"
+    mod.ROSALIA_REFERENCE_DIR = rosalia / "01_reference" / "01_GNSS" / "01_raw"
+    mod.AUX_DATA_DIR = TEST_DATA / "aux_data"
+    mod.SP3_DIR = mod.AUX_DATA_DIR / "01_SP3"
+    mod.CLK_DIR = mod.AUX_DATA_DIR / "02_CLK"
+    sbf = TEST_DATA / "sbf" / "01_Rosalia"
+    mod.SBF_DIR = sbf
+    mod.SBF_CANOPY_DIR = sbf / "02_canopy"
+    mod.SBF_REFERENCE_DIR = sbf / "01_reference"
+    mod.STORES_DIR = TEST_DATA / "stores"
+
+
+# Initialise path constants (None-safe: point to unresolved base if
+# TEST_DATA is None, resolved values set by ensure_data() later)
+if TEST_DATA is not None:
+    _refresh_path_constants()
+else:
+    ROSALIA = None
+    ROSALIA_CANOPY_DIR = None
+    ROSALIA_REFERENCE_DIR = None
+    AUX_DATA_DIR = None
+    SP3_DIR = None
+    CLK_DIR = None
+    SBF_DIR = None
+    SBF_CANOPY_DIR = None
+    SBF_REFERENCE_DIR = None
+    STORES_DIR = None
