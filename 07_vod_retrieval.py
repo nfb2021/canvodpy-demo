@@ -6,6 +6,10 @@
 #   "canvod-vod>=0.2.3",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "07 · VOD Retrieval"
+# description = "Retrieve Vegetation Optical Depth from GNSS transmittance using the Tau-Omega radiative transfer model. Align canopy and reference SNR to compute VOD per sky cell."
 # ///
 
 import marimo
@@ -69,6 +73,13 @@ def _():
     )
 
     return (mo,)
+
+
+@app.cell
+def _():
+    import _paths
+    from _download import marimo_downloader
+    _paths.ensure_data(downloader=marimo_downloader)
 
 
 # ---------------------------------------------------------------------------

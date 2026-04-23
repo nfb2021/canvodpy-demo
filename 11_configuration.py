@@ -4,6 +4,10 @@
 #   "canvod-utils>=0.2.2",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "11 · Configuration & Utilities"
+# description = "Configure canVODpy processing parameters using Pydantic models. Explore site definitions, VOD analysis configs, and the shared utilities layer."
 # ///
 
 import marimo

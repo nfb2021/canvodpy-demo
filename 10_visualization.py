@@ -5,6 +5,10 @@
 #   "canvod-viz>=0.2.2",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "10 · Visualization"
+# description = "Visualise VOD and hemispheric grid data in 2D polar and 3D hemispherical plots. Interactive sky-view maps of vegetation transmittance per grid cell."
 # ///
 
 import marimo

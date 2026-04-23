@@ -6,13 +6,19 @@
 #   "canvod-vod>=0.2.3",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "00 · Speedrun — Full Pipeline"
+# description = "Raw GNSS files to Vegetation Optical Depth in five steps. Runs the complete GNSS-T pipeline on real Rosalia test data using canVODpy's convenience API."
 # ///
 
 import marimo
 
 __generated_with = "0.21.1"
 app = marimo.App(
-    width="medium", app_title="Speedrun — Full Pipeline", css_file="canvod_nordic.css"
+    width="medium",
+    app_title="Speedrun — Full Pipeline",
+    css_file="canvod_nordic.css",
 )
 
 
@@ -45,18 +51,22 @@ def _():
     ---
     """
     )
-
     return (mo,)
 
 
-# ---------------------------------------------------------------------------
-# Step 1 — Read RINEX
-# ---------------------------------------------------------------------------
+@app.cell
+def _():
+    import _paths
+    from _download import marimo_downloader
+    _paths.ensure_data(downloader=marimo_downloader)
+    return
 
 
 @app.cell
 def _(mo):
-    mo.md("## Step 1 — Read RINEX observation files")
+    mo.md("""
+    ## Step 1 — Read RINEX observation files
+    """)
     return
 
 
@@ -75,14 +85,12 @@ def _():
     ds_ref_raw = Rnxv3Obs(fpath=_ref_file).to_ds(
         keep_data_vars=["SNR"], write_global_attrs=True
     )
-
-    return AUX_DATA_DIR, ROSALIA_CANOPY_DIR, ROSALIA_REFERENCE_DIR, ds_can_raw, ds_ref_raw
+    return AUX_DATA_DIR, ds_can_raw, ds_ref_raw
 
 
 @app.cell
 def _(ds_can_raw, ds_ref_raw, mo):
-    mo.md(
-        f"""
+    mo.md(f"""
     | Receiver | Epochs | SIDs | File |
     |----------|--------|------|------|
     | **Canopy** | {ds_can_raw.sizes["epoch"]} | {ds_can_raw.sizes["sid"]} | `{ds_can_raw.attrs.get("source_file", "—")}` |
@@ -90,28 +98,20 @@ def _(ds_can_raw, ds_ref_raw, mo):
 
     Each dataset has dimensions `(epoch, sid)` where SID encodes
     satellite + frequency band + tracking code, e.g. `G01|L1|C`.
-    """
-    )
+    """)
     return
-
-
-# ---------------------------------------------------------------------------
-# Step 2 — Augment with satellite geometry
-# ---------------------------------------------------------------------------
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Step 2 — Augment with satellite geometry
 
     The auxiliary Zarr cache contains pre-interpolated ECEF satellite
     positions from COD final SP3/CLK products (5-min orbit, 30-s clock).
     `compute_spherical_coordinates()` converts ECEF positions to
     receiver-relative **polar angle** $\theta$ and **azimuth** $\phi$.
-    """
-    )
+    """)
     return
 
 
@@ -142,8 +142,7 @@ def _(AUX_DATA_DIR, ds_can_raw, ds_ref_raw):
 
     ds_canopy = _augment(ds_can_raw)
     ds_reference = _augment(ds_ref_raw)
-
-    return ds_canopy, ds_reference, np, xr
+    return ds_canopy, ds_reference, np
 
 
 @app.cell
@@ -161,27 +160,19 @@ def _(ds_canopy, mo, np):
     (0° = zenith, 90° = horizon; observations below ~75° are typically masked in VOD retrieval)
     """
     )
-
-    return (math,)
-
-
-# ---------------------------------------------------------------------------
-# Step 3 — Compute VOD
-# ---------------------------------------------------------------------------
+    return
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Step 3 — Compute VOD
 
     `TauOmegaZerothOrder.from_datasets()` aligns the two datasets on their
     shared `(epoch, sid)` pairs and applies the Tau-Omega formula:
 
     $$\text{VOD} = -\ln(T) \cdot \cos(\theta), \qquad T = 10^{(\text{SNR}_\text{can} - \text{SNR}_\text{ref}) / 10}$$
-    """
-    )
+    """)
     return
 
 
@@ -194,8 +185,7 @@ def _(ds_canopy, ds_reference):
         sky_ds=ds_reference,
         align=True,
     )
-
-    return (TauOmegaZerothOrder, ds_vod)
+    return (ds_vod,)
 
 
 @app.cell
@@ -221,21 +211,14 @@ def _(ds_vod, mo, np):
     return
 
 
-# ---------------------------------------------------------------------------
-# Step 4 — Plot VOD vs polar angle
-# ---------------------------------------------------------------------------
-
-
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Step 4 — VOD vs polar angle
 
     Each point is one `(epoch, sid)` observation.  The $\cos(\theta)$
     path-length correction is already included in the plotted VOD values.
-    """
-    )
+    """)
     return
 
 
@@ -279,17 +262,12 @@ def _(ds_vod, mo, np):
     fig.add_hline(y=0, line_dash="dot", line_color="grey", opacity=0.5)
 
     mo.ui.plotly(fig)
-
-
-# ---------------------------------------------------------------------------
-# What's next
-# ---------------------------------------------------------------------------
+    return
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ---
 
     ## What's next?
@@ -303,8 +281,7 @@ def _(mo):
     | [17 — Single-Day Workflow](./17_workflow_single_day.py) | Production pipeline, all 96 files |
 
     *canVODpy — Apache 2.0*
-    """
-    )
+    """)
     return
 
 

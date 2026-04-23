@@ -4,6 +4,10 @@
 #   "canvod-store>=0.2.3",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "08 · Icechunk Store"
+# description = "Write, read, and version GNSS-T datasets in a cloud-native Icechunk/Zarr store. Explore branching, snapshots, and deduplication guardrails."
 # ///
 
 import marimo
@@ -45,6 +49,13 @@ def _():
     )
 
     return (mo,)
+
+
+@app.cell
+def _():
+    import _paths
+    from _download import marimo_downloader
+    _paths.ensure_data(downloader=marimo_downloader)
 
 
 @app.cell

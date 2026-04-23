@@ -20,7 +20,7 @@ Interactive [marimo](https://marimo.io) notebooks for the [canVODpy](https://git
 
 Open any notebook directly in [marimo molab](https://molab.marimo.io/github/nfb2021/canvodpy-demo) — no local installation required.
 
-> molab does not have access to local files. Notebooks that read GNSS data from disk will prompt you to upload the files manually.
+Notebooks that read real GNSS data automatically download the test dataset (~1.7 GB) from Zenodo on first run and cache it — no manual file upload required.
 
 ---
 
@@ -110,28 +110,29 @@ uv run marimo run demo/07_vod_retrieval.py
 
 ## Notebooks
 
-| # | Notebook | Topic |
-|---|---|---|
-| 01 | `01_naming_convention.py` | GNSS filename convention parsing and validation |
-| 02 | `02_rinex_reading.py` | RINEX v3.04 file reading → `xarray.Dataset` |
-| 03 | `03_satellite_catalog.py` | IGS SatelliteCatalog — PRN metadata and lookup |
-| 04 | `04_sbf_reading.py` | SBF binary file reading |
-| 05 | `05_ephemeris_coordinates.py` | SP3/CLK augmentation and ECEF → spherical transforms |
-| 06 | `06_hemispheric_grids.py` | Equal-area, HEALPix, geodesic, Fibonacci grids |
-| 07 | `07_vod_retrieval.py` | Tau-Omega VOD retrieval algorithm |
-| 08 | `08_icechunk_store.py` | Versioned Icechunk/Zarr storage |
-| 09 | `09_store_metadata.py` | DataCite/ACDD/STAC provenance metadata |
-| 10 | `10_visualization.py` | 2D/3D hemispheric visualisation |
-| 11 | `11_configuration.py` | Pydantic configuration models |
-| 12 | `12_api_overview.py` | Four API levels overview |
-| 13 | `13_api_level1_convenience.py` | L1: one-liner `process_date()` |
-| 14 | `14_api_level2_fluent.py` | L2: `FluentWorkflow().read().augment().grid().vod()` |
-| 15 | `15_api_level3_site_pipeline.py` | L3: `Site().pipeline().process_range()` |
-| 16 | `16_api_level4_functional.py` | L4: pure functions for custom pipelines |
-| 17 | `17_workflow_single_day.py` | End-to-end single-day processing |
-| 18 | `18_workflow_batch_processing.py` | Batch processing with Dask |
-| 19 | `19_workflow_store_operations.py` | Store read/write/branch operations |
-| 20 | `20_grid_exploration.py` | Interactive hemispheric grid explorer |
+| # | Notebook | Topic | Open |
+|---|---|---|---|
+| 00 | `00_convenience_speedrun.py` | Full pipeline in five cells | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/00_convenience_speedrun.py) |
+| 01 | `01_naming_convention.py` | GNSS filename convention parsing and validation | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/01_naming_convention.py) |
+| 02 | `02_rinex_reading.py` | RINEX v3.04 file reading → `xarray.Dataset` | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/02_rinex_reading.py) |
+| 03 | `03_satellite_catalog.py` | IGS SatelliteCatalog — PRN metadata and lookup | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/03_satellite_catalog.py) |
+| 04 | `04_sbf_reading.py` | SBF binary file reading | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/04_sbf_reading.py) |
+| 05 | `05_ephemeris_coordinates.py` | SP3/CLK augmentation and ECEF → spherical transforms | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/05_ephemeris_coordinates.py) |
+| 06 | `06_hemispheric_grids.py` | Equal-area, equal-angle, geodesic, Fibonacci grids | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/06_hemispheric_grids.py) |
+| 07 | `07_vod_retrieval.py` | Tau-Omega VOD retrieval algorithm | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/07_vod_retrieval.py) |
+| 08 | `08_icechunk_store.py` | Versioned Icechunk/Zarr storage | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/08_icechunk_store.py) |
+| 09 | `09_store_metadata.py` | DataCite/ACDD/STAC provenance metadata | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/09_store_metadata.py) |
+| 10 | `10_visualization.py` | 2D/3D hemispheric visualisation | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/10_visualization.py) |
+| 11 | `11_configuration.py` | Pydantic configuration models | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/11_configuration.py) |
+| 12 | `12_api_overview.py` | Four API levels overview | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/12_api_overview.py) |
+| 13 | `13_api_level1_convenience.py` | L1: one-liner `process_date()` | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/13_api_level1_convenience.py) |
+| 14 | `14_api_level2_fluent.py` | L2: `FluentWorkflow().read().augment().grid().vod()` | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/14_api_level2_fluent.py) |
+| 15 | `15_api_level3_site_pipeline.py` | L3: `Site().pipeline().process_range()` | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/15_api_level3_site_pipeline.py) |
+| 16 | `16_api_level4_functional.py` | L4: pure functions for custom pipelines | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/16_api_level4_functional.py) |
+| 17 | `17_workflow_single_day.py` | End-to-end single-day processing | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/17_workflow_single_day.py) |
+| 18 | `18_workflow_batch_processing.py` | Batch processing with Dask | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/18_workflow_batch_processing.py) |
+| 19 | `19_workflow_store_operations.py` | Store read/write/branch operations | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/19_workflow_store_operations.py) |
+| 20 | `20_grid_exploration.py` | Interactive hemispheric grid explorer | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/20_grid_exploration.py) |
 
 ---
 
@@ -143,6 +144,7 @@ Path resolution is handled automatically by `_paths.py`:
 
 | Scenario | Expected location |
 |---|---|
+| molab / cloud | Zenodo auto-download (~1.7 GB, cached after first run) |
 | Standalone | `./test_data/` — clone canvodpy-test-data here |
 | Monorepo | `../packages/canvod-readers/tests/test_data/` — resolved automatically |
 

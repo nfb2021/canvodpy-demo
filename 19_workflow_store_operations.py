@@ -5,6 +5,10 @@
 #   "canvod-ops>=0.2.2",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "19 · Store Operations"
+# description = "Read, write, branch, and query Icechunk stores. Covers temporal aggregation, store snapshots, metadata queries, and the operational pipeline layer."
 # ///
 
 import marimo
@@ -37,6 +41,13 @@ def _():
     """
     )
     return (mo,)
+
+
+@app.cell
+def _():
+    import _paths
+    from _download import marimo_downloader
+    _paths.ensure_data(downloader=marimo_downloader)
 
 
 @app.cell

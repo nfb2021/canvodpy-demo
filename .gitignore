@@ -9,8 +9,8 @@ __pycache__/
 # Runtime caches
 *.db
 
-# Marimo session cache
-__marimo__/
+# Marimo session state (runtime only — do NOT ignore assets/, thumbnails live there)
+__marimo__/session/
 
 # Pipeline outputs (stores, aux caches)
 outputs/

@@ -4,6 +4,10 @@
 #   "canvod-readers>=0.2.3",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "02 · RINEX v3 Observation Reading"
+# description = "Read RINEX v3.04 GNSS observation files into xarray Datasets. Explore SNR, Doppler, pseudorange, and carrier-phase observables across all constellations."
 # ///
 
 import marimo
@@ -45,6 +49,13 @@ def _():
     """
     )
     return (mo,)
+
+
+@app.cell
+def _():
+    import _paths
+    from _download import marimo_downloader
+    _paths.ensure_data(downloader=marimo_downloader)
 
 
 @app.cell
