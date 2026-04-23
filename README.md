@@ -14,13 +14,6 @@
 
 Interactive [marimo](https://marimo.io) notebooks for the [canVODpy](https://github.com/nfb2021/canvodpy) GNSS-Transmissometry (GNSS-T) VOD retrieval ecosystem. The notebooks cover the full pipeline — from raw GNSS file reading to vegetation optical depth retrieval, versioned storage, and visualisation.
 
-> [!CAUTION]
-> **Confidential — Pre-release Software.**
-> This repository is shared under restricted access. Distribution, redistribution, or publication of this code or any derived results is **not permitted** without explicit written authorization from the author (Nicolas F. Bader, nicolas.bader@tuwien.ac.at). Access is granted solely to individuals authorized by the author.
-
-> [!NOTE]
-> canvodpy is not yet published to PyPI. Until the first release, the standalone setup below requires cloning both repositories. Once canvodpy is on PyPI, only `uv sync` is needed. See `pyproject.toml` for the transition instructions.
-
 ---
 
 ## Run in the browser (no installation)
