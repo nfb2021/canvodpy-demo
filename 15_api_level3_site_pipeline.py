@@ -4,6 +4,10 @@
 #   "canvodpy>=0.2.2",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "15 · L3 — Site Pipeline"
+# description = "Process a full GNSS-T site with Site().pipeline().process_range(). Combines configuration, file discovery, storage, and VOD retrieval in a production-ready workflow."
 # ///
 
 import marimo

@@ -4,6 +4,10 @@
 #   "canvod-grids>=0.2.3",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "20 · Grid Exploration"
+# description = "Interactive explorer for canVODpy's hemispheric grid schemes. Compare equal-area, equal-angle, geodesic, and Fibonacci partitions at different resolutions."
 # ///
 
 import marimo

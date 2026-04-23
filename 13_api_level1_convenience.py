@@ -4,6 +4,10 @@
 #   "canvodpy>=0.2.2",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "13 · L1 — Convenience API"
+# description = "Run the full GNSS-T pipeline in a single call with canvodpy.process_date(). The highest-level API for quick exploration and notebook-first workflows."
 # ///
 
 import marimo

@@ -4,6 +4,10 @@
 #   "canvodpy>=0.2.2",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "12 · API Levels Overview"
+# description = "Survey canVODpy's four API levels: L1 convenience one-liners, L2 fluent chaining, L3 site pipelines, and L4 pure functional primitives."
 # ///
 
 import marimo

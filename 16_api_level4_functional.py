@@ -4,6 +4,10 @@
 #   "canvodpy>=0.2.2",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "16 · L4 — Functional API"
+# description = "Compose custom GNSS-T pipelines from pure functions in canvodpy.functional. Maximum flexibility for research, testing, and non-standard processing chains."
 # ///
 
 import marimo

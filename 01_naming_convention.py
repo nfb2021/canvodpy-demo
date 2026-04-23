@@ -4,6 +4,10 @@
 #   "canvod-virtualiconvname>=0.2.2",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "01 · Naming Convention & Validation"
+# description = "Parse and validate GNSS filenames against the IGS/RINEX naming convention. Explore the structured metadata encoded in every canVODpy filename."
 # ///
 
 import marimo

@@ -4,6 +4,10 @@
 #   "canvod-readers>=0.2.3",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "04 · SBF Binary Reading"
+# description = "Read Septentrio Binary Format (SBF) files into xarray Datasets. Access raw SNR, PVT solutions, DOP values, and satellite visibility from binary GNSS logs."
 # ///
 
 import marimo
@@ -56,6 +60,13 @@ def _():
     )
 
     return (mo,)
+
+
+@app.cell
+def _():
+    import _paths
+    from _download import marimo_downloader
+    _paths.ensure_data(downloader=marimo_downloader)
 
 
 # ---------------------------------------------------------------------------

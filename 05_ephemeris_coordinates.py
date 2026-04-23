@@ -5,6 +5,10 @@
 #   "canvod-auxiliary>=0.2.3",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "05 · Ephemeris & Coordinate Augmentation"
+# description = "Augment GNSS observations with precise SP3/CLK satellite ephemeris. Transform ECEF positions to receiver-relative spherical coordinates (polar angle θ, azimuth φ)."
 # ///
 
 import marimo
@@ -64,6 +68,13 @@ def _():
     )
 
     return (mo,)
+
+
+@app.cell
+def _():
+    import _paths
+    from _download import marimo_downloader
+    _paths.ensure_data(downloader=marimo_downloader)
 
 
 # ---------------------------------------------------------------------------

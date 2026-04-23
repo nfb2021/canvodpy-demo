@@ -4,6 +4,10 @@
 #   "canvod-grids>=0.2.3",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "06 · Hemispheric Grids"
+# description = "Explore equal-area, equal-angle, geodesic, and Fibonacci hemispheric grid schemes used to bin GNSS-T observations by sky position."
 # ///
 
 import marimo

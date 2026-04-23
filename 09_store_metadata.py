@@ -4,6 +4,10 @@
 #   "canvod-store-metadata>=0.2.2",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "09 · Store Metadata & FAIR Compliance"
+# description = "Attach rich DataCite, ACDD, and STAC provenance metadata to canVODpy stores. Validate FAIR compliance across identity, spatial, temporal, and instrument sections."
 # ///
 
 import marimo
@@ -41,13 +45,7 @@ def _():
 
     """
     )
-
     return (mo,)
-
-
-# ---------------------------------------------------------------------------
-# Section: metadata schema
-# ---------------------------------------------------------------------------
 
 
 @app.cell
@@ -84,13 +82,7 @@ def _(mo):
     defaults, and documentation.
     """
     )
-
     return (StoreMetadata,)
-
-
-# ---------------------------------------------------------------------------
-# Section: building metadata
-# ---------------------------------------------------------------------------
 
 
 @app.cell
@@ -154,13 +146,7 @@ def _(StoreMetadata, mo):
     collector functions when available.
     """
     )
-
-    return Creator, SpatialExtent, StoreIdentity, TemporalExtent
-
-
-# ---------------------------------------------------------------------------
-# Section: validation
-# ---------------------------------------------------------------------------
+    return
 
 
 @app.cell
@@ -224,19 +210,12 @@ def _(StoreMetadata, mo):
     without blocking data ingestion.
     """
     )
-
-    return (validate_all,)
-
-
-# ---------------------------------------------------------------------------
-# Section: I/O
-# ---------------------------------------------------------------------------
+    return
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Store I/O
 
     Metadata is stored in the Zarr root attributes under the key
@@ -283,21 +262,13 @@ def _(mo):
         datasets={"canopy": ds_canopy, "reference": ds_reference},
     )
     ```
-    """
-    )
-
+    """)
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: STAC integration
-# ---------------------------------------------------------------------------
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## STAC catalog integration
 
     For multi-site deployments, `scan_stores()` discovers all Icechunk
@@ -318,30 +289,20 @@ def _(mo):
     for geospatial data discovery.  The generated catalog can be served
     by any STAC API implementation (e.g. stac-fastapi) for web-based
     search and access.
-    """
-    )
-
+    """)
     return
-
-
-# ---------------------------------------------------------------------------
-# Footer
-# ---------------------------------------------------------------------------
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ---
 
     **Previous**: [08 — Icechunk Store](./08_icechunk_store.py)
     | **Next**: [10 — Visualization](./10_visualization.py)
 
     *canVODpy — Apache 2.0*
-    """
-    )
-
+    """)
     return
 
 

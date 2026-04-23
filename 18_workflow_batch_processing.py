@@ -4,6 +4,10 @@
 #   "canvodpy>=0.2.2",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "18 · Batch Processing Workflows"
+# description = "Process multiple days of GNSS-T data in parallel using Dask. Covers date-range iteration, store appends, and strategies for large-scale canopy monitoring."
 # ///
 
 import marimo

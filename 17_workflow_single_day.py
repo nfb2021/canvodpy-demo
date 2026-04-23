@@ -7,6 +7,10 @@
 #   "canvod-vod>=0.2.3",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "17 · Single-Day Workflow"
+# description = "End-to-end GNSS-T processing for a single day: read RINEX files, augment with SP3 ephemeris, assign to a hemispheric grid, and retrieve VOD."
 # ///
 
 import marimo
@@ -40,6 +44,13 @@ def _():
     )
 
     return (mo,)
+
+
+@app.cell
+def _():
+    import _paths
+    from _download import marimo_downloader
+    _paths.ensure_data(downloader=marimo_downloader)
 
 
 # ---------------------------------------------------------------------------

@@ -4,6 +4,10 @@
 #   "canvod-readers>=0.2.3",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "03 · Satellite Catalog"
+# description = "Query the IGS SatelliteCatalog for PRN metadata: SVN, block type, transmit power, mass, orbital plane, and GLONASS frequency channel."
 # ///
 
 import marimo

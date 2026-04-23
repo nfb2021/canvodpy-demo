@@ -4,6 +4,10 @@
 #   "canvodpy>=0.2.2",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.marimo.opengraph]
+# title = "14 · L2 — Fluent Workflow"
+# description = "Build readable GNSS-T pipelines with method chaining: FluentWorkflow().read().augment().grid().vod(). Step-by-step control with a clean, composable interface."
 # ///
 
 import marimo
