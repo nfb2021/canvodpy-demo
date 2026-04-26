@@ -101,24 +101,102 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    mo.mermaid("""
-    packet-beta
-        0-2: "SIT"
-        3: "T"
-        4-5: "NN"
-        6-8: "AGC"
-        9-11: "_R_"
-        12-15: "YYYY"
-        16-18: "DOY"
-        19-22: "HHMM"
-        23: "_"
-        24-26: "PPP"
-        27: "_"
-        28-30: "SSS"
-        31: "_"
-        32-33: "CC"
-        34: "."
-        35-37: "TTT"
+    mo.Html("""
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <div style="overflow-x:auto;padding:1rem 0.5rem;margin:0.5rem 0;">
+    <svg viewBox="0 0 880 304" xmlns="http://www.w3.org/2000/svg" style="display:block;min-width:820px;width:100%;">
+      <rect x="203" y="29" width="114" height="54" rx="5" fill="none" stroke="#1b4332" stroke-width="1.5" opacity="0.35"/>
+      <rect x="347" y="29" width="138" height="54" rx="5" fill="none" stroke="#1b4332" stroke-width="1.5" opacity="0.35"/>
+      <rect x="206" y="32" width="36" height="48" fill="#1b4332"/>
+      <rect x="242" y="32" width="12" height="48" fill="#2d6a4f"/>
+      <rect x="254" y="32" width="24" height="48" fill="#40916c"/>
+      <rect x="278" y="32" width="36" height="48" fill="#2d6a4f"/>
+      <rect x="314" y="32" width="36" height="48" fill="#d8f3dc"/>
+      <rect x="350" y="32" width="48" height="48" fill="#1b4332"/>
+      <rect x="398" y="32" width="36" height="48" fill="#2d6a4f"/>
+      <rect x="434" y="32" width="48" height="48" fill="#40916c"/>
+      <rect x="482" y="32" width="12" height="48" fill="#e9f5ee"/>
+      <rect x="494" y="32" width="36" height="48" fill="#52b788"/>
+      <rect x="530" y="32" width="12" height="48" fill="#e9f5ee"/>
+      <rect x="542" y="32" width="36" height="48" fill="#74c69d"/>
+      <rect x="578" y="32" width="12" height="48" fill="#e9f5ee"/>
+      <rect x="590" y="32" width="24" height="48" fill="#95d5b2"/>
+      <rect x="614" y="32" width="12" height="48" fill="#e9f5ee"/>
+      <rect x="626" y="32" width="36" height="48" fill="#b7e4c7"/>
+      <rect x="672" y="32" width="36" height="48" fill="rgba(212,237,218,0.30)" stroke="#52b788" stroke-width="1" stroke-dasharray="4,3"/>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="224" y="56" fill="white">ROS</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="248" y="56" fill="white">R</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="266" y="56" fill="white">01</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="296" y="56" fill="white">TUW</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="332" y="56" fill="#2d6a4f">_R_</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="374" y="56" fill="white">2025</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="416" y="56" fill="white">001</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="458" y="56" fill="white">0000</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="488" y="56" fill="#74c69d">_</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="512" y="56" fill="#1b2e22">15M</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="536" y="56" fill="#74c69d">_</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="560" y="56" fill="#1b2e22">05S</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="584" y="56" fill="#74c69d">_</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="602" y="56" fill="#1b2e22">AA</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="620" y="56" fill="#74c69d">.</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="644" y="56" fill="#1b2e22">rnx</text>
+      <text font-family="'Fira Code',monospace" font-size="20" font-weight="500" dominant-baseline="central" text-anchor="middle" x="690" y="56" fill="#40916c">.gz</text>
+      <text x="690" y="25" fill="#74c69d" font-family="'Fira Code',monospace" font-size="8" text-anchor="middle" letter-spacing="0.08em">optional</text>
+      <line x1="690" y1="27" x2="690" y2="31" stroke="#74c69d" stroke-width="0.8"/>
+      <line x1="260" y1="80" x2="122" y2="164" stroke="#2d6a4f" stroke-width="1" opacity="0.55"/>
+      <line x1="332" y1="80" x2="228" y2="164" stroke="#40916c" stroke-width="1" opacity="0.55"/>
+      <line x1="416" y1="80" x2="334" y2="164" stroke="#2d6a4f" stroke-width="1" opacity="0.55"/>
+      <line x1="512" y1="80" x2="440" y2="164" stroke="#52b788" stroke-width="1" opacity="0.60"/>
+      <line x1="560" y1="80" x2="546" y2="164" stroke="#74c69d" stroke-width="1" opacity="0.60"/>
+      <line x1="602" y1="80" x2="652" y2="164" stroke="#95d5b2" stroke-width="1" opacity="0.65"/>
+      <line x1="644" y1="80" x2="758" y2="164" stroke="#b7e4c7" stroke-width="1" opacity="0.70"/>
+      <rect x="74"  y="164" width="96" height="76" rx="6" fill="#f4f9f6"/><rect x="74"  y="164" width="96" height="76" rx="6" fill="white" stroke="#1b4332" stroke-width="1.2"/><rect x="74"  y="164" width="96" height="24" rx="6" fill="#1b4332"/><rect x="74"  y="176" width="96" height="12" fill="#1b4332"/>
+      <text x="122" y="180" fill="white"   font-family="'Space Grotesk',sans-serif" font-size="10" font-weight="600" text-anchor="middle">Station Block</text>
+      <text x="122" y="199" fill="#40916c" font-family="'Fira Code',monospace" font-size="8.5" text-anchor="middle">9 chars</text>
+      <text x="122" y="213" fill="#1b2e22" font-family="'Space Grotesk',sans-serif" font-size="9" text-anchor="middle">SIT · T · NN · AGC</text>
+      <text x="122" y="228" fill="#52b788" font-family="'Fira Code',monospace" font-size="8" text-anchor="middle">e.g. ROSR01TUW</text>
+      <rect x="180" y="164" width="96" height="76" rx="6" fill="#f4f9f6"/><rect x="180" y="164" width="96" height="76" rx="6" fill="white" stroke="#2d6a4f" stroke-width="1.2"/><rect x="180" y="164" width="96" height="24" rx="6" fill="#2d6a4f"/><rect x="180" y="176" width="96" height="12" fill="#2d6a4f"/>
+      <text x="228" y="180" fill="white"   font-family="'Space Grotesk',sans-serif" font-size="10" font-weight="600" text-anchor="middle">Data Source</text>
+      <text x="228" y="199" fill="#40916c" font-family="'Fira Code',monospace" font-size="8.5" text-anchor="middle">3 chars · literal</text>
+      <text x="228" y="213" fill="#1b2e22" font-family="'Space Grotesk',sans-serif" font-size="9" text-anchor="middle">Receiver = _R_</text>
+      <text x="228" y="228" fill="#52b788" font-family="'Fira Code',monospace" font-size="8" text-anchor="middle">always _R_</text>
+      <rect x="286" y="164" width="96" height="76" rx="6" fill="#f4f9f6"/><rect x="286" y="164" width="96" height="76" rx="6" fill="white" stroke="#1b4332" stroke-width="1.2"/><rect x="286" y="164" width="96" height="24" rx="6" fill="#1b4332"/><rect x="286" y="176" width="96" height="12" fill="#1b4332"/>
+      <text x="334" y="180" fill="white"   font-family="'Space Grotesk',sans-serif" font-size="10" font-weight="600" text-anchor="middle">Start Epoch</text>
+      <text x="334" y="199" fill="#40916c" font-family="'Fira Code',monospace" font-size="8.5" text-anchor="middle">11 chars</text>
+      <text x="334" y="213" fill="#1b2e22" font-family="'Space Grotesk',sans-serif" font-size="9" text-anchor="middle">YYYY · DOY · HHMM</text>
+      <text x="334" y="228" fill="#52b788" font-family="'Fira Code',monospace" font-size="8" text-anchor="middle">e.g. 20250010000</text>
+      <rect x="392" y="164" width="96" height="76" rx="6" fill="#f4f9f6"/><rect x="392" y="164" width="96" height="76" rx="6" fill="white" stroke="#52b788" stroke-width="1.2"/><rect x="392" y="164" width="96" height="24" rx="6" fill="#52b788"/><rect x="392" y="176" width="96" height="12" fill="#52b788"/>
+      <text x="440" y="180" fill="#1b2e22" font-family="'Space Grotesk',sans-serif" font-size="10" font-weight="600" text-anchor="middle">Period</text>
+      <text x="440" y="199" fill="#40916c" font-family="'Fira Code',monospace" font-size="8.5" text-anchor="middle">3 chars</text>
+      <text x="440" y="213" fill="#1b2e22" font-family="'Space Grotesk',sans-serif" font-size="9" text-anchor="middle">File duration</text>
+      <text x="440" y="228" fill="#2d6a4f" font-family="'Fira Code',monospace" font-size="8" text-anchor="middle">15M · 01H · 01D</text>
+      <rect x="498" y="164" width="96" height="76" rx="6" fill="#f4f9f6"/><rect x="498" y="164" width="96" height="76" rx="6" fill="white" stroke="#74c69d" stroke-width="1.2"/><rect x="498" y="164" width="96" height="24" rx="6" fill="#74c69d"/><rect x="498" y="176" width="96" height="12" fill="#74c69d"/>
+      <text x="546" y="180" fill="#1b2e22" font-family="'Space Grotesk',sans-serif" font-size="10" font-weight="600" text-anchor="middle">Sampling</text>
+      <text x="546" y="199" fill="#40916c" font-family="'Fira Code',monospace" font-size="8.5" text-anchor="middle">3 chars</text>
+      <text x="546" y="213" fill="#1b2e22" font-family="'Space Grotesk',sans-serif" font-size="9" text-anchor="middle">Obs. interval</text>
+      <text x="546" y="228" fill="#2d6a4f" font-family="'Fira Code',monospace" font-size="8" text-anchor="middle">05S · 30S · 01S</text>
+      <rect x="604" y="164" width="96" height="76" rx="6" fill="#f4f9f6"/><rect x="604" y="164" width="96" height="76" rx="6" fill="white" stroke="#95d5b2" stroke-width="1.2"/><rect x="604" y="164" width="96" height="24" rx="6" fill="#95d5b2"/><rect x="604" y="176" width="96" height="12" fill="#95d5b2"/>
+      <text x="652" y="180" fill="#1b2e22" font-family="'Space Grotesk',sans-serif" font-size="10" font-weight="600" text-anchor="middle">Content</text>
+      <text x="652" y="199" fill="#40916c" font-family="'Fira Code',monospace" font-size="8.5" text-anchor="middle">2 chars</text>
+      <text x="652" y="213" fill="#1b2e22" font-family="'Space Grotesk',sans-serif" font-size="9" text-anchor="middle">Content code</text>
+      <text x="652" y="228" fill="#2d6a4f" font-family="'Fira Code',monospace" font-size="8" text-anchor="middle">always AA</text>
+      <rect x="710" y="164" width="96" height="76" rx="6" fill="#f4f9f6"/><rect x="710" y="164" width="96" height="76" rx="6" fill="white" stroke="#b7e4c7" stroke-width="1.2"/><rect x="710" y="164" width="96" height="24" rx="6" fill="#b7e4c7"/><rect x="710" y="176" width="96" height="12" fill="#b7e4c7"/>
+      <text x="758" y="180" fill="#1b2e22" font-family="'Space Grotesk',sans-serif" font-size="10" font-weight="600" text-anchor="middle">Format</text>
+      <text x="758" y="199" fill="#40916c" font-family="'Fira Code',monospace" font-size="8.5" text-anchor="middle">3–4 chars</text>
+      <text x="758" y="213" fill="#1b2e22" font-family="'Space Grotesk',sans-serif" font-size="9" text-anchor="middle">File format ext.</text>
+      <text x="758" y="228" fill="#2d6a4f" font-family="'Fira Code',monospace" font-size="8" text-anchor="middle">rnx · sbf · ubx</text>
+      <line x1="24" y1="252" x2="856" y2="252" stroke="rgba(45,106,79,0.12)" stroke-width="0.8"/>
+      <rect x="24"  y="257" width="12" height="12" rx="2" fill="#1b4332"/><text x="40"  y="267" fill="#1b2e22" font-family="'Fira Code',monospace" font-size="8.5">Station</text>
+      <rect x="104" y="257" width="12" height="12" rx="2" fill="#2d6a4f"/><text x="120" y="267" fill="#1b2e22" font-family="'Fira Code',monospace" font-size="8.5">Source</text>
+      <rect x="184" y="257" width="12" height="12" rx="2" fill="#1b4332"/><text x="200" y="267" fill="#1b2e22" font-family="'Fira Code',monospace" font-size="8.5">Epoch</text>
+      <rect x="264" y="257" width="12" height="12" rx="2" fill="#52b788"/><text x="280" y="267" fill="#1b2e22" font-family="'Fira Code',monospace" font-size="8.5">Period / Sampling</text>
+      <rect x="424" y="257" width="12" height="12" rx="2" fill="#95d5b2"/><text x="440" y="267" fill="#1b2e22" font-family="'Fira Code',monospace" font-size="8.5">Content</text>
+      <rect x="504" y="257" width="12" height="12" rx="2" fill="#b7e4c7"/><text x="520" y="267" fill="#1b2e22" font-family="'Fira Code',monospace" font-size="8.5">Format</text>
+      <rect x="584" y="257" width="12" height="12" rx="2" fill="none" stroke="#52b788" stroke-dasharray="3,2" stroke-width="1"/><text x="600" y="267" fill="#74c69d" font-family="'Fira Code',monospace" font-size="8.5">Optional</text>
+      <rect x="672" y="257" width="12" height="12" rx="2" fill="#e9f5ee" stroke="rgba(45,106,79,0.20)" stroke-width="0.8"/><text x="688" y="267" fill="#74c69d" font-family="'Fira Code',monospace" font-size="8.5">Separator</text>
+      <text x="24" y="292" fill="#95d5b2" font-family="'Fira Code',monospace" font-size="7.5" letter-spacing="0.06em">* T: R = reference receiver (above canopy)  ·  A = active receiver (below canopy)</text>
+    </svg>
+    </div>
     """)
     return
 
