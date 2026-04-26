@@ -101,7 +101,7 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    mo.Html("""
+    return mo.Html("""
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <div style="overflow-x:auto;padding:1rem 0.5rem;margin:0.5rem 0;">
     <svg viewBox="0 0 880 304" xmlns="http://www.w3.org/2000/svg" style="display:block;min-width:820px;width:100%;">
@@ -198,7 +198,6 @@ def _(mo):
     </svg>
     </div>
     """)
-    return
 
 
 @app.cell
