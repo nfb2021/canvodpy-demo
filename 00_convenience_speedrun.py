@@ -4,6 +4,7 @@
 #   "canvod-readers>=0.2.3",
 #   "canvod-auxiliary>=0.2.3",
 #   "canvod-vod>=0.2.3",
+#   "pooch>=1.6",
 #   "marimo>=0.21.1",
 # ]
 #
@@ -14,7 +15,7 @@
 
 import marimo
 
-__generated_with = "0.21.1"
+__generated_with = "0.23.4"
 app = marimo.App(
     width="medium",
     app_title="Speedrun — Full Pipeline",

@@ -3,6 +3,7 @@
 # dependencies = [
 #   "canvod-store>=0.2.3",
 #   "canvod-ops>=0.2.2",
+#   "pooch>=1.6",
 #   "marimo>=0.21.1",
 # ]
 #
