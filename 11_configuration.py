@@ -2,6 +2,8 @@
 # requires-python = ">=3.14"
 # dependencies = [
 #   "canvod-utils>=0.2.2",
+#   "numpy>=1.24.0",
+#   "xarray>=2024.1.0",
 #   "marimo>=0.21.1",
 # ]
 #
