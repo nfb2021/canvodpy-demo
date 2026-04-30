@@ -2,6 +2,7 @@
 # requires-python = ">=3.14"
 # dependencies = [
 #   "canvod-readers>=0.2.3",
+#   "pooch>=1.6",
 #   "marimo>=0.21.1",
 # ]
 #

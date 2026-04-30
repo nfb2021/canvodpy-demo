@@ -1,13 +1,18 @@
 """Resolve test data directory for demo notebooks.
 
 Resolution order (checked in order):
-  1. Monorepo  — ../packages/canvod-readers/tests/test_data/valid/   (dev)
-  2. Standalone — ./test_data/valid/                                  (git clone)
-  3. Pooch cache — ~/.cache/canvodpy/canvodpy-test-data-v0.1.0/      (auto-download)
+  1. Monorepo    — ../packages/canvod-readers/tests/test_data/valid/  (dev)
+  2. Pooch cache — ~/.cache/canvodpy/canvodpy-test-data-v0.1.0/       (default)
+  3. Standalone  — ./test_data/valid/                                  (manual clone)
+  4. Download    — Zenodo DOI 10.5281/zenodo.19708759 via ensure_data()
 
-The Pooch path downloads canvodpy-test-data v0.1.0 from Zenodo on first use
-(1.69 GB zip, DOI: 10.5281/zenodo.19708759) and caches it locally.
-Subsequent calls are instant (cache hit).
+Paths 1–3 resolve immediately at import. Path 4 is deferred: TEST_DATA is
+set to None and resolved lazily via ensure_data() so notebooks can inject
+a marimo-aware progress bar before the download starts.
+
+The Pooch/Zenodo path is the default for all non-developer users: the first
+call to ensure_data() downloads canvodpy-test-data v0.1.0 (1.69 GB zip)
+and caches it locally. Subsequent imports are instant (cache hit, path 2).
 
 Usage
 -----
@@ -83,16 +88,30 @@ def _zenodo_valid_dir(downloader=None) -> Path:
 
 
 # ── Resolve TEST_DATA ────────────────────────────────────────────────
-# Paths 1 and 2 resolve immediately. Path 3 is deferred: TEST_DATA is
-# set to None and resolved lazily via ensure_data() so notebooks can
+# Paths 1–3 resolve immediately at import. Path 4 is deferred: TEST_DATA
+# is set to None and resolved lazily via ensure_data() so notebooks can
 # inject a marimo-aware progress bar before the download starts.
+
+def _pooch_cache_dir() -> Path | None:
+    """Return the pooch cache valid/ path if data was already downloaded."""
+    try:
+        import pooch
+        existing = list(
+            (Path(pooch.os_cache("canvodpy")) / _ZENODO_VERSION).glob("*/valid")
+        )
+        return existing[0] if existing else None
+    except ImportError:
+        return None
+
 
 if _monorepo.is_dir():
     TEST_DATA = _monorepo
+elif (_cached := _pooch_cache_dir()) is not None:
+    TEST_DATA = _cached
 elif _standalone.is_dir():
     TEST_DATA = _standalone
 else:
-    TEST_DATA = None  # resolved by ensure_data()
+    TEST_DATA = None  # resolved by ensure_data() → Zenodo download
 
 
 def ensure_data(downloader=None) -> Path:
