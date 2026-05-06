@@ -4,6 +4,7 @@
 #   "canvod-readers>=0.2.3",
 #   "canvod-auxiliary>=0.2.3",
 #   "canvod-vod>=0.2.3",
+#   "zarr>=3.1.2",
 #   "pooch>=1.6",
 #   "marimo>=0.21.1",
 # ]
