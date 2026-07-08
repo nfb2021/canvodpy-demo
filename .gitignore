@@ -15,6 +15,9 @@ __marimo__/session/
 # Pipeline outputs (stores, aux caches)
 outputs/
 
+# canvodpy logging output (created when running notebooks that import canvodpy)
+.logs/
+
 # Test data (cloned separately for standalone use)
 test_data/
 

@@ -49,7 +49,7 @@ def _():
     > For the conceptual background see the
     > [VOD Retrieval notebook](./07_vod_retrieval.py).
     > For production pipelines with configuration see
-    > [Single-Day Workflow](./17_workflow_single_day.py).
+    > [Single-Day Workflow](./16_workflow_single_day.py).
 
     ---
     """
@@ -281,7 +281,8 @@ def _(mo):
     | [05 — Ephemeris & Coordinates](./05_ephemeris_coordinates.py) | SP3/CLK, ECEF → spherical |
     | [07 — VOD Retrieval](./07_vod_retrieval.py) | Full VOD derivation explained |
     | [08 — Icechunk Store](./08_icechunk_store.py) | Persist results in a versioned store |
-    | [17 — Single-Day Workflow](./17_workflow_single_day.py) | Production pipeline, all 96 files |
+    | [16 — Single-Day Workflow](./16_workflow_single_day.py) | Production pipeline, all 96 files |
+    | [13 — Running the Pipeline (CLI)](./13_cli_pipeline.py) | The `canvodpy run` command-line interface |
 
     *canVODpy — Apache 2.0*
     """)

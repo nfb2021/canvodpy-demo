@@ -46,15 +46,14 @@ Format:
 - [x] `09_store_metadata.py` — Store Metadata & FAIR Compliance
 - [x] `10_visualization.py` — Visualization
 - [x] `11_configuration.py` — Configuration & Utilities
-- [x] `12_api_overview.py` — API Levels Overview
-- [x] `13_api_level1_convenience.py` — L1 — Convenience API
-- [x] `14_api_level2_fluent.py` — L2 — Fluent Workflow
-- [x] `15_api_level3_site_pipeline.py` — L3 — Site Pipeline
-- [x] `16_api_level4_functional.py` — L4 — Functional API
-- [x] `17_workflow_single_day.py` — Single-Day Workflow
-- [x] `18_workflow_batch_processing.py` — Batch Processing Workflows
-- [x] `19_workflow_store_operations.py` — Store Operations
-- [x] `20_grid_exploration.py` — Grid Exploration
+- [x] `12_api_overview.py` — API Overview
+- [x] `13_cli_pipeline.py` — Running the Pipeline (CLI)
+- [x] `14_site_pipeline.py` — Site Pipeline
+- [x] `15_functional_api.py` — Functional API
+- [x] `16_workflow_single_day.py` — Single-Day Workflow
+- [x] `17_workflow_batch_processing.py` — Batch Processing Workflows
+- [x] `18_workflow_store_operations.py` — Store Operations
+- [x] `19_grid_exploration.py` — Grid Exploration
 
 ---
 
@@ -78,13 +77,12 @@ Notebooks that need this (read files from `TEST_DATA`):
 - [x] `05_ephemeris_coordinates.py`
 - [x] `07_vod_retrieval.py`
 - [x] `08_icechunk_store.py`
-- [ ] `13_api_level1_convenience.py` — uses `"my_site"` placeholder, no real data
-- [ ] `14_api_level2_fluent.py` — uses `"my_site"` placeholder, no real data
-- [ ] `15_api_level3_site_pipeline.py` — uses `"my_site"` placeholder, no real data
-- [ ] `16_api_level4_functional.py` — uses `"my_site"` placeholder, no real data
-- [x] `17_workflow_single_day.py`
-- [ ] `18_workflow_batch_processing.py` — uses `"my_site"` placeholder, no real data
-- [x] `19_workflow_store_operations.py`
+- [ ] `13_cli_pipeline.py` — shell/documentation only, no real data
+- [ ] `14_site_pipeline.py` — uses `"my_site"` placeholder, no real data
+- [ ] `15_functional_api.py` — uses `"my_site"` placeholder, no real data
+- [x] `16_workflow_single_day.py`
+- [ ] `17_workflow_batch_processing.py` — uses `"my_site"` placeholder, no real data
+- [x] `18_workflow_store_operations.py`
 
 ---
 

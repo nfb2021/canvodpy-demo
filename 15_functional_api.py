@@ -6,7 +6,7 @@
 # ]
 #
 # [tool.marimo.opengraph]
-# title = "16 · L4 — Functional API"
+# title = "15 · Functional API"
 # description = "Compose custom GNSS-T pipelines from pure functions in canvodpy.functional. Maximum flexibility for research, testing, and non-standard processing chains."
 # ///
 
@@ -14,7 +14,7 @@ import marimo
 
 __generated_with = "0.21.1"
 app = marimo.App(
-    width="medium", app_title="L4 — Functional API", css_file="canvod_nordic.css"
+    width="medium", app_title="Functional API", css_file="canvod_nordic.css"
 )
 
 
@@ -24,9 +24,9 @@ def _():
 
     mo.md(
         r"""
-    # Level 4 — Functional API
+    # Functional API
 
-    The L4 API exposes every pipeline step as a **standalone pure
+    `canvodpy.functional` exposes every pipeline step as a **standalone pure
     function**.  Each function has two variants:
 
     - **In-memory**: accepts and returns `xr.Dataset`
@@ -215,28 +215,28 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-    ## Mixing API levels
+    ## Mixing the functional API with `Site`/`Pipeline`
 
-    L4 functions use the same underlying components as all other levels.
-    You can freely mix levels in a single script:
+    Functional pieces use the same underlying components as `Site.pipeline()`.
+    You can freely mix both surfaces in a single script:
 
     ```python
     from canvodpy import Site
     from canvodpy.functional import read_rinex, calculate_vod
 
-    # Use L2 for site configuration
+    # Use Site for configuration and receiver metadata
     site = Site("my_site")
 
-    # Use L4 for explicit step control
+    # Use functional pieces for explicit step control
     ds_c = read_rinex(site_canopy_path, reader="rinex3")
     ds_r = read_rinex(site_reference_path)
 
-    # Use the VodComputer from L3
     vod_result = calculate_vod(ds_c, ds_r, calculator="tau_omega")
     ```
 
-    This flexibility is by design: the API levels are not mutually
-    exclusive but complementary views of the same pipeline.
+    This flexibility is by design: the CLI, `Site.pipeline()`, and
+    `canvodpy.functional` are not mutually exclusive but complementary
+    views of the same underlying pipeline.
     """
     )
 
@@ -254,8 +254,8 @@ def _(mo):
         r"""
     ---
 
-    **Previous**: [15 — L3 Site Pipeline](./15_api_level3_site_pipeline.py)
-    | **Next**: [17 — Single-Day Workflow](./17_workflow_single_day.py)
+    **Previous**: [14 — Site Pipeline](./14_site_pipeline.py)
+    | **Next**: [16 — Single-Day Workflow](./16_workflow_single_day.py)
 
     *canVODpy — Apache 2.0*
     """
