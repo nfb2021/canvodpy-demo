@@ -8,7 +8,7 @@
 # ]
 #
 # [tool.marimo.opengraph]
-# title = "19 · Store Operations"
+# title = "18 · Store Operations"
 # description = "Read, write, branch, and query Icechunk stores. Covers temporal aggregation, store snapshots, metadata queries, and the operational pipeline layer."
 # ///
 
@@ -355,8 +355,8 @@ def _(mo):
     mo.md(r"""
     ---
 
-    **Previous**: [18 — Batch Processing](./18_workflow_batch_processing.py)
-    | **Next**: [20 — Grid Exploration](./20_grid_exploration.py)
+    **Previous**: [17 — Batch Processing](./17_workflow_batch_processing.py)
+    | **Next**: [19 — Grid Exploration](./19_grid_exploration.py)
 
     *canVODpy — Apache 2.0*
     """)

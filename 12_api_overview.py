@@ -6,15 +6,15 @@
 # ]
 #
 # [tool.marimo.opengraph]
-# title = "12 · API Levels Overview"
-# description = "Survey canVODpy's four API levels: L1 convenience one-liners, L2 fluent chaining, L3 site pipelines, and L4 pure functional primitives."
+# title = "12 · API Overview"
+# description = "Survey canVODpy's two supported Python surfaces -- Site.pipeline() and the functional API -- plus the canvodpy run CLI that wraps Site.pipeline() for production use."
 # ///
 
 import marimo
 
 __generated_with = "0.21.1"
 app = marimo.App(
-    width="medium", app_title="API Levels Overview", css_file="canvod_nordic.css"
+    width="medium", app_title="API Overview", css_file="canvod_nordic.css"
 )
 
 
@@ -24,23 +24,26 @@ def _():
 
     mo.md(
         r"""
-    # canvodpy API Levels
+    # canvodpy API Overview
 
-    canvodpy exposes **four API levels**, each designed for a different
-    use case and user profile.  All levels produce the same scientific
-    results — the same VOD values from the same input data — but
-    differ in verbosity, control, and composability.
+    canvodpy has **three supported ways to run or script the pipeline**.
+    All three produce the same scientific results — the same VOD values
+    from the same input data — but differ in where you invoke them from
+    and how much control you need.
 
-    | Level | Style | Entry point | Use case |
-    |-------|-------|-------------|----------|
-    | **L1** | Convenience | `process_date()`, `calculate_vod()` | Quick exploration, notebooks |
-    | **L2** | Object-oriented / fluent | `Site()`, `Pipeline()`, `workflow()` | Interactive workflows |
-    | **L3** | Site pipeline | `site.vod.compute_day()` | Full site processing with config |
-    | **L4** | Functional | `read_rinex()`, `calculate_vod()` | Airflow DAGs, custom pipelines |
+    | Surface | Style | Entry point | Use case |
+    |---------|-------|-------------|----------|
+    | **CLI** | Command-line | `canvodpy run --site ...` | Running production ingestion — recommended |
+    | **Site pipeline** | Python, object-oriented | `Site(...).pipeline()` | Python-native scripting; what the CLI wraps internally |
+    | **Functional** | Python, pure functions | `canvodpy.functional.*` | Component-level scripting, custom pipelines, Airflow (stateless) |
 
-    The levels form a **progressive disclosure** hierarchy: L1 hides
-    all complexity behind single function calls; L4 exposes every
-    component as a standalone function suitable for workflow orchestrators.
+    Earlier versions of canvodpy exposed four numbered "API levels"
+    (L1 convenience one-liners, L2 fluent method chaining, L3 site
+    pipelines, L4 functional). L1 and L2 are now deprecated — L1 was a
+    thin wrapper around exactly what `Site.pipeline()` already does, and
+    L2's fluent chain was superfluous alongside it. Both still work (with
+    a `DeprecationWarning`) but are no longer documented or taught. This
+    notebook covers what replaced them.
 
     ---
 
@@ -51,7 +54,7 @@ def _():
 
 
 # ---------------------------------------------------------------------------
-# Section: L1 convenience
+# Section: CLI
 # ---------------------------------------------------------------------------
 
 
@@ -59,32 +62,33 @@ def _():
 def _(mo):
     mo.md(
         r"""
-    ## Level 1 — Convenience functions
+    ## CLI — running the pipeline
 
-    L1 provides the simplest possible interface: one function call per
-    task.  Configuration is loaded automatically from the monorepo's
-    `config/` directory.
+    The recommended way to run canvodpy in production: a single command,
+    resumable, no Python required.
 
-    ```python
-    import canvodpy
+    ```bash
+    # Process a range
+    uv run canvodpy run --site Rosalia --start 2025001 --end 2025007
 
-    # Process a single day for all receivers at a site
-    data = canvodpy.process_date("my_site", "2025001")
+    # Resume automatically from the last processed date
+    uv run canvodpy run --site Rosalia
 
-    # Calculate VOD for a specific receiver pair
-    vod = canvodpy.calculate_vod(
-        "my_site", "canopy_01", "reference_01", "2025001",
-    )
+    # Multiple sites in one invocation (processed sequentially)
+    uv run canvodpy run --site Rosalia OtherSite
 
-    # Preview what would happen without running
-    plan = canvodpy.preview_processing("my_site")
+    # Preview without executing
+    uv run canvodpy run --site Rosalia --dry-run
     ```
 
-    L1 is ideal for **notebooks and quick exploration**: no imports
-    beyond `canvodpy`, no configuration objects, no state management.
-    The trade-off is limited control — you cannot change compression
-    settings, grid parameters, or worker allocation without editing
-    the YAML config files.
+    The CLI is a thin wrapper around `Site(...).pipeline().process_range()`
+    — same code path, same guarantees. It adds resumability (auto-detects
+    the last committed date in the store), a live progress display, and a
+    few production-oriented flags (`--ephemeris-source`, `--vod-calculator`,
+    `--workers`, `--days-per-batch`).
+
+    See [13 — Running the Pipeline (CLI)](./13_cli_pipeline.py) for a full
+    walkthrough of the flags.
     """
     )
 
@@ -92,7 +96,7 @@ def _(mo):
 
 
 # ---------------------------------------------------------------------------
-# Section: L2 object-oriented
+# Section: Site pipeline
 # ---------------------------------------------------------------------------
 
 
@@ -100,102 +104,29 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-    ## Level 2 — Object-oriented API
+    ## Site pipeline — Python-native scripting
 
-    L2 introduces stateful objects that provide more control while
-    remaining concise.
-
-    ### Site and Pipeline
-
-    ```python
-    from canvodpy import Site, Pipeline
-
-    # Inspect a site
-    site = Site("my_site")
-    print(site.receivers)       # All configured receivers
-    print(site.vod_analyses)    # All VOD pair definitions
-
-    # Create a pipeline with custom settings
-    with site.pipeline(
-        aux_agency="COD",
-        n_workers=4,
-        batch_hours=24.0,
-    ) as pipe:
-        data = pipe.process_date("2025001")
-        vod = pipe.calculate_vod("canopy_01", "reference_01", "2025001")
-
-        # Process a date range (yields results as generator)
-        for date, result in pipe.process_range("2025001", "2025010"):
-            print(f"{date}: {len(result)} receivers")
-    ```
-
-    The `Pipeline` context manager manages Dask client lifecycle
-    and cleans up resources on exit.
-
-    ### Fluent workflow
-
-    ```python
-    from canvodpy import workflow
-
-    result = (workflow("my_site")
-        .read("2025001")
-        .augment(source="final", agency="COD")
-        .grid("equal_area", angular_resolution=2.0)
-        .vod("canopy_01", "reference_01")
-        .result())
-    ```
-
-    The fluent API uses **deferred execution**: steps are recorded but
-    not executed until `.result()` is called.  The `.explain()` method
-    returns the execution plan without running it.
-    """
-    )
-
-    return
-
-
-# ---------------------------------------------------------------------------
-# Section: L3 site pipeline
-# ---------------------------------------------------------------------------
-
-
-@app.cell
-def _(mo):
-    mo.md(
-        r"""
-    ## Level 3 — Site pipeline
-
-    L3 provides direct access to the `VodComputer`, which implements
-    two computation strategies:
-
-    - **`compute_day()`**: takes pre-loaded datasets (already in memory),
-      computes VOD inline
-    - **`compute_bulk()`**: loads data from the Icechunk store, computes
-      VOD for a date range, optionally writes results back
+    `Site(...).pipeline()` is what the CLI calls internally. Use it
+    directly when you need scripted control from Python: looping over
+    sites, embedding a run inside a notebook, or customising resources
+    per invocation.
 
     ```python
     from canvodpy import Site
 
     site = Site("my_site")
-    vod = site.vod  # VodComputer instance
 
-    # Strategy 1: inline computation from loaded data
-    datasets = pipe.process_date("2025001")
-    result = vod.compute_day(datasets, "main")
-
-    # Strategy 2: bulk computation from store
-    result = vod.compute_bulk(
-        "main",
-        start=datetime(2025, 1, 1),
-        end=datetime(2025, 1, 31),
-        write=True,
-    )
+    with site.pipeline(n_workers=4) as pipe:
+        for date_key, datasets in pipe.process_range("2025001", "2025010"):
+            print(f"{date_key}: {list(datasets)}")
     ```
 
-    L3 is designed for **production workflows** where the processing
-    pipeline and VOD computation run as separate stages — for
-    example, when RINEX data is ingested nightly and VOD is computed
-    weekly from the store.
+    Once data is ingested, `site.vod` (a `VodComputer`) gives finer control
+    over VOD computation as a separate stage — useful for production
+    deployments that ingest nightly and recompute VOD on a different
+    schedule.
+
+    See [14 — Site Pipeline](./14_site_pipeline.py) for the full walkthrough.
     """
     )
 
@@ -203,7 +134,7 @@ def _(mo):
 
 
 # ---------------------------------------------------------------------------
-# Section: L4 functional
+# Section: Functional
 # ---------------------------------------------------------------------------
 
 
@@ -211,42 +142,35 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-    ## Level 4 — Functional API
+    ## Functional API
 
-    L4 exposes every pipeline step as a standalone pure function.
-    Each function has two variants:
-
-    - **In-memory**: takes and returns `xr.Dataset`
-    - **File-based**: takes and returns file paths (for Airflow XCom)
+    `canvodpy.functional` exposes every pipeline step as a standalone pure
+    function. Each function has an in-memory variant (`xr.Dataset` in,
+    `xr.Dataset` out) and a file-based variant (paths in, paths out) for
+    workflow orchestrators where each task runs in a separate process.
 
     ```python
     from canvodpy.functional import (
-        read_rinex,           # → xr.Dataset
-        read_rinex_to_file,   # → str (path)
+        read_rinex,
         augment_with_ephemeris,
         create_grid,
         assign_grid_cells,
         calculate_vod,
-        calculate_vod_to_file,
     )
 
-    # In-memory pipeline
     ds = read_rinex("observation.rnx")
     ds = augment_with_ephemeris(ds, rx_pos, source="final", agency="COD")
     grid = create_grid("equal_area", angular_resolution=2.0)
     ds = assign_grid_cells(ds, grid)
     vod = calculate_vod(canopy_ds, sky_ds)
-
-    # File-based pipeline (for Airflow)
-    c = read_rinex_to_file("c.rnx", "/tmp/c.nc")
-    s = read_rinex_to_file("s.rnx", "/tmp/s.nc")
-    v = calculate_vod_to_file(c, s, "/tmp/vod.nc")
     ```
 
-    L4 is designed for **workflow orchestrators** (Airflow, Prefect,
-    Dagster) where each step runs in a separate process or container.
-    The file-based variants serialise intermediate results to NetCDF,
-    allowing steps to run on different machines.
+    This is the surface Airflow DAGs use (stateless, one function per
+    task), and it's also the natural fit for research/analysis notebooks
+    where you want to inspect or modify an intermediate step.
+
+    See [15 — Functional API](./15_functional_api.py) for the full
+    walkthrough.
     """
     )
 
@@ -293,7 +217,9 @@ def _(mo):
     | `VODFactory` | {", ".join(f"`{v}`" for v in _vods)} |
 
     Custom components must implement the corresponding abstract base
-    class (`GNSSDataReader`, `GridBuilder`, or `VODCalculator`).
+    class (`GNSSDataReader`, `GridBuilder`, or `VODCalculator`). The
+    `canvodpy run --vod-calculator` CLI flag reads its choices directly
+    from `VODFactory.list_available()`.
     """
     )
 
@@ -301,7 +227,7 @@ def _(mo):
 
 
 # ---------------------------------------------------------------------------
-# Section: choosing an API level
+# Section: choosing a surface
 # ---------------------------------------------------------------------------
 
 
@@ -309,30 +235,29 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-    ## Choosing an API level
+    ## Choosing a surface
 
     | If you want to... | Use |
     |-------------------|-----|
-    | Quickly inspect data in a notebook | L1: `process_date()` |
-    | Run an interactive analysis session | L2: `Site()` + `Pipeline()` |
-    | Build a composable, testable pipeline | L2: `workflow()` (fluent) |
-    | Run nightly production ingestion | L3: `site.vod.compute_bulk()` |
-    | Orchestrate with Airflow/Prefect | L4: `*_to_file()` functions |
-    | Extend with custom algorithms | Factories: `VODFactory.register()` |
+    | Run production ingestion, resumable, from a shell/cron | CLI: `canvodpy run` |
+    | Script a run in Python — loop over sites, embed in a notebook | `Site(...).pipeline()` |
+    | Recompute VOD separately from ingestion | `Site(...).vod` (`VodComputer`) |
+    | Orchestrate with Airflow/Prefect, one function per task | `canvodpy.functional.*` |
+    | Inspect or modify an intermediate step for research | `canvodpy.functional.*` |
+    | Extend with a custom reader/grid/calculator | Factories: `VODFactory.register()` |
 
-    All levels share the same underlying implementations.  You can mix
-    levels freely — for example, use L1 to explore data in a notebook,
-    then switch to L2 for a scripted workflow, then deploy the same
-    logic via L4 in Airflow.
+    All three surfaces share the same underlying implementations — you
+    can mix them freely. A common pattern: use the CLI for scheduled
+    production runs, and `canvodpy.functional` in an analysis notebook to
+    inspect a specific day's intermediate results.
 
     ---
 
-    The following notebooks demonstrate each level in detail:
+    The following notebooks demonstrate each surface in detail:
 
-    - [13 — L1 Convenience](./13_api_level1_convenience.py)
-    - [14 — L2 Fluent Workflow](./14_api_level2_fluent.py)
-    - [15 — L3 Site Pipeline](./15_api_level3_site_pipeline.py)
-    - [16 — L4 Functional](./16_api_level4_functional.py)
+    - [13 — Running the Pipeline (CLI)](./13_cli_pipeline.py)
+    - [14 — Site Pipeline](./14_site_pipeline.py)
+    - [15 — Functional API](./15_functional_api.py)
     """
     )
 
@@ -351,7 +276,7 @@ def _(mo):
     ---
 
     **Previous**: [11 — Configuration](./11_configuration.py)
-    | **Next**: [13 — L1 Convenience](./13_api_level1_convenience.py)
+    | **Next**: [13 — Running the Pipeline (CLI)](./13_cli_pipeline.py)
 
     *canVODpy — Apache 2.0*
     """

@@ -11,7 +11,7 @@
 # ]
 #
 # [tool.marimo.opengraph]
-# title = "17 · Single-Day Workflow"
+# title = "16 · Single-Day Workflow"
 # description = "End-to-end GNSS-T processing for a single day: read RINEX files, augment with SP3 ephemeris, assign to a hemispheric grid, and retrieve VOD."
 # ///
 
@@ -32,10 +32,10 @@ def _():
     # Single-Day Processing Workflow
 
     This notebook walks through a complete single-day GNSS-T processing
-    pipeline **step by step**, using the L4 functional API to make each
+    pipeline **step by step**, using the functional API to make each
     stage explicit.  The same result can be obtained with a single
-    `process_date()` call (L1), but the manual approach reveals what
-    happens at each stage.
+    `Site(...).pipeline().process_date()` call, but the manual approach
+    reveals what happens at each stage.
 
     **Date**: DOY 2025-001 (January 1, 2025)
     **Receivers**: canopy + reference
@@ -357,8 +357,8 @@ def _(mo):
     | 5 | `add_cell_ids_to_vod_fast()` | VOD dataset + grid | VOD + cell_id |
 
     Each step can be run independently, inspected, and debugged.
-    The L1 and L2 APIs wrap these exact same steps in a more
-    convenient interface.
+    `Site.pipeline()` and the `canvodpy run` CLI wrap these exact same
+    steps in a more convenient interface.
     """
     )
 
@@ -376,8 +376,8 @@ def _(mo):
         r"""
     ---
 
-    **Previous**: [16 — L4 Functional](./16_api_level4_functional.py)
-    | **Next**: [18 — Batch Processing](./18_workflow_batch_processing.py)
+    **Previous**: [15 — Functional API](./15_functional_api.py)
+    | **Next**: [17 — Batch Processing](./17_workflow_batch_processing.py)
 
     *canVODpy — Apache 2.0*
     """

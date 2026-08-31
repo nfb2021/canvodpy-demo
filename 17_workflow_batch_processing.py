@@ -6,7 +6,7 @@
 # ]
 #
 # [tool.marimo.opengraph]
-# title = "18 · Batch Processing Workflows"
+# title = "17 · Batch Processing Workflows"
 # description = "Process multiple days of GNSS-T data in parallel using Dask. Covers date-range iteration, store appends, and strategies for large-scale canopy monitoring."
 # ///
 
@@ -330,8 +330,8 @@ def _(mo):
         r"""
     ---
 
-    **Previous**: [17 — Single-Day Workflow](./17_workflow_single_day.py)
-    | **Next**: [19 — Store Operations](./19_workflow_store_operations.py)
+    **Previous**: [16 — Single-Day Workflow](./16_workflow_single_day.py)
+    | **Next**: [18 — Store Operations](./18_workflow_store_operations.py)
 
     *canVODpy — Apache 2.0*
     """

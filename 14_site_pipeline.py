@@ -6,15 +6,15 @@
 # ]
 #
 # [tool.marimo.opengraph]
-# title = "15 · L3 — Site Pipeline"
-# description = "Process a full GNSS-T site with Site().pipeline().process_range(). Combines configuration, file discovery, storage, and VOD retrieval in a production-ready workflow."
+# title = "14 · Site Pipeline"
+# description = "Process a full GNSS-T site with Site().pipeline().process_range() -- the same code path the canvodpy CLI runs. Combines configuration, file discovery, storage, and VOD retrieval in a production-ready workflow."
 # ///
 
 import marimo
 
 __generated_with = "0.21.1"
 app = marimo.App(
-    width="medium", app_title="L3 — Site Pipeline", css_file="canvod_nordic.css"
+    width="medium", app_title="Site Pipeline", css_file="canvod_nordic.css"
 )
 
 
@@ -24,20 +24,33 @@ def _():
 
     mo.md(
         r"""
-    # Level 3 — Site Pipeline
+    # Site Pipeline
 
-    The L3 API provides direct access to the `VodComputer` for
-    fine-grained control over VOD computation.  It is designed for
-    **production workflows** where data ingestion and VOD retrieval
-    run as separate stages.
+    `Site(...).pipeline()` is canvodpy's Python-native surface for running
+    the pipeline — the exact same code path the `canvodpy run` CLI wraps
+    internally. Use it directly when you need scripted control: looping
+    over sites, embedding a run inside a notebook, or customising resource
+    limits per invocation.
 
-    The key abstraction is `VodComputer`, accessible via `site.vod`.
-    It offers two computation strategies:
+    ```python
+    from canvodpy import Site
 
-    - **`compute_day()`**: inline computation from pre-loaded datasets
-    - **`compute_bulk()`**: batch computation from the Icechunk store
+    site = Site("my_site")
 
-    —
+    with site.pipeline(n_workers=4) as pipe:
+        for date_key, datasets in pipe.process_range("2025001", "2025010"):
+            print(f"{date_key}: {list(datasets)}")
+    ```
+
+    `process_range()` is a generator: it discovers files, augments with
+    ephemeris, writes to the Icechunk store, and yields one
+    `(date_key, datasets)` pair per processed day — this is what the CLI's
+    reporter loop consumes to show live progress.
+
+    Once data is ingested, `site.vod` (a `VodComputer`) gives finer-grained
+    control over VOD computation as a separate stage — covered below.
+
+    ---
 
     """
     )
@@ -54,7 +67,10 @@ def _():
 def _(mo):
     mo.md(
         r"""
-    ## VodComputer
+    ## VodComputer — VOD as a separate stage
+
+    `site.vod` offers two computation strategies for when VOD retrieval is
+    decoupled from ingestion (e.g. ingest nightly, recompute VOD weekly):
 
     ```python
     from canvodpy import Site
@@ -66,21 +82,19 @@ def _(mo):
     | Property | Description |
     |----------|-------------|
     | `site` | Parent `Site` object |
-    | `calculator` | VOD calculator type (default: `"tau_omega_zeroth"`) |
+    | `calculator` | VOD calculator type (default: `"tau_omega"`) |
     | `rechunk` | Optional rechunk parameters for store reads |
 
     ### Strategy 1: `compute_day()` — inline
 
     ```python
-    # Load data first (via Pipeline or L4 functions)
-    datasets = pipe.process_date("2025001")
-
-    # Compute VOD from loaded datasets
-    result = vod.compute_day(
-        datasets,               # Dict of receiver datasets
-        "main",                 # Analysis name from vod_analyses config
-        write=True,             # Write result to VOD store
-    )
+    # Load data first, e.g. via pipe.process_range()
+    for date_key, datasets in pipe.process_range("2025001", "2025001"):
+        result = vod.compute_day(
+            datasets,               # Dict of receiver datasets
+            "main",                 # Analysis name from vod_analyses config
+            write=True,             # Write result to VOD store
+        )
     ```
 
     `compute_day()` calls `.load()` on the Dask-backed datasets to
@@ -181,10 +195,11 @@ def _(mo):
 
     site = Site("my_site")
 
-    # Stage 1: nightly ingestion (runs via cron or Airflow)
+    # Stage 1: nightly ingestion (runs via cron or Airflow --
+    # or just `canvodpy run --site my_site` on a schedule)
     with site.pipeline(n_workers=4) as pipe:
-        data = pipe.process_date("2025032")
-        # Data is now in the Icechunk RINEX store
+        for date_key, datasets in pipe.process_range("2025032", "2025032"):
+            pass  # data is now in the Icechunk RINEX store
 
     # Stage 2: weekly VOD computation (triggered separately)
     result = site.vod.compute_bulk(
@@ -219,8 +234,8 @@ def _(mo):
         r"""
     —
 
-    **Previous**: [14 — L2 Fluent Workflow](./14_api_level2_fluent.py)
-    | **Next**: [16 — L4 Functional](./16_api_level4_functional.py)
+    **Previous**: [13 — Running the Pipeline (CLI)](./13_cli_pipeline.py)
+    | **Next**: [15 — Functional API](./15_functional_api.py)
 
     *canVODpy — Apache 2.0*
     """

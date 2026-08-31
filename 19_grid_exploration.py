@@ -7,7 +7,7 @@
 # ]
 #
 # [tool.marimo.opengraph]
-# title = "20 · Grid Exploration"
+# title = "19 · Grid Exploration"
 # description = "Interactive explorer for canVODpy's hemispheric grid schemes. Compare equal-area, equal-angle, geodesic, and Fibonacci partitions at different resolutions."
 # ///
 
@@ -345,7 +345,7 @@ def _(mo):
         r"""
     ---
 
-    **Previous**: [19 — Store Operations](./19_workflow_store_operations.py)
+    **Previous**: [18 — Store Operations](./18_workflow_store_operations.py)
 
     *canVODpy — Apache 2.0*
     """
