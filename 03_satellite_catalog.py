@@ -6,7 +6,7 @@
 # ]
 #
 # [tool.uv.sources]
-# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
+# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
 #
 # [tool.marimo.opengraph]
 # title = "03 · Satellite Catalog"

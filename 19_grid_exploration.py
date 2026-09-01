@@ -7,7 +7,7 @@
 # ]
 #
 # [tool.uv.sources]
-# canvod-grids = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-grids", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
+# canvod-grids = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-grids", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
 #
 # [tool.marimo.opengraph]
 # title = "19 · Grid Exploration"

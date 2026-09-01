@@ -113,6 +113,18 @@ elif _standalone.is_dir():
 else:
     TEST_DATA = None  # resolved by ensure_data() → Zenodo download
 
+# The canvodpy monorepo root, when `demo/` is checked out as its submodule
+# (i.e. the same condition TEST_DATA's monorepo branch above already
+# checks). None for a standalone clone / pooch-cache / Zenodo-download
+# checkout, where there is no local canvodpy checkout to speak of.
+# `_live_store.py` needs this: `canvodpy run` requires a *local*,
+# never-committed `config/canvod-settings.yaml` to exist somewhere
+# `ConfigLoader.find_monorepo_root()` can discover by walking up from the
+# subprocess's cwd -- and `demo/` is itself a separate git submodule with
+# its own `.git`, so a subprocess launched with `demo/`'s own cwd stops
+# there instead of reaching the real canvodpy root.
+MONOREPO_ROOT = _here.parent if _monorepo.is_dir() else None
+
 
 def ensure_data(downloader=None) -> Path:
     """Ensure test data is available and return the valid/ path.
