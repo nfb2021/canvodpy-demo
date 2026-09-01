@@ -1,9 +1,12 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvod-store-metadata>=0.2.2",
+#   "canvod-store-metadata",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.uv.sources]
+# canvod-store-metadata = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store-metadata", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
 #
 # [tool.marimo.opengraph]
 # title = "09 · Store Metadata & FAIR Compliance"

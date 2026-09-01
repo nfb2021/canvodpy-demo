@@ -1,12 +1,15 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvod-utils>=0.2.2",
+#   "canvod-utils",
 #   "numpy>=1.24.0",
 #   "xarray>=2024.1.0",
 #   "zarr>=3.1.2",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.uv.sources]
+# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
 #
 # [tool.marimo.opengraph]
 # title = "11 · Configuration & Utilities"

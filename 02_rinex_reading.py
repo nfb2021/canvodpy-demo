@@ -1,10 +1,13 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvod-readers>=0.2.3",
+#   "canvod-readers",
 #   "pooch>=1.6",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.uv.sources]
+# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
 #
 # [tool.marimo.opengraph]
 # title = "02 · RINEX v3 Observation Reading"

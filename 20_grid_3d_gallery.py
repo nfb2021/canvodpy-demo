@@ -6,12 +6,17 @@
 #   # every create_hemigrid() call fails with ModuleNotFoundError in a
 #   # sandboxed/standalone install without it.
 #   "canvodpy",
-#   "canvod-grids>=0.2.3",
-#   "canvod-viz>=0.3.0",
+#   "canvod-grids",
+#   "canvod-viz",
 #   "healpy>=1.16",
 #   "plotly>=5.0",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.uv.sources]
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
+# canvod-grids = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-grids", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
+# canvod-viz = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-viz", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
 #
 # [tool.marimo.opengraph]
 # title = "20 · 3D Grid Gallery"
