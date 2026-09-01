@@ -1,10 +1,16 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvod-store>=0.2.3",
+#   "canvod-store",
+#   "canvodpy",
 #   "pooch>=1.6",
+#   "pyyaml>=6.0",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.uv.sources]
+# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
 #
 # [tool.marimo.opengraph]
 # title = "08 · Icechunk Store"
@@ -13,9 +19,11 @@
 
 import marimo
 
-__generated_with = "0.21.1"
+__generated_with = "0.24.0"
 app = marimo.App(
-    width="medium", app_title="Icechunk Store", css_file="canvod_nordic.css"
+    width="medium",
+    app_title="Icechunk Store",
+    css_file="canvod_nordic.css",
 )
 
 
@@ -43,12 +51,13 @@ def _():
 
     ---
 
-    **Test data**: a pre-built Icechunk store for DOY 2025-001
-    with canopy and reference receivers.
+    **Test data**: this notebook builds the store live, at run time, by
+    running the real `canvodpy` CLI against real Rosalia RINEX v3.04 data
+    for DOY 2025-001 (canopy + reference receivers) — no pre-built store
+    fixture is shipped (see `_live_store.py` for why).
 
     """
     )
-
     return (mo,)
 
 
@@ -57,28 +66,21 @@ def _():
     import _paths
     from _download import marimo_downloader
     _paths.ensure_data(downloader=marimo_downloader)
+    return
 
 
 @app.cell
-def _():
-    from pathlib import Path
-
-    from _paths import STORES_DIR
-
-    return Path, STORES_DIR
-
-
-# ---------------------------------------------------------------------------
-# Section: opening a store
-# ---------------------------------------------------------------------------
-
-
-@app.cell
-def _(STORES_DIR, mo):
+def _(mo):
     from canvod.store import MyIcechunkStore
 
-    store_path = STORES_DIR / "rosalia_rinex"
-    store = MyIcechunkStore(store_path=store_path)
+    from _live_store import (
+        build_rosalia_store,
+        build_rosalia_vod_store,
+        get_pipeline_command,
+        get_pipeline_output,
+    )
+
+    store, store_path = build_rosalia_store()
 
     _branches = store.get_branch_names()
     _groups = store.list_groups()
@@ -98,29 +100,78 @@ def _(STORES_DIR, mo):
     | **Path** | `{store_path}` |
     | **Branches** | {", ".join(f"`{b}`" for b in _branches)} |
     | **Groups** | {", ".join(f"`{g}`" for g in _groups) if _groups else "(empty)"} |
+
+    This store was built by running the real `canvodpy` CLI as a
+    subprocess (marimo notebooks can't run shell commands directly) --
+    here is the exact command that produced it:
+
+    ```bash
+    {get_pipeline_command()}
+    ```
+
+    <details>
+    <summary>CLI output (captured after the run finished -- not live)</summary>
+
+    ```text
+    {get_pipeline_output()}
+    ```
+
+    </details>
     """
     )
+    return build_rosalia_vod_store, store
 
-    return MyIcechunkStore, store, store_path
+
+@app.cell
+def _(store):
+    store
+    return
 
 
-# ---------------------------------------------------------------------------
-# Section: reading data
-# ---------------------------------------------------------------------------
+@app.cell
+def _(build_rosalia_vod_store, mo):
+    vod_store, vod_store_path = build_rosalia_vod_store()
+
+    _vod_branches = vod_store.get_branch_names()
+    _vod_groups = vod_store.list_groups()
+
+    mo.md(
+        f"""
+    ## The VOD store
+
+    VOD products live in a **separate** Icechunk store, sibling to the GNSS
+    observation store above -- same `MyIcechunkStore` class, but groups are
+    nested `{{calculator_name}}/{{analysis_name}}` rather than flat
+    per-receiver names, since one VOD store can hold output from multiple
+    retrieval algorithms.
+
+    ```python
+    vod_store = MyIcechunkStore(store_path=Path("stores/my_site_vod"))
+    ```
+
+    | Property | Value |
+    |----------|-------|
+    | **Path** | `{vod_store_path}` |
+    | **Branches** | {", ".join(f"`{b}`" for b in _vod_branches)} |
+    | **Groups** | {", ".join(f"`{g}`" for g in _vod_groups) if _vod_groups else "(empty)"} |
+
+    A normal `canvodpy run` writes to both stores in the same pipeline pass
+    whenever the site config defines `vod_analyses` -- no separate VOD
+    computation step is needed.
+    """
+    )
+    return
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Reading data
 
     The `readonly_session()` context manager opens a snapshot of the store
     at a specific branch.  Within the session, groups can be opened as
     lazy `xarray.Dataset` objects backed by Dask arrays.
-    """
-    )
-
+    """)
     return
 
 
@@ -149,13 +200,7 @@ def _(mo, store):
     {_info}
     """
     )
-
-    return (xr,)
-
-
-# ---------------------------------------------------------------------------
-# Section: commit history
-# ---------------------------------------------------------------------------
+    return
 
 
 @app.cell
@@ -190,13 +235,7 @@ def _(mo, store):
     {_table}
     """
     )
-
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: branching
-# ---------------------------------------------------------------------------
 
 
 @app.cell
@@ -223,19 +262,12 @@ def _(mo, store):
     Branches can be merged or deleted without affecting `main`.
     """
     )
-
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: deduplication
-# ---------------------------------------------------------------------------
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Three-layer deduplication
 
     The store prevents duplicate data from entering the repository through
@@ -263,21 +295,13 @@ def _(mo):
 
     This design ensures that re-running the pipeline on the same data
     is safe and idempotent.
-    """
-    )
-
+    """)
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: store creation
-# ---------------------------------------------------------------------------
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Creating a new store
 
     The `create_rinex_store()` and `create_vod_store()` factory functions
@@ -306,15 +330,8 @@ def _(mo):
 
     The `append_to_group()` method handles all deduplication, epoch
     alignment, and SID padding automatically.
-    """
-    )
-
+    """)
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: root attributes
-# ---------------------------------------------------------------------------
 
 
 @app.cell
@@ -352,28 +369,19 @@ def _(mo, store):
     {_table}
     """
     )
-
     return
-
-
-# ---------------------------------------------------------------------------
-# Footer
-# ---------------------------------------------------------------------------
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ---
 
     **Previous**: [07 — VOD Retrieval](./07_vod_retrieval.py)
     | **Next**: [09 — Store Metadata](./09_store_metadata.py)
 
     *canVODpy — Apache 2.0*
-    """
-    )
-
+    """)
     return
 
 

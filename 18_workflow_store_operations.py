@@ -1,11 +1,20 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvod-store>=0.2.3",
-#   "canvod-ops>=0.2.2",
+#   "canvod-store",
+#   "canvod-store-metadata",
+#   "canvod-ops",
+#   "canvodpy",
 #   "pooch>=1.6",
+#   "pyyaml>=6.0",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.uv.sources]
+# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
+# canvod-store-metadata = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store-metadata", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
+# canvod-ops = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-ops", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
 #
 # [tool.marimo.opengraph]
 # title = "18 · Store Operations"
@@ -30,12 +39,18 @@ def _():
         r"""
     # Store Operations
 
-    This notebook demonstrates common Icechunk store operations beyond
-    basic read/write: branching, history navigation, metadata inspection,
-    and data export.
+    A comprehensive, hands-on tour of everything `MyIcechunkStore`
+    (`canvod-store`) and its companion `canvod-store-metadata` package can
+    do to a real store: branching, writing, commit history, time travel,
+    native rich rendering, and store-wide provenance metadata.
 
-    These operations use the `MyIcechunkStore` API from `canvod-store`
-    directly, providing low-level access to the versioned storage layer.
+    Every operation below runs against the **same live store** built for
+    notebook 08 — nothing here is illustrative-only.
+
+    **Test data**: this notebook builds the store live, at run time, by
+    running the real `canvodpy` CLI against real Rosalia RINEX v3.04 data
+    for DOY 2025-001 — no pre-built store fixture is shipped (see
+    `_live_store.py` for why).
 
     ---
 
@@ -52,20 +67,12 @@ def _():
 
 
 @app.cell
-def _():
-    from pathlib import Path
-
-    from _paths import STORES_DIR
-
-    return (STORES_DIR,)
-
-
-@app.cell
-def _(STORES_DIR, mo):
+def _(mo):
     from canvod.store import MyIcechunkStore
 
-    store_path = STORES_DIR / "rosalia_rinex"
-    store = MyIcechunkStore(store_path=store_path)
+    from _live_store import build_rosalia_store, get_pipeline_command, get_pipeline_output
+
+    store, store_path = build_rosalia_store()
 
     _branches = store.get_branch_names()
     _groups = store.list_groups()
@@ -90,9 +97,48 @@ def _(STORES_DIR, mo):
 
     The `source_format` root attribute indicates whether data
     originated from RINEX or SBF files.
+
+    This store was built by running the real `canvodpy` CLI as a
+    subprocess (marimo notebooks can't run shell commands directly) --
+    here is the exact command that produced it:
+
+    ```bash
+    {get_pipeline_command()}
+    ```
+
+    <details>
+    <summary>CLI output (captured after the run finished -- not live)</summary>
+
+    ```text
+    {get_pipeline_output()}
+    ```
+
+    </details>
     """
     )
-    return (store,)
+    return (store, store_path)
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+    ## Native rich rendering
+
+    `MyIcechunkStore` defines `_repr_html_()` (via
+    `canvod.store.viewer.add_rich_display_to_store`), so marimo (and
+    Jupyter) render it as a formatted summary automatically -- no
+    `print()` or manual formatting needed. Just place a bare `store`
+    reference as a cell's last expression:
+    """
+    )
+    return
+
+
+@app.cell
+def _(store):
+    store
+    return
 
 
 @app.cell
@@ -139,40 +185,123 @@ def _(mo, store):
     return
 
 
+# ---------------------------------------------------------------------------
+# Section: commit history, before
+# ---------------------------------------------------------------------------
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+    ## Commit history -- before
+
+    Every write operation creates a commit. `get_history()` returns the
+    full ancestry as dicts (`snapshot_id`, `commit_msg`, `written_at`,
+    `parent_ids`) -- the `snapshot_id`s are the actual coordinates used
+    for branching and time travel further down.
+    """
+    )
+    return
+
+
 @app.cell
 def _(mo, store):
-    _history = store.get_history(branch="main", limit=10)
+    def history_table(branch="main", limit=10):
+        _rows = []
+        for _h in store.get_history(branch=branch, limit=limit):
+            _msg = _h.get("commit_msg", "---")[:50]
+            _ts = str(_h.get("written_at", "---"))[:19]
+            _sid = _h.get("snapshot_id", "")[:8]
+            _rows.append(f"| `{_sid}` | `{_ts}` | {_msg} |")
+        if not _rows:
+            return "No commits found."
+        return f"""
+| Snapshot | Timestamp | Message |
+|----------|-----------|---------|
+{chr(10).join(_rows)}
+"""
 
-    _rows = []
-    for _h in _history:
-        _msg = _h.get("commit_msg", "---")[:50]
-        _ts = str(_h.get("written_at", "---"))[:19]
-        _rows.append(f"| `{_ts}` | {_msg} |")
-
-    _table = (
-        f"""
-    | Timestamp | Message |
-    |-----------|---------|
-    {chr(10).join(_rows)}
-    """
-        if _rows
-        else "No commits found."
-    )
+    _table_before = history_table()
 
     mo.md(
         f"""
-    ## Commit history
-
-    Every write operation creates a commit.  The history is navigable
-    like Git:
-
     ```python
     history = store.get_history(branch="main", limit=10)
-    for commit in history:
-        print(f"{{commit['timestamp']}}: {{commit['message']}}")
     ```
 
-    {_table}
+    {_table_before}
+    """
+    )
+    return (history_table,)
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+    ## Commit graph
+
+    `plot_commit_graph()` delegates to icechunk's native
+    `repo.ancestry_graph()` and renders as an SVG diagram directly in the
+    notebook (or as colored text via `print()` in a terminal).
+    """
+    )
+    return
+
+
+@app.cell
+def _(store):
+    store.plot_commit_graph()
+    return
+
+
+# ---------------------------------------------------------------------------
+# Section: branching, hands-on
+# ---------------------------------------------------------------------------
+
+
+@app.cell
+def _(mo, store):
+    main_tip = store.get_history(branch="main", limit=1)[0]["snapshot_id"]
+
+    mo.md(
+        f"""
+    ## Creating a branch
+
+    Branches let you experiment without touching `main` -- they share
+    storage via Icechunk's copy-on-write mechanism, so creating one is
+    near-instant regardless of store size. `create_branch()` accepts
+    either a full snapshot ID or an 8-character prefix (as shown in the
+    history table and commit graph above):
+
+    ```python
+    store.create_branch("demo/scratch", snapshot_id="{main_tip[:8]}")
+    ```
+
+    Branching from `main`'s current tip (`{main_tip[:8]}`).
+    """
+    )
+    return (main_tip,)
+
+
+@app.cell
+def _(main_tip, store):
+    demo_branch = "demo/scratch"
+    if demo_branch in store.get_branch_names():
+        store.delete_branch(demo_branch)
+    store.create_branch(demo_branch, snapshot_id=main_tip)
+    return (demo_branch,)
+
+
+@app.cell
+def _(demo_branch, mo, store):
+    mo.md(
+        f"""
+    **Branches now**: {", ".join(f"`{b}`" for b in store.get_branch_names())}
+
+    `{demo_branch}` points at the same snapshot as `main` -- no data was
+    copied.
     """
     )
     return
@@ -180,34 +309,266 @@ def _(mo, store):
 
 @app.cell
 def _(mo):
-    mo.md(r"""
-    ## Branching for experiments
+    mo.md(
+        r"""
+    ## Writing a new group on the branch
 
-    Branches enable experimental analyses without affecting the main
-    data:
+    A small synthetic dataset, built inline (not real GNSS data) purely
+    to demonstrate `write_initial_group()` without touching any of the
+    real ingested groups. Written to the `demo/scratch` branch, so
+    `main` is completely unaffected.
+    """
+    )
+    return
+
+
+@app.cell
+def _(demo_branch, store):
+    import numpy as np
+    import xarray as _xr
+
+    def _make_demo_dataset():
+        sids = ["G01|L1|C", "G02|L1|C", "E01|L1|C"]
+        epochs = np.datetime64("2025-01-01T00:00:00") + np.arange(60) * np.timedelta64(
+            5, "s"
+        )
+        rng = np.random.default_rng(42)
+        snr = rng.uniform(30.0, 50.0, (60, len(sids))).astype(np.float32)
+        ds = _xr.Dataset(
+            {"S1C": (("epoch", "sid"), snr)},
+            coords={"epoch": epochs, "sid": sids},
+        )
+        ds.attrs["File Hash"] = "demo0000deadbeef"
+        return ds
+
+    demo_group = "demo_scratch_group"
+    if not store.group_exists(demo_group, branch=demo_branch):
+        store.write_initial_group(
+            _make_demo_dataset(), group_name=demo_group, branch=demo_branch
+        )
+    return (demo_group,)
+
+
+@app.cell
+def _(demo_branch, demo_group, mo, store):
+    mo.md(
+        f"""
+    **Groups on `{demo_branch}`**: {
+        ", ".join(f"`{g}`" for g in store.get_group_names(branch=demo_branch)[demo_branch])
+    }
+
+    **Groups on `main`**: {
+        ", ".join(f"`{g}`" for g in store.list_groups(branch="main"))
+    } -- unchanged, `write_initial_group()` on a branch never touches `main`.
+
+    (`{demo_group}` on `{demo_branch}` is a small synthetic dataset built
+    inline purely to demonstrate the write path -- not real GNSS data.)
+    """
+    )
+    return
+
+
+# ---------------------------------------------------------------------------
+# Section: commit history, after
+# ---------------------------------------------------------------------------
+
+
+@app.cell
+def _(demo_branch, history_table, mo):
+    _table_after = history_table(branch=demo_branch, limit=10)
+
+    mo.md(
+        f"""
+    ## Commit history -- after
+
+    `{demo_branch}`'s history now has one more commit than `main`'s (the
+    write we just did); `main`'s own history (shown further up) is
+    completely unchanged -- branch isolation, not just naming.
 
     ```python
-    # Create a branch and write experimental data
-    with store.writable_session(branch="experiment_v1") as session:
-        # Write data ...
-        session.commit("experimental VOD with 5-degree grid")
-
-    # Read from the experiment branch
-    with store.readonly_session(branch="experiment_v1") as session:
-        ds = xr.open_zarr(session.store, consolidated=False)
-
-    # List all branches
-    branches = store.get_branch_names()
-
-    # Delete when done
-    # store.delete_branch("experiment_v1")
+    store.get_history(branch="{demo_branch}", limit=10)
     ```
 
-    Branches share storage with `main` through Icechunk's
-    copy-on-write mechanism: only modified chunks are duplicated.
-    Creating a branch is nearly instant regardless of store size.
+    {_table_after}
+    """
+    )
+    return
+
+
+# ---------------------------------------------------------------------------
+# Section: time travel
+# ---------------------------------------------------------------------------
+
+
+@app.cell
+def _(mo, store):
+    _history = store.get_history(branch="main", limit=None)
+    # history[-1] is always icechunk's own reserved empty "genesis" commit
+    # (snapshot_id "1CECHNKREP0F1RSTCMT0"), created before any group exists --
+    # not a useful "first commit" to time-travel to. The oldest *real* write
+    # is one step in from that, when present.
+    first_commit = _history[-2] if len(_history) > 1 else _history[-1]
+    latest_commit = _history[0]
+
+    mo.md(
+        f"""
+    ## Time travel
+
+    Every snapshot ID is a permanent coordinate you can reopen directly --
+    not just branch tips. `store.repo` exposes the full icechunk
+    `Repository`, so `repo.readonly_session(snapshot_id=...)` opens the
+    store exactly as it looked at that commit (`MyIcechunkStore`'s own
+    `readonly_session()` wrapper only takes a branch name, so this drops
+    to the icechunk API directly):
+
+    ```python
+    session = store.repo.readonly_session(snapshot_id="{first_commit["snapshot_id"][:8]}")
+    root = zarr.open(session.store, mode="r")
+    ```
+
+    Comparing the very first commit on `main` (`{first_commit["snapshot_id"][:8]}`,
+    "{first_commit["commit_msg"][:40]}") against the latest
+    (`{latest_commit["snapshot_id"][:8]}`):
+    """
+    )
+    return first_commit, latest_commit
+
+
+@app.cell
+def _(first_commit, latest_commit, store):
+    _diff = store.compare_snapshots(
+        first_commit["snapshot_id"], latest_commit["snapshot_id"]
+    )
+    _diff
+    return
+
+
+@app.cell
+def _(first_commit, mo, store):
+    import zarr as _zarr
+
+    _session = store.repo.readonly_session(snapshot_id=first_commit["snapshot_id"])
+    _root = _zarr.open(_session.store, mode="r")
+
+    mo.md(
+        f"""
+    Opening the store *at* that first commit directly (not through
+    `main`'s current tip):
+
+    **Groups at `{first_commit["snapshot_id"][:8]}`**: {
+        ", ".join(f"`{g}`" for g in _root.group_keys()) or "(none)"
+    }
+    """
+    )
+    return
+
+
+# ---------------------------------------------------------------------------
+# Section: deleting a branch
+# ---------------------------------------------------------------------------
+
+
+@app.cell
+def _(demo_branch, mo, store):
+    store.delete_branch(demo_branch)
+
+    mo.md(
+        f"""
+    ## Deleting a branch
+
+    ```python
+    store.delete_branch("{demo_branch}")
+    ```
+
+    **Branches now**: {", ".join(f"`{b}`" for b in store.get_branch_names())}
+    -- `{demo_branch}` (and the `demo_scratch_group` written to it) is
+    gone; `main` was never touched.
+
+    **Deleting a group** is deliberately *not* shown here: unlike
+    branches and tags, `MyIcechunkStore` exposes no `delete_group()` --
+    there's no supported store-level operation for it (confirmed by
+    reading `store.py`'s full method list). Removing a group means
+    deleting the branch it lives on, or dropping to raw zarr/icechunk
+    group deletion, which bypasses the metadata-ledger guardrails this
+    store is built around.
+    """
+    )
+    return
+
+
+# ---------------------------------------------------------------------------
+# Section: three-layer deduplication
+# ---------------------------------------------------------------------------
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ## Three-layer deduplication
+
+    The store prevents duplicate data from entering the repository through
+    three independent checks:
+
+    1. **File hash match**: the SHA-256 hash of each RINEX/SBF file is
+       recorded in the metadata ledger.  If the same file is ingested
+       again, it is silently skipped.
+
+    2. **Temporal overlap**: the start and end timestamps of each ingested
+       file are compared against the existing data.  Files that overlap
+       with previously ingested data are rejected.
+
+    3. **Intra-batch overlap**: within a single batch of files being
+       ingested, overlapping files are detected before any writes occur.
+
+    ```python
+    # Check which files are already in the store
+    existing = store.batch_check_existing(
+        group_name="canopy_01",
+        file_hashes=["abc123...", "def456...", "ghi789..."],
+    )
+    # Returns: {"abc123..."} (set of hashes already present)
+    ```
+
+    This design ensures that re-running the pipeline on the same data
+    is safe and idempotent.
     """)
     return
+
+
+# ---------------------------------------------------------------------------
+# Section: store creation (concept reference)
+# ---------------------------------------------------------------------------
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+    ## Creating a new store
+
+    The `create_rinex_store()` and `create_vod_store()` factory functions
+    initialise new Icechunk repositories with the appropriate configuration:
+
+    ```python
+    from canvod.store import create_rinex_store, create_vod_store
+
+    # For raw observation data
+    obs_store = create_rinex_store(Path("/data/my_site/observations.icechunk"))
+
+    # For VOD products
+    vod_store = create_vod_store(Path("/data/my_site/vod.icechunk"))
+    ```
+
+    The store opened at the top of this notebook was created this way
+    internally, by the `canvodpy` CLI pipeline.
+    """
+    )
+    return
+
+
+# ---------------------------------------------------------------------------
+# Section: metadata ledger
+# ---------------------------------------------------------------------------
 
 
 @app.cell
@@ -260,41 +621,115 @@ def _(mo, store):
     return
 
 
+# ---------------------------------------------------------------------------
+# Section: store-wide metadata (canvod-store-metadata)
+# ---------------------------------------------------------------------------
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+    ## Store-wide metadata
+
+    Distinct from the per-file metadata ledger above: `canvod-store-metadata`
+    attaches rich DataCite/ACDD/STAC provenance to the *store itself*
+    (identity, creator, environment, software versions, processing
+    parameters -- see notebook 09 for the full schema). The `canvodpy`
+    CLI writes this automatically on every run; reading it back from our
+    live store:
+    """
+    )
+    return
+
+
+@app.cell
+def _(mo, store_path):
+    from canvod.store_metadata import format_metadata, metadata_exists, read_metadata
+
+    _exists = metadata_exists(store_path)
+    _report = (
+        "No store metadata found."
+        if not _exists
+        else format_metadata(read_metadata(store_path), section="identity")
+    )
+
+    mo.md(
+        f"""
+    ```python
+    from canvod.store_metadata import metadata_exists, read_metadata, format_metadata
+
+    if metadata_exists(store_path):
+        meta = read_metadata(store_path)
+        print(format_metadata(meta, section="identity"))
+    ```
+
+    **Metadata present**: `{_exists}`
+
+    ```text
+    {_report}
+    ```
+
+    See notebook 09 for the full 11-section schema and multi-standard
+    validation (`validate_all()`).
+    """
+    )
+    return
+
+
+# ---------------------------------------------------------------------------
+# Section: store stats and tree
+# ---------------------------------------------------------------------------
+
+
+@app.cell
+def _(mo, store):
+    import contextlib
+    import io
+
+    _stats = store.get_store_stats()
+    _stats_rows = "\n".join(f"| `{k}` | `{v}` |" for k, v in _stats.items())
+
+    _buf = io.StringIO()
+    with contextlib.redirect_stdout(_buf):
+        store.print_tree(max_depth=2)
+
+    mo.md(
+        f"""
+    ## Store stats and tree
+
+    ```python
+    stats = store.get_store_stats()
+    store.print_tree(max_depth=2)
+    ```
+
+    | Stat | Value |
+    |------|-------|
+    {_stats_rows}
+
+    ```text
+    {_buf.getvalue()}
+    ```
+
+    `store.py` also exposes maintenance-oriented operations not
+    demonstrated here since they're destructive/scheduled rather than
+    exploratory: `garbage_collect()`, `expire_old_snapshots()`,
+    `compact_manifests()`, `rechunk_group()`, and tag helpers
+    (`create_release_tag()`, `list_tags()`, `delete_tag()`) for pinning
+    permanent named snapshots.
+    """
+    )
+    return
+
+
+# ---------------------------------------------------------------------------
+# Section: per-SID temporal aggregation
+# ---------------------------------------------------------------------------
+
+
 @app.cell
 def _(mo):
     mo.md(r"""
-    ## Exporting data
-
-    Data can be exported from Icechunk to standard formats:
-
-    ```python
-    # Export to NetCDF
-    with store.readonly_session(branch="main") as session:
-        ds = xr.open_zarr(session.store, group="canopy_01", consolidated=False)
-        ds.load()  # Load into memory
-    ds.to_netcdf("canopy_01.nc")
-
-    # Export to CSV (small datasets)
-    df = ds["SNR"].to_dataframe()
-    df.to_csv("snr_values.csv")
-
-    # Export to Parquet (via Polars)
-    import polars as pl
-    df = pl.from_pandas(ds.to_dataframe().reset_index())
-    df.write_parquet("observations.parquet")
-    ```
-
-    For large datasets, use Dask-backed lazy loading to avoid
-    memory issues:
-
-    ```python
-    with store.readonly_session(branch="main") as session:
-        ds = xr.open_zarr(session.store, group="canopy_01",
-                          consolidated=False, chunks={"epoch": 10000})
-        # Process in chunks without loading everything
-        daily_mean = ds.resample(epoch="1D").mean().compute()
-    ```
-
     ### Per-SID temporal aggregation
 
     When aggregating GNSS-T observations, it is essential to aggregate
@@ -346,6 +781,49 @@ def _(mo):
     A plain `ds.resample(epoch="1D").mean()` is correct only when
     variables are already spatial averages (e.g. hemispheric mean VOD).
     It should **not** be used on raw per-satellite observations.
+    """)
+    return
+
+
+# ---------------------------------------------------------------------------
+# Section: exporting data
+# ---------------------------------------------------------------------------
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ## Exporting data
+
+    Data can be exported from Icechunk to standard formats:
+
+    ```python
+    # Export to NetCDF
+    with store.readonly_session(branch="main") as session:
+        ds = xr.open_zarr(session.store, group="canopy_01", consolidated=False)
+        ds.load()  # Load into memory
+    ds.to_netcdf("canopy_01.nc")
+
+    # Export to CSV (small datasets)
+    df = ds["SNR"].to_dataframe()
+    df.to_csv("snr_values.csv")
+
+    # Export to Parquet (via Polars)
+    import polars as pl
+    df = pl.from_pandas(ds.to_dataframe().reset_index())
+    df.write_parquet("observations.parquet")
+    ```
+
+    For large datasets, use Dask-backed lazy loading to avoid
+    memory issues:
+
+    ```python
+    with store.readonly_session(branch="main") as session:
+        ds = xr.open_zarr(session.store, group="canopy_01",
+                          consolidated=False, chunks={"epoch": 10000})
+        # Process in chunks without loading everything
+        daily_mean = ds.resample(epoch="1D").mean().compute()
+    ```
     """)
     return
 

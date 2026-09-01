@@ -51,11 +51,15 @@ Each notebook declares its own dependencies via a PEP 723 header. `uv` installs 
 
 ```bash
 # Interactive editing
-uv run marimo edit 07_vod_retrieval.py
+uvx marimo edit --sandbox 07_vod_retrieval.py
 
 # Read-only app
-uv run marimo run 07_vod_retrieval.py
+uvx marimo run --sandbox 07_vod_retrieval.py
 ```
+
+`uvx` and `--sandbox` together mean this never touches (or requires) any
+project-level virtual environment -- the notebook's own PEP 723 header
+declares everything it needs, installed into a throwaway venv.
 
 ### 3. Test data
 

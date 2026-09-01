@@ -1,0 +1,43 @@
+# Overlay-config recipe for the "rosalia_v3_04" site: real Rosalia RINEX
+# v3.04 test data (DOY 2025-001, canopy + reference receivers), used to
+# build a live Icechunk store for demo/08_icechunk_store.py and
+# demo/18_workflow_store_operations.py (see demo/_live_store.py), and by
+# canvod-audit's reference-store builder in the canvodpy superproject.
+#
+# Decided interactively via dev/rosalia_store_metadata.py (untracked,
+# canvodpy superproject) -- see ~/.claude/plans/dazzling-finding-peacock.md
+# sections A-B for the full rationale.
+#
+# Intentionally does NOT set gnss_site_data_root, or
+# processing.storage.{stores_root_dir,aux_data_dir,shared_aux_cache_dir}:
+# those are inherently environment-specific (real paths on whoever's
+# machine/CI runner is generating the store) and are injected by the
+# caller (build_rosalia_store() in _live_store.py) on top of this template
+# before it's written out as a full overlay YAML and passed to
+# `canvodpy run --config`.
+
+sites:
+  rosalia_v3_04:
+    description: >-
+      Beech forest GNSS-T research site — reference test dataset
+      (canvodpy-test-data submodule, DOY 2025-001), not the live stream
+    country: AT
+    latitude: 47.7
+    longitude: 16.3
+    altitude_m: 680.0
+    receivers:
+      reference_01:
+        type: reference
+        directory: 01_reference/01_GNSS/01_raw
+        reader_format: rinex3
+        paired_canopies: all
+        description: Rosalia reference receiver (test data)
+      canopy_01:
+        type: canopy
+        directory: 02_canopy/01_GNSS/01_raw
+        reader_format: rinex3
+        description: Rosalia canopy receiver (test data)
+    vod_analyses:
+      canopy_01_vs_reference_01:
+        canopy_receiver: canopy_01
+        reference_receiver: reference_01

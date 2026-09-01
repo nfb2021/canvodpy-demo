@@ -1,10 +1,14 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvod-grids>=0.2.3",
-#   "canvod-viz>=0.2.2",
+#   "canvod-grids",
+#   "canvod-viz",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.uv.sources]
+# canvod-grids = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-grids", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
+# canvod-viz = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-viz", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
 #
 # [tool.marimo.opengraph]
 # title = "10 · Visualization"

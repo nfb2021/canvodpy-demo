@@ -1,9 +1,12 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvodpy>=0.2.2",
+#   "canvodpy",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.uv.sources]
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
 #
 # [tool.marimo.opengraph]
 # title = "17 · Batch Processing Workflows"

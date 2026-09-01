@@ -1,13 +1,18 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvod-readers>=0.2.3",
-#   "canvod-auxiliary>=0.2.3",
-#   "canvod-vod>=0.2.3",
+#   "canvod-readers",
+#   "canvod-auxiliary",
+#   "canvod-vod",
 #   "zarr>=3.1.2",
 #   "pooch>=1.6",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.uv.sources]
+# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
+# canvod-auxiliary = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-auxiliary", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
+# canvod-vod = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-vod", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
 #
 # [tool.marimo.opengraph]
 # title = "07 · VOD Retrieval"
