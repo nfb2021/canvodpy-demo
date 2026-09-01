@@ -11,10 +11,10 @@
 # ]
 #
 # [tool.uv.sources]
-# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
-# canvod-store-metadata = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store-metadata", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
-# canvod-ops = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-ops", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
-# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "baa78d0abf04fc28be9f2ac68aca17a5d1da6dc5" }
+# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
+# canvod-store-metadata = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store-metadata", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
+# canvod-ops = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-ops", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
 #
 # [tool.marimo.opengraph]
 # title = "18 · Store Operations"
@@ -23,7 +23,7 @@
 
 import marimo
 
-__generated_with = "0.21.1"
+__generated_with = "0.24.0"
 app = marimo.App(
     width="medium",
     app_title="Store Operations",
@@ -64,6 +64,7 @@ def _():
     import _paths
     from _download import marimo_downloader
     _paths.ensure_data(downloader=marimo_downloader)
+    return
 
 
 @app.cell
@@ -116,13 +117,12 @@ def _(mo):
     </details>
     """
     )
-    return (store, store_path)
+    return store, store_path
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Native rich rendering
 
     `MyIcechunkStore` defines `_repr_html_()` (via
@@ -130,8 +130,7 @@ def _(mo):
     Jupyter) render it as a formatted summary automatically -- no
     `print()` or manual formatting needed. Just place a bare `store`
     reference as a cell's last expression:
-    """
-    )
+    """)
     return
 
 
@@ -185,23 +184,16 @@ def _(mo, store):
     return
 
 
-# ---------------------------------------------------------------------------
-# Section: commit history, before
-# ---------------------------------------------------------------------------
-
-
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Commit history -- before
 
     Every write operation creates a commit. `get_history()` returns the
     full ancestry as dicts (`snapshot_id`, `commit_msg`, `written_at`,
     `parent_ids`) -- the `snapshot_id`s are the actual coordinates used
     for branching and time travel further down.
-    """
-    )
+    """)
     return
 
 
@@ -217,10 +209,10 @@ def _(mo, store):
         if not _rows:
             return "No commits found."
         return f"""
-| Snapshot | Timestamp | Message |
-|----------|-----------|---------|
-{chr(10).join(_rows)}
-"""
+    | Snapshot | Timestamp | Message |
+    |----------|-----------|---------|
+    {chr(10).join(_rows)}
+    """
 
     _table_before = history_table()
 
@@ -238,15 +230,13 @@ def _(mo, store):
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Commit graph
 
     `plot_commit_graph()` delegates to icechunk's native
     `repo.ancestry_graph()` and renders as an SVG diagram directly in the
     notebook (or as colored text via `print()` in a terminal).
-    """
-    )
+    """)
     return
 
 
@@ -254,11 +244,6 @@ def _(mo):
 def _(store):
     store.plot_commit_graph()
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: branching, hands-on
-# ---------------------------------------------------------------------------
 
 
 @app.cell
@@ -296,29 +281,25 @@ def _(main_tip, store):
 
 @app.cell
 def _(demo_branch, mo, store):
-    mo.md(
-        f"""
+    mo.md(f"""
     **Branches now**: {", ".join(f"`{b}`" for b in store.get_branch_names())}
 
     `{demo_branch}` points at the same snapshot as `main` -- no data was
     copied.
-    """
-    )
+    """)
     return
 
 
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Writing a new group on the branch
 
     A small synthetic dataset, built inline (not real GNSS data) purely
     to demonstrate `write_initial_group()` without touching any of the
     real ingested groups. Written to the `demo/scratch` branch, so
     `main` is completely unaffected.
-    """
-    )
+    """)
     return
 
 
@@ -351,8 +332,7 @@ def _(demo_branch, store):
 
 @app.cell
 def _(demo_branch, demo_group, mo, store):
-    mo.md(
-        f"""
+    mo.md(f"""
     **Groups on `{demo_branch}`**: {
         ", ".join(f"`{g}`" for g in store.get_group_names(branch=demo_branch)[demo_branch])
     }
@@ -363,14 +343,8 @@ def _(demo_branch, demo_group, mo, store):
 
     (`{demo_group}` on `{demo_branch}` is a small synthetic dataset built
     inline purely to demonstrate the write path -- not real GNSS data.)
-    """
-    )
+    """)
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: commit history, after
-# ---------------------------------------------------------------------------
 
 
 @app.cell
@@ -393,11 +367,6 @@ def _(demo_branch, history_table, mo):
     """
     )
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: time travel
-# ---------------------------------------------------------------------------
 
 
 @app.cell
@@ -463,11 +432,6 @@ def _(first_commit, mo, store):
     return
 
 
-# ---------------------------------------------------------------------------
-# Section: deleting a branch
-# ---------------------------------------------------------------------------
-
-
 @app.cell
 def _(demo_branch, mo, store):
     store.delete_branch(demo_branch)
@@ -494,11 +458,6 @@ def _(demo_branch, mo, store):
     """
     )
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: three-layer deduplication
-# ---------------------------------------------------------------------------
 
 
 @app.cell
@@ -535,15 +494,9 @@ def _(mo):
     return
 
 
-# ---------------------------------------------------------------------------
-# Section: store creation (concept reference)
-# ---------------------------------------------------------------------------
-
-
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Creating a new store
 
     The `create_rinex_store()` and `create_vod_store()` factory functions
@@ -561,14 +514,8 @@ def _(mo):
 
     The store opened at the top of this notebook was created this way
     internally, by the `canvodpy` CLI pipeline.
-    """
-    )
+    """)
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: metadata ledger
-# ---------------------------------------------------------------------------
 
 
 @app.cell
@@ -621,15 +568,9 @@ def _(mo, store):
     return
 
 
-# ---------------------------------------------------------------------------
-# Section: store-wide metadata (canvod-store-metadata)
-# ---------------------------------------------------------------------------
-
-
 @app.cell
 def _(mo):
-    mo.md(
-        r"""
+    mo.md(r"""
     ## Store-wide metadata
 
     Distinct from the per-file metadata ledger above: `canvod-store-metadata`
@@ -638,8 +579,7 @@ def _(mo):
     parameters -- see notebook 09 for the full schema). The `canvodpy`
     CLI writes this automatically on every run; reading it back from our
     live store:
-    """
-    )
+    """)
     return
 
 
@@ -675,11 +615,6 @@ def _(mo, store_path):
     """
     )
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: store stats and tree
-# ---------------------------------------------------------------------------
 
 
 @app.cell
@@ -720,11 +655,6 @@ def _(mo, store):
     """
     )
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: per-SID temporal aggregation
-# ---------------------------------------------------------------------------
 
 
 @app.cell
@@ -783,11 +713,6 @@ def _(mo):
     It should **not** be used on raw per-satellite observations.
     """)
     return
-
-
-# ---------------------------------------------------------------------------
-# Section: exporting data
-# ---------------------------------------------------------------------------
 
 
 @app.cell

@@ -122,6 +122,17 @@ def _run_pipeline(n_workers: int | None = 2) -> tuple["MyIcechunkStore", Path, "
     if _cached is not None:
         return _cached
 
+    if _paths.MONOREPO_ROOT is None:
+        raise RuntimeError(
+            "build_rosalia_store()/build_rosalia_vod_store() require a local "
+            "canvodpy monorepo checkout with a configured "
+            "config/canvod-settings.yaml (run `canvodpy config init` there "
+            "once if you haven't) -- `canvodpy run` always merges its "
+            "--config overlay on top of that file, it never stands alone. "
+            "Not available from a standalone demo/ clone, pooch cache, or "
+            "Zenodo download."
+        )
+
     _paths.ensure_data()  # no-op if an earlier cell already resolved it
 
     scratch_dir = Path(tempfile.mkdtemp(prefix="canvodpy_demo_rosalia_store_"))
@@ -146,7 +157,19 @@ def _run_pipeline(n_workers: int | None = 2) -> tuple["MyIcechunkStore", Path, "
         cmd += ["--workers", str(n_workers)]
     _last_cmd = cmd
 
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    # cwd=MONOREPO_ROOT: canvod-config's find_monorepo_root() walks up from
+    # the subprocess's cwd looking for the nearest `.git` to locate the
+    # (never-committed, machine-local) base config/canvod-settings.yaml the
+    # --config overlay above merges onto. Without this, the subprocess
+    # inherits marimo's own cwd (wherever `marimo edit/run/export` was
+    # invoked from, typically demo/) -- and demo/ is itself a separate git
+    # submodule with its own `.git`, so find_monorepo_root() stops there,
+    # finds no config/ subdirectory, falls back to the XDG default
+    # (~/.config/canvodpy/), and fails with a confusing "Settings file not
+    # found" error that has nothing to do with the actual overlay recipe.
+    result = subprocess.run(
+        cmd, capture_output=True, text=True, cwd=_paths.MONOREPO_ROOT
+    )
     _last_stdout = result.stdout
     _last_stderr = result.stderr
     if result.returncode != 0:
@@ -166,7 +189,14 @@ def _run_pipeline(n_workers: int | None = 2) -> tuple["MyIcechunkStore", Path, "
     # way) override them to something else entirely. The overlay above
     # only sets stores_root_dir/aux_data_dir, so any such override in the
     # base file survives the merge untouched.
-    merged_config = load_config(config_file=overlay_path)
+    #
+    # config_dir=MONOREPO_ROOT/"config" explicitly, same reason as cwd=
+    # above: this call runs in-process (marimo's own cwd, typically demo/),
+    # not the subprocess, so find_monorepo_root()'s default lookup would
+    # hit the exact same demo/.git-stops-the-walk issue here too.
+    merged_config = load_config(
+        config_dir=_paths.MONOREPO_ROOT / "config", config_file=overlay_path
+    )
     store_path = merged_config.processing.storage.get_gnss_store_path(_SITE_NAME)
     vod_store_path = merged_config.processing.storage.get_vod_store_path(_SITE_NAME)
     store = MyIcechunkStore(store_path=store_path)
