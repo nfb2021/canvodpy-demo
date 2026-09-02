@@ -38,6 +38,8 @@ def _():
         r"""
     # canVODpy — Speedrun
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/00_convenience_speedrun.py)
+
     Raw GNSS files → Vegetation Optical Depth in five cells.
 
     This notebook runs the complete GNSS Transmissometry pipeline on the

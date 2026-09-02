@@ -37,6 +37,8 @@ def _():
         r"""
     # Single-Day Processing Workflow
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/16_workflow_single_day.py)
+
     This notebook walks through a complete single-day GNSS-T processing
     pipeline **step by step**, using the functional API to make each
     stage explicit.  The same result can be obtained with a single

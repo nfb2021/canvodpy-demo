@@ -39,6 +39,8 @@ def _():
         r"""
     # Store Operations
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/18_workflow_store_operations.py)
+
     A comprehensive, hands-on tour of everything `MyIcechunkStore`
     (`canvod-store`) and its companion `canvod-store-metadata` package can
     do to a real store: branching, writing, commit history, time travel,

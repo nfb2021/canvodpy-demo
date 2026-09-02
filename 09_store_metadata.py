@@ -31,6 +31,8 @@ def _():
         r"""
     # Store Metadata and FAIR Compliance
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/09_store_metadata.py)
+
     The **canvod-store-metadata** package attaches rich, standards-compliant
     provenance metadata to every Icechunk store.  This metadata enables
     **FAIR** (Findable, Accessible, Interoperable, Reusable) data

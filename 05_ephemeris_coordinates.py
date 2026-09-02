@@ -40,6 +40,8 @@ def _():
         r"""
     # Ephemeris and Coordinate Augmentation
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/05_ephemeris_coordinates.py)
+
     The **canvod-auxiliary** package augments GNSS observation datasets with
     satellite geometry — the azimuth and polar angle from the receiver
     to each satellite at each epoch.

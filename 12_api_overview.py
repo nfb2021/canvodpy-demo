@@ -29,6 +29,8 @@ def _():
         r"""
     # canvodpy API Overview
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/12_api_overview.py)
+
     canvodpy has **three supported ways to run or script the pipeline**.
     All three produce the same scientific results — the same VOD values
     from the same input data — but differ in where you invoke them from

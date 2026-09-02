@@ -31,6 +31,8 @@ def _():
         r"""
     # Running the Pipeline — the CLI
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/13_cli_pipeline.py)
+
     `canvodpy run` is the recommended way to run production ingestion. It
     wraps the exact same code path as `Site(...).pipeline().process_range()`
     (covered in the [next notebook](./14_site_pipeline.py)), adding
