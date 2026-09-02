@@ -11,10 +11,10 @@
 # ]
 #
 # [tool.uv.sources]
-# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
-# canvod-store-metadata = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store-metadata", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
-# canvod-ops = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-ops", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
-# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
+# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "b8dfd7ace67284cc0a561f239f5cd0318bb7bd12" }
+# canvod-store-metadata = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store-metadata", rev = "b8dfd7ace67284cc0a561f239f5cd0318bb7bd12" }
+# canvod-ops = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-ops", rev = "b8dfd7ace67284cc0a561f239f5cd0318bb7bd12" }
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "b8dfd7ace67284cc0a561f239f5cd0318bb7bd12" }
 #
 # [tool.marimo.opengraph]
 # title = "18 · Store Operations"
@@ -149,22 +149,19 @@ def _(mo, store):
     if _groups:
         with store.readonly_session(branch="main") as _session:
             _root = xr.open_zarr(_session.store, consolidated=False)
-
-        _info_rows = []
-        for _v in list(_root.data_vars)[:5]:
-            _da = _root[_v]
-            _info_rows.append(f"| `{_v}` | `{_da.dtype}` | `{_da.dims}` |")
-
-        _table = f"""
-    | Variable | Dtype | Dimensions |
-    |----------|-------|------------|
-    {chr(10).join(_info_rows)}
-    """
+        data_vars_table = mo.ui.table(
+            [
+                {"variable": _v, "dtype": str(_root[_v].dtype), "dimensions": str(_root[_v].dims)}
+                for _v in _root.data_vars
+            ],
+            page_size=10,
+            label="Root dataset variables",
+        )
     else:
-        _table = "Store has no groups yet."
+        data_vars_table = mo.md("Store has no groups yet.")
 
     mo.md(
-        f"""
+        r"""
     ## Reading data
 
     ```python
@@ -176,11 +173,16 @@ def _(mo, store):
     process is writing to the store concurrently, your view remains
     unchanged until the session is closed.
 
-    **Root dataset**:
-
-    {_table}
+    **Root dataset** -- a real `mo.ui.table()`, not a markdown table: sort
+    any column, search across all of them, page through results:
     """
     )
+    return (data_vars_table,)
+
+
+@app.cell
+def _(data_vars_table):
+    data_vars_table
     return
 
 
@@ -200,32 +202,38 @@ def _(mo):
 @app.cell
 def _(mo, store):
     def history_table(branch="main", limit=10):
-        _rows = []
-        for _h in store.get_history(branch=branch, limit=limit):
-            _msg = _h.get("commit_msg", "---")[:50]
-            _ts = str(_h.get("written_at", "---"))[:19]
-            _sid = _h.get("snapshot_id", "")[:8]
-            _rows.append(f"| `{_sid}` | `{_ts}` | {_msg} |")
-        if not _rows:
-            return "No commits found."
-        return f"""
-    | Snapshot | Timestamp | Message |
-    |----------|-----------|---------|
-    {chr(10).join(_rows)}
-    """
+        # A real mo.ui.table(), not a markdown string: sortable, searchable,
+        # paginated -- and the message column is never truncated, unlike
+        # icechunk's own `plot_commit_graph()` SVG renderer, which
+        # hard-caps each node label at 60 chars
+        # (icechunk/src/display/svg.rs::truncate_message), cutting
+        # mid-word with no way to opt out from the Python side.
+        _rows = [
+            {
+                "snapshot": _h.get("snapshot_id", "")[:8],
+                "timestamp": str(_h.get("written_at", "---"))[:19],
+                "message": _h.get("commit_msg", "---"),
+            }
+            for _h in store.get_history(branch=branch, limit=limit)
+        ]
+        return mo.ui.table(_rows, page_size=10, label=f"Commit history -- {branch}")
 
-    _table_before = history_table()
+    table_before = history_table()
 
     mo.md(
-        f"""
+        r"""
     ```python
     history = store.get_history(branch="main", limit=10)
     ```
-
-    {_table_before}
     """
     )
-    return (history_table,)
+    return history_table, table_before
+
+
+@app.cell
+def _(table_before):
+    table_before
+    return
 
 
 @app.cell
@@ -235,7 +243,11 @@ def _(mo):
 
     `plot_commit_graph()` delegates to icechunk's native
     `repo.ancestry_graph()` and renders as an SVG diagram directly in the
-    notebook (or as colored text via `print()` in a terminal).
+    notebook (or as colored text via `print()` in a terminal). icechunk's
+    SVG renderer hard-truncates each message to 60 characters
+    (`icechunk/src/display/svg.rs`), so long ones get cut mid-word -- the
+    "Commit history" table above has the same commits with full,
+    untruncated messages.
     """)
     return
 
@@ -286,7 +298,30 @@ def _(demo_branch, mo, store):
 
     `{demo_branch}` points at the same snapshot as `main` -- no data was
     copied.
+
+    The graph again -- `demo/scratch` now forks off `main`'s tip:
     """)
+    return
+
+
+@app.cell
+def _(store):
+    store.plot_commit_graph()
+    return
+
+
+@app.cell
+def _(demo_branch, mo):
+    mo.md(f"""
+    Full, untruncated messages for `{demo_branch}` (same commits the graph
+    above just showed) -- again as a real, queryable `mo.ui.table()`:
+    """)
+    return
+
+
+@app.cell
+def _(demo_branch, history_table):
+    history_table(branch=demo_branch, limit=10)
     return
 
 
@@ -343,16 +378,22 @@ def _(demo_branch, demo_group, mo, store):
 
     (`{demo_group}` on `{demo_branch}` is a small synthetic dataset built
     inline purely to demonstrate the write path -- not real GNSS data.)
+
+    And the graph once more -- `demo/scratch` now has one extra commit
+    that `main` doesn't:
     """)
     return
 
 
 @app.cell
-def _(demo_branch, history_table, mo):
-    _table_after = history_table(branch=demo_branch, limit=10)
+def _(store):
+    store.plot_commit_graph()
+    return
 
-    mo.md(
-        f"""
+
+@app.cell
+def _(demo_branch, mo):
+    mo.md(f"""
     ## Commit history -- after
 
     `{demo_branch}`'s history now has one more commit than `main`'s (the
@@ -362,10 +403,13 @@ def _(demo_branch, history_table, mo):
     ```python
     store.get_history(branch="{demo_branch}", limit=10)
     ```
+    """)
+    return
 
-    {_table_after}
-    """
-    )
+
+@app.cell
+def _(demo_branch, history_table):
+    history_table(branch=demo_branch, limit=10)
     return
 
 
@@ -455,8 +499,17 @@ def _(demo_branch, mo, store):
     deleting the branch it lives on, or dropping to raw zarr/icechunk
     group deletion, which bypasses the metadata-ledger guardrails this
     store is built around.
+
+    One last look at the graph -- `demo/scratch`'s fork and its commit
+    are both gone; `main`'s own history is untouched throughout:
     """
     )
+    return
+
+
+@app.cell
+def _(store):
+    store.plot_commit_graph()
     return
 
 
@@ -521,26 +574,28 @@ def _(mo):
 @app.cell
 def _(mo, store):
     _groups = store.list_groups()
-    _meta_info = "No groups with metadata ledger found."
+    ledger_group = _groups[0] if _groups else None
+    ledger_table = None
 
-    if _groups:
-        _group = _groups[0]
+    if ledger_group is not None:
         try:
             with store.readonly_session() as _session:
-                _meta = store.read_metadata_table(_session, _group)
-            _n_files = len(_meta)
-            _meta_info = (
-                f"Group `{_group}` has **{_n_files}** files in its metadata ledger."
-            )
+                ledger_table = mo.ui.table(
+                    store.read_metadata_table(_session, ledger_group),
+                    page_size=10,
+                    label=f"Metadata ledger -- {ledger_group}",
+                )
         except (KeyError, FileNotFoundError):
-            _meta_info = f"Group `{_group}` exists but has no metadata ledger (store was not created via the full pipeline)."
+            ledger_table = None
 
     mo.md(
-        f"""
+        r"""
     ## Metadata ledger
 
     Each group maintains a metadata ledger recording which files have
-    been ingested:
+    been ingested -- this is the foundation of the three-layer
+    deduplication system: before writing, the pipeline checks the ledger
+    for hash matches and temporal overlaps.
 
     ```python
     with store.readonly_session() as session:
@@ -548,8 +603,33 @@ def _(mo, store):
     # Returns: Polars DataFrame with rinex_hash, start, end, fname, etc.
     ```
 
-    {_meta_info}
+    Returned directly to `mo.ui.table()` (it accepts a Polars DataFrame
+    natively) -- sort by `start`/`end` to check temporal ordering, search
+    `rinex_hash` for a specific file, or page through everything ingested
+    so far:
+    """
+    )
+    return ledger_group, ledger_table
 
+
+@app.cell
+def _(ledger_group, ledger_table, mo):
+    (
+        ledger_table
+        if ledger_table is not None
+        else mo.md(
+            f"Group `{ledger_group}` exists but has no metadata ledger "
+            "(store was not created via the full pipeline)."
+            if ledger_group is not None
+            else "No groups with metadata ledger found."
+        )
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
     The ledger stores:
 
     | Field | Description |
@@ -559,59 +639,316 @@ def _(mo, store):
     | `fname` | Original filename |
     | `canonical_name` | Standardised name via `FilenameMapper` |
     | `written_at` | Ingestion timestamp |
-
-    This is the foundation of the three-layer deduplication system:
-    before writing, the pipeline checks the ledger for hash matches
-    and temporal overlaps.
-    """
-    )
+    """)
     return
 
 
 @app.cell
 def _(mo):
     mo.md(r"""
-    ## Store-wide metadata
+    ## Store-wide metadata -- full schema, by standard
 
     Distinct from the per-file metadata ledger above: `canvod-store-metadata`
-    attaches rich DataCite/ACDD/STAC provenance to the *store itself*
-    (identity, creator, environment, software versions, processing
-    parameters -- see notebook 09 for the full schema). The `canvodpy`
-    CLI writes this automatically on every run; reading it back from our
-    live store:
+    attaches rich provenance to the *store itself* across **11 sections**
+    (identity, creator, publisher, temporal, spatial, instruments,
+    processing, environment, config, references, summaries -- see
+    `schema.py` for the full ~90-field Pydantic model). The `canvodpy` CLI
+    writes this automatically on every run.
+
+    Every row below is this **live store's actual metadata** -- real values
+    written by `collect_metadata()` from the `rosalia_v3_04` recipe, not a
+    synthetic example. A field showing `(not set)` means the schema
+    supports it but nothing in the current recipe/collector populates it
+    yet -- that gap is real, not hidden.
+
+    ### How to read the "Standard" column
+
+    Most fields serve more than one external standard at once:
+
+    | Tag | Standard | Scope |
+    |-----|----------|-------|
+    | **DataCite** | DataCite Metadata Schema 4.5 | Citation/identifier metadata: creator, title, publisher, funding, related identifiers |
+    | **ACDD** | Attribute Convention for Dataset Discovery 1.3 | NetCDF/CF-style discovery attributes: summary, keywords, coverage, platform |
+    | **STAC** | SpatioTemporal Asset Catalog 1.1 | Web-catalog fields: id, bbox, temporal extent, license |
+    | **FAIR** | FAIR data principles (sub-principles `F1`-`F4`, `A1`-`A2`, `I1`-`I3`, `R1.1`-`R1.3`) | Cross-cutting findability/accessibility/interoperability/reusability -- see `validate_fair()` |
+    | **W3C PROV** | W3C PROV-O | Provenance: what produced this store, when, from what config |
+    | **Internal** | canvodpy-specific | No external standard; operational/debugging value only |
+
+    ```python
+    from canvod.store_metadata import metadata_exists, read_metadata
+
+    if metadata_exists(store_path):
+        meta = read_metadata(store_path)
+    ```
     """)
     return
 
 
 @app.cell
 def _(mo, store_path):
-    from canvod.store_metadata import format_metadata, metadata_exists, read_metadata
+    from canvod.store_metadata import metadata_exists, read_metadata
+
+    _STANDARD_MAP: dict[str, str] = {
+        # identity
+        "identity.id": "DataCite (identifier) · STAC (id) · FAIR F1",
+        "identity.title": "DataCite (title) · ACDD (title) · STAC (title)",
+        "identity.description": "ACDD (summary) · STAC (description) · FAIR F2",
+        "identity.store_type": "Internal",
+        "identity.source_format": "Internal",
+        "identity.keywords": "ACDD (keywords) · FAIR F2",
+        "identity.conventions": "ACDD (Conventions) · FAIR I2",
+        "identity.naming_authority": "ACDD (naming_authority)",
+        "identity.persistent_identifier": "DataCite (identifier/DOI) · FAIR F1",
+        "identity.standard_name_vocabulary": "ACDD (standard_name_vocabulary)",
+        # creator
+        "creator.name": "DataCite (creator.name) · ACDD (creator_name)",
+        "creator.email": "ACDD (creator_email)",
+        "creator.orcid": "DataCite (nameIdentifier) · FAIR",
+        "creator.type": "DataCite (creatorType)",
+        "creator.institution": "DataCite (creator.affiliation) · ACDD (institution)",
+        "creator.institution_ror": "DataCite (affiliationIdentifier) · FAIR",
+        "creator.department": "Internal",
+        "creator.research_group": "Internal",
+        "creator.website": "ACDD (creator_url)",
+        # publisher
+        "publisher.name": "DataCite (publisher)",
+        "publisher.type": "DataCite (publisherType)",
+        "publisher.url": "ACDD (publisher_url)",
+        "publisher.license": "ACDD (license) · STAC (license) · FAIR R1.1",
+        "publisher.license_uri": "STAC (license link)",
+        # temporal
+        "temporal.created": "DataCite (date: Created) · ACDD (date_created)",
+        "temporal.updated": "ACDD (date_modified)",
+        "temporal.collected_start": "ACDD (time_coverage_start) · FAIR F2",
+        "temporal.collected_end": "ACDD (time_coverage_end) · FAIR F2",
+        "temporal.time_coverage_start": "ACDD/STAC (temporal extent)",
+        "temporal.time_coverage_end": "ACDD/STAC (temporal extent)",
+        "temporal.time_coverage_duration": "ACDD (time_coverage_duration)",
+        "temporal.time_coverage_resolution": "ACDD (time_coverage_resolution)",
+        # spatial
+        "spatial.site.name": "Internal",
+        "spatial.site.description": "ACDD (summary, per-site)",
+        "spatial.site.country": "Internal",
+        "spatial.geospatial_lat": "ACDD (geospatial_lat_min/max) · FAIR F2",
+        "spatial.geospatial_lon": "ACDD (geospatial_lon_min/max) · FAIR F2",
+        "spatial.geospatial_alt_m": "ACDD (geospatial_vertical_min/max)",
+        "spatial.geospatial_lat_min": "ACDD (geospatial_lat_min)",
+        "spatial.geospatial_lat_max": "ACDD (geospatial_lat_max)",
+        "spatial.geospatial_lon_min": "ACDD (geospatial_lon_min)",
+        "spatial.geospatial_lon_max": "ACDD (geospatial_lon_max)",
+        "spatial.geospatial_vertical_crs": "ACDD (geospatial_bounds_crs)",
+        "spatial.bbox": "STAC (bbox) · FAIR F4",
+        "spatial.extent_temporal_interval": "STAC (temporal extent)",
+        # instruments
+        "instruments.platform": "ACDD (platform)",
+        "instruments.instruments": "ACDD (instrument)",
+        "instruments.receivers": "Internal (canvodpy-specific)",
+        # processing
+        "processing.software": "W3C PROV (wasGeneratedBy) · FAIR R1.2",
+        "processing.python": "Internal · FAIR R1.2",
+        "processing.uv_version": "Internal · FAIR R1.2",
+        "processing.level": "Internal (canvodpy API level)",
+        "processing.lineage": "ACDD (source) · W3C PROV",
+        "processing.facility": "ACDD (institution)",
+        "processing.datetime": "W3C PROV (generatedAtTime)",
+        # environment
+        "environment.hostname": "Internal · FAIR R1.2",
+        "environment.os": "Internal · FAIR R1.2",
+        "environment.arch": "Internal · FAIR R1.2",
+        "environment.cpu_count": "Internal",
+        "environment.memory_gb": "Internal",
+        "environment.disk_free_gb": "Internal",
+        "environment.dask_workers": "Internal",
+        "environment.dask_threads_per_worker": "Internal",
+        "environment.uv_lock_hash": "FAIR R1.2 (reproducibility)",
+        "environment.pyproject_toml_text": "FAIR R1.2 (reproducibility)",
+        "environment.uv_lock_text": "FAIR R1.2 (reproducibility)",
+        # config
+        "config.processing": "W3C PROV (frozen config) · Internal",
+        "config.preprocessing": "W3C PROV (frozen config) · Internal",
+        "config.aux_data": "W3C PROV (frozen config) · Internal",
+        "config.compression": "W3C PROV (frozen config) · Internal",
+        "config.icechunk": "W3C PROV (frozen config) · Internal",
+        "config.sids": "W3C PROV (frozen config) · Internal",
+        "config.config_hash": "W3C PROV (checksum) · Internal",
+        # references
+        "references.software_repository": "FAIR R1.2 · Internal",
+        "references.documentation": "Internal",
+        "references.access_url": "FAIR A1",
+        "references.related_stores": "FAIR I3",
+        "references.publications": "DataCite (relatedIdentifiers) · FAIR I3",
+        "references.funding": "DataCite (fundingReferences)",
+        # summaries
+        "summaries.total_epochs": "ACDD (summary statistics) · Internal",
+        "summaries.total_sids": "ACDD (summary statistics) · Internal",
+        "summaries.constellations": "ACDD (summary statistics) · Internal",
+        "summaries.variables": "ACDD (summary statistics) · Internal",
+        "summaries.temporal_resolution_s": "ACDD (summary statistics) · Internal",
+        "summaries.file_count": "ACDD (summary statistics) · Internal",
+        "summaries.store_size_mb": "ACDD (summary statistics) · Internal",
+        "summaries.history": "W3C PROV (activity log)",
+    }
+
+    def _fmt_value(v):
+        if v is None:
+            return "(not set)"
+        if isinstance(v, str):
+            if len(v) > 200:
+                return f"(stored -- {len(v):,} chars)"
+            return v
+        if isinstance(v, list):
+            if not v:
+                return "(empty)"
+            if len(v) > 5 or any(isinstance(x, dict) for x in v):
+                return f"[{len(v)} items]"
+            return str(v)
+        if isinstance(v, dict):
+            if not v:
+                return "(empty)"
+            if len(v) > 4 or any(isinstance(x, dict | list) for x in v.values()):
+                _keys = ", ".join(list(v)[:5])
+                _more = "" if len(v) <= 5 else f", … +{len(v) - 5} more"
+                return f"({len(v)} keys: {_keys}{_more})"
+            return ", ".join(f"{k}={vv}" for k, vv in v.items())
+        return str(v)
+
+    def _rows_for(section_name, section_dict, prefix=None):
+        _out = []
+        prefix = prefix or section_name
+        for k, v in section_dict.items():
+            path = f"{prefix}.{k}"
+            if k == "site" and isinstance(v, dict):
+                _out.extend(_rows_for(section_name, v, prefix=path))
+                continue
+            if k == "receivers" and isinstance(v, dict):
+                if not v:
+                    _out.append(
+                        {
+                            "section": section_name,
+                            "field": path,
+                            "value": "(no receivers)",
+                            "standard": _STANDARD_MAP.get(path, "—"),
+                        }
+                    )
+                for rcv_name, rcv in v.items():
+                    for rk, rv in rcv.items():
+                        _out.append(
+                            {
+                                "section": section_name,
+                                "field": f"{path}.{rcv_name}.{rk}",
+                                "value": _fmt_value(rv),
+                                "standard": "Internal (canvodpy-specific)",
+                            }
+                        )
+                continue
+            if k in ("publications", "funding") and isinstance(v, list):
+                if not v:
+                    _out.append(
+                        {
+                            "section": section_name,
+                            "field": path,
+                            "value": "(none)",
+                            "standard": _STANDARD_MAP.get(path, "—"),
+                        }
+                    )
+                for i, item in enumerate(v):
+                    for ik, iv in item.items():
+                        _out.append(
+                            {
+                                "section": section_name,
+                                "field": f"{path}[{i}].{ik}",
+                                "value": _fmt_value(iv),
+                                "standard": _STANDARD_MAP.get(path, "—"),
+                            }
+                        )
+                continue
+            _out.append(
+                {
+                    "section": section_name,
+                    "field": path,
+                    "value": _fmt_value(v),
+                    "standard": _STANDARD_MAP.get(path, "—"),
+                }
+            )
+        return _out
 
     _exists = metadata_exists(store_path)
-    _report = (
+    if _exists:
+        store_metadata = read_metadata(store_path)
+        _all_rows = []
+        for _sec in (
+            "identity",
+            "creator",
+            "publisher",
+            "temporal",
+            "spatial",
+            "instruments",
+            "processing",
+            "environment",
+            "config",
+            "references",
+            "summaries",
+        ):
+            _all_rows.extend(
+                _rows_for(_sec, getattr(store_metadata, _sec).model_dump(mode="json"))
+            )
+        full_metadata_table = mo.ui.table(
+            _all_rows,
+            page_size=20,
+            label=f"{len(_all_rows)} populated metadata fields across all 11 sections",
+        )
+    else:
+        store_metadata = None
+        full_metadata_table = mo.md("No store metadata found.")
+    return full_metadata_table, store_metadata
+
+
+@app.cell
+def _(full_metadata_table):
+    full_metadata_table
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(r"""
+    ### Exporting as STAC, inline
+
+    All of the above is `canvod-store-metadata`'s own display format. For
+    interop with STAC-based tooling (catalog browsers, `stac-fastapi`,
+    `pystac`), `to_stac_collection()` converts the same metadata into a
+    STAC 1.1 Collection dict **in memory** -- no file write required. A
+    JSON-string convenience wrapper, `to_stac_collection_json()`, is also
+    available for cases that want the serialized form directly (display,
+    hashing, sending over the wire).
+
+    ```python
+    from canvod.store_metadata import to_stac_collection, to_stac_collection_json
+
+    collection = to_stac_collection(meta)          # dict
+    as_json = to_stac_collection_json(meta)         # str
+
+    # To persist it to disk instead: write_stac_collection(store_path)
+    ```
+    """)
+    return
+
+
+@app.cell
+def _(mo, store_metadata):
+    from canvod.store_metadata import to_stac_collection_json
+
+    _stac_json = (
         "No store metadata found."
-        if not _exists
-        else format_metadata(read_metadata(store_path), section="identity")
+        if store_metadata is None
+        else to_stac_collection_json(store_metadata)
     )
 
     mo.md(
         f"""
-    ```python
-    from canvod.store_metadata import metadata_exists, read_metadata, format_metadata
-
-    if metadata_exists(store_path):
-        meta = read_metadata(store_path)
-        print(format_metadata(meta, section="identity"))
+    ```json
+    {_stac_json}
     ```
-
-    **Metadata present**: `{_exists}`
-
-    ```text
-    {_report}
-    ```
-
-    See notebook 09 for the full 11-section schema and multi-standard
-    validation (`validate_all()`).
     """
     )
     return

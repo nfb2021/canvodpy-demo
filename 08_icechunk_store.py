@@ -9,8 +9,8 @@
 # ]
 #
 # [tool.uv.sources]
-# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
-# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
+# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "b8dfd7ace67284cc0a561f239f5cd0318bb7bd12" }
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "b8dfd7ace67284cc0a561f239f5cd0318bb7bd12" }
 #
 # [tool.marimo.opengraph]
 # title = "08 · Icechunk Store"
