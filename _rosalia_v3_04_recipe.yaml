@@ -15,6 +15,54 @@
 # caller (build_rosalia_store() in _live_store.py) on top of this template
 # before it's written out as a full overlay YAML and passed to
 # `canvodpy run --config`.
+#
+# processing.metadata / processing.references below feed canvod-store-metadata's
+# collect_metadata() (see packages/canvod-store-metadata/src/canvod/store_metadata/
+# collectors.py). Values verified against live sources, not guessed:
+# - orcid/institution_ror/funder_ror: confirmed against the ORCID and ROR v2 APIs
+#   directly (pub.orcid.org, api.ror.org), not just search snippets.
+# - receivers.*.metadata.receiver_model/firmware_version: read directly from the
+#   "REC # / TYPE / VERS" header line of the real test-data RINEX files
+#   (both Rosalia receivers report "SEPT ASTERX SB3 PROB4.14.4"; antenna type is
+#   "Unknown" in both headers, so no antenna model is claimed here).
+# - license/publisher_url/documentation: no existing source of truth, chosen as a
+#   reasonable default (CC-BY-4.0 for open research data) -- override if wrong.
+# - references.access_url intentionally omitted: this is an ephemeral CI/demo
+#   scratch store, so there is no real URL yet to report for FAIR A1.
+
+processing:
+  metadata:
+    author: Nicolas Bader
+    email: nicolas.bader@geo.tuwien.ac.at
+    orcid: 0000-0002-9932-1925
+    institution: "TU Wien — Climate and Environmental Remote Sensing (CLIMERS)"
+    institution_ror: https://ror.org/04d836q62
+    department: Department of Geodesy and Geoinformation
+    research_group: CLIMERS
+    website: https://www.tuwien.at/en/mg/geo/climers
+    license: CC-BY-4.0
+    publisher: "TU Wien — CLIMERS"
+    publisher_url: https://www.tuwien.at/en/mg/geo/climers
+    naming_authority: eu.canvodpy
+    store_description: >-
+      Reference GNSS-T store for the Rosalia beech forest site, built live
+      from real RINEX v3.04 raw data (DOY 2025-001, canopy + reference
+      receivers) via the canvodpy CLI. Used as a working demo/CI fixture for
+      canvod-store and canvod-audit -- not the production Rosalia data
+      stream.
+  references:
+    software_repository: https://github.com/nfb2021/canvodpy
+    documentation: https://github.com/nfb2021/canvodpy/tree/main/docs
+    publications: []
+    funding:
+      - funder: Austrian Science Fund (FWF)
+        funder_ror: https://ror.org/013tf3c58
+        grant_number: I 4489-N
+        award_title: CONSOLIDATION
+      - funder: European Space Agency (ESA)
+        funder_ror: https://ror.org/03wd9za21
+        grant_number: 4000146954/24/I-LR
+        award_title: SIRENE
 
 sites:
   rosalia_v3_04:
@@ -32,11 +80,17 @@ sites:
         reader_format: rinex3
         paired_canopies: all
         description: Rosalia reference receiver (test data)
+        metadata:
+          receiver_model: Septentrio AsteRx-SB3 Pro
+          firmware_version: "4.14.4"
       canopy_01:
         type: canopy
         directory: 02_canopy/01_GNSS/01_raw
         reader_format: rinex3
         description: Rosalia canopy receiver (test data)
+        metadata:
+          receiver_model: Septentrio AsteRx-SB3 Pro
+          firmware_version: "4.14.4"
     vod_analyses:
       canopy_01_vs_reference_01:
         canopy_receiver: canopy_01
