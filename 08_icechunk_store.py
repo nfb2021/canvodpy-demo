@@ -35,6 +35,8 @@ def _():
         r"""
     # Versioned GNSS Data Storage with Icechunk
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/08_icechunk_store.py)
+
     The **canvod-store** package provides a versioned, transactional storage
     layer built on **Icechunk** — a Git-like version control system for
     N-dimensional arrays (Zarr v3).

@@ -33,6 +33,8 @@ def _(mo):
     mo.md(r"""
     # Naming Convention and File Validation
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/01_naming_convention.py)
+
     GNSS-Transmissometry campaigns generate thousands of files across
     multiple receivers, days, and sampling intervals.  Without a strict
     naming convention, duplicate or misattributed files can silently

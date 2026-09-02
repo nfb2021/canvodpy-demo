@@ -32,6 +32,8 @@ def _():
         r"""
     # RINEX v3.04 Observation Reading
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/02_rinex_reading.py)
+
     This notebook introduces the **canvod-readers** package and demonstrates how
     to read RINEX v3.04 observation files into `xarray.Dataset` objects.
 

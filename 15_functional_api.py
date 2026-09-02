@@ -29,6 +29,8 @@ def _():
         r"""
     # Functional API
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/15_functional_api.py)
+
     `canvodpy.functional` exposes every pipeline step as a **standalone pure
     function**.  Each function has two variants:
 

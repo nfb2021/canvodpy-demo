@@ -31,6 +31,8 @@ def _():
         r"""
     # Hemispheric Visualization
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/10_visualization.py)
+
     The **canvod-viz** package provides 2D and 3D visualization of
     hemispheric grids and the data mapped onto them.  Two rendering
     backends are available:

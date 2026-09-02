@@ -30,6 +30,8 @@ def _():
         r"""
     # Interactive Hemispheric Grid Exploration
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/19_grid_exploration.py)
+
     Explore per-cell VOD data on the hemispheric equal-area grid.
     Select cells by clicking on the 3D or 2D view to inspect timeseries
     and statistics.

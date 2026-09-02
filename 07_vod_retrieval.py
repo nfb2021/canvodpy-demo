@@ -40,6 +40,8 @@ def _():
         r"""
     # Vegetation Optical Depth Retrieval
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/07_vod_retrieval.py)
+
     The **canvod-vod** package implements the core scientific algorithm of
     GNSS Transmissometry: computing **Vegetation Optical Depth (VOD)** from
     paired canopy and reference receiver observations.

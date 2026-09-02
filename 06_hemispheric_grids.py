@@ -34,6 +34,8 @@ def _():
         r"""
     # Hemispheric Grids
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/06_hemispheric_grids.py)
+
     The **canvod-grids** package discretises the upper hemisphere into grid
     cells for spatially resolved VOD retrieval.  Each GNSS observation is
     assigned to the cell that contains its satellite direction ($\phi$,

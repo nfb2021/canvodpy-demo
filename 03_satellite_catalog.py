@@ -34,6 +34,8 @@ def _():
         r"""
     # Satellite Catalog — IGS SINEX Metadata
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/03_satellite_catalog.py)
+
     The **SatelliteCatalog** provides comprehensive satellite metadata from
     the IGS `igs_satellite_metadata.snx` SINEX file, maintained by DLR on
     behalf of the International GNSS Service (IGS).

@@ -32,6 +32,8 @@ def _():
         r"""
     # Configuration and Utilities
 
+    [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/11_configuration.py)
+
     The **canvod-utils** package provides two core subsystems:
 
     1. **Configuration** — Pydantic models that define every tuneable
