@@ -1,8 +1,7 @@
 # Overlay-config recipe for the "rosalia_v3_04" site: real Rosalia RINEX
 # v3.04 test data (DOY 2025-001, canopy + reference receivers), used to
 # build a live Icechunk store for demo/08_icechunk_store.py and
-# demo/18_workflow_store_operations.py (see demo/_live_store.py), and by
-# canvod-audit's reference-store builder in the canvodpy superproject.
+# demo/18_workflow_store_operations.py (see demo/_live_store.py).
 #
 # Decided interactively via dev/rosalia_store_metadata.py (untracked,
 # canvodpy superproject) -- see ~/.claude/plans/dazzling-finding-peacock.md
@@ -48,8 +47,7 @@ processing:
       Reference GNSS-T store for the Rosalia beech forest site, built live
       from real RINEX v3.04 raw data (DOY 2025-001, canopy + reference
       receivers) via the canvodpy CLI. Used as a working demo/CI fixture for
-      canvod-store and canvod-audit -- not the production Rosalia data
-      stream.
+      canvod-store -- not the production Rosalia data stream.
   references:
     software_repository: https://github.com/nfb2021/canvodpy
     documentation: https://github.com/nfb2021/canvodpy/tree/main/docs
