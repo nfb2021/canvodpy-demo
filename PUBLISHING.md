@@ -49,7 +49,6 @@ Format:
 - [x] `12_api_overview.py` — API Overview
 - [x] `13_cli_pipeline.py` — Running the Pipeline (CLI)
 - [x] `14_site_pipeline.py` — Site Pipeline
-- [x] `15_functional_api.py` — Functional API
 - [x] `16_workflow_single_day.py` — Single-Day Workflow
 - [x] `17_workflow_batch_processing.py` — Batch Processing Workflows
 - [x] `18_workflow_store_operations.py` — Store Operations
@@ -79,7 +78,6 @@ Notebooks that need this (read files from `TEST_DATA`):
 - [x] `08_icechunk_store.py`
 - [ ] `13_cli_pipeline.py` — shell/documentation only, no real data
 - [ ] `14_site_pipeline.py` — uses `"my_site"` placeholder, no real data
-- [ ] `15_functional_api.py` — uses `"my_site"` placeholder, no real data
 - [x] `16_workflow_single_day.py`
 - [ ] `17_workflow_batch_processing.py` — uses `"my_site"` placeholder, no real data
 - [x] `18_workflow_store_operations.py`

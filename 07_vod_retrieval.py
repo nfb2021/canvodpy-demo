@@ -1,18 +1,36 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvod-readers",
 #   "canvod-auxiliary",
+#   "canvod-config",
+#   "canvod-grids",
+#   "canvod-ops",
+#   "canvod-preflight",
+#   "canvod-readers",
+#   "canvod-store",
+#   "canvod-store-metadata",
+#   "canvod-utils",
+#   "canvod-viz",
 #   "canvod-vod",
+#   "canvodpy",
 #   "zarr>=3.1.2",
 #   "pooch>=1.6",
 #   "marimo>=0.21.1",
 # ]
 #
 # [tool.uv.sources]
-# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
-# canvod-auxiliary = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-auxiliary", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
-# canvod-vod = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-vod", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
+# canvod-auxiliary = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-auxiliary", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-config = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-config", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-grids = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-grids", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-ops = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-ops", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-preflight = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-preflight", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-store-metadata = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store-metadata", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-viz = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-viz", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-vod = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-vod", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
 #
 # [tool.marimo.opengraph]
 # title = "07 · VOD Retrieval"
@@ -245,7 +263,6 @@ def _(ds_canopy, ds_reference):
     ds_vod = TauOmegaZerothOrder.from_datasets(
         canopy_ds=ds_canopy,
         sky_ds=ds_reference,
-        align=True,
     )
 
     return TauOmegaZerothOrder, ds_vod
@@ -410,17 +427,15 @@ def _(mo):
             # Returns Dataset with VOD, phi, theta
 
         @classmethod
-        def from_datasets(cls, canopy_ds, sky_ds, align=True) -> xr.Dataset
+        def from_datasets(cls, canopy_ds, sky_ds) -> xr.Dataset
             # Convenience: align + calculate in one call
-
-        @classmethod
-        def from_icechunkstore(cls, store_path, canopy_group, sky_group) -> xr.Dataset
-            # Load from store and calculate
     ```
 
-    The `from_icechunkstore()` factory loads directly from a versioned
-    Icechunk store, avoiding the need to manually read and align datasets.
-    This is the recommended entry point for production workflows.
+    The calculator always aligns both datasets on their shared epochs and
+    signals.  For production workflows, compute VOD for a configured site
+    with `canvodpy run`, or from Python with `Site(...).vod`, which reads
+    the data from the site's Icechunk store (see
+    [14 — Site Pipeline](./14_site_pipeline.py)).
     """
     )
 
