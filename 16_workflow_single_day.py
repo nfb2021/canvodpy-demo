@@ -1,20 +1,36 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvod-readers",
 #   "canvod-auxiliary",
+#   "canvod-config",
 #   "canvod-grids",
+#   "canvod-ops",
+#   "canvod-preflight",
+#   "canvod-readers",
+#   "canvod-store",
+#   "canvod-store-metadata",
+#   "canvod-utils",
+#   "canvod-viz",
 #   "canvod-vod",
+#   "canvodpy",
 #   "zarr>=3.1.2",
 #   "pooch>=1.6",
 #   "marimo>=0.21.1",
 # ]
 #
 # [tool.uv.sources]
-# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
-# canvod-auxiliary = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-auxiliary", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
-# canvod-grids = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-grids", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
-# canvod-vod = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-vod", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
+# canvod-auxiliary = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-auxiliary", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-config = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-config", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-grids = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-grids", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-ops = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-ops", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-preflight = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-preflight", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-store-metadata = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store-metadata", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-viz = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-viz", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-vod = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-vod", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
 #
 # [tool.marimo.opengraph]
 # title = "16 · Single-Day Workflow"
@@ -40,10 +56,12 @@ def _():
     [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/16_workflow_single_day.py)
 
     This notebook walks through a complete single-day GNSS-T processing
-    pipeline **step by step**, using the functional API to make each
-    stage explicit.  The same result can be obtained with a single
-    `Site(...).pipeline().process_date()` call, but the manual approach
-    reveals what happens at each stage.
+    pipeline **step by step**, calling the `canvod-*` packages directly to
+    make each stage explicit.  To process a configured site, use
+    `canvodpy run` or `Site(...).pipeline().process_date()` instead: the
+    manual approach here reveals what happens at each stage, but it does
+    not apply the site configuration (e.g. which observables and signals
+    to keep), so its numbers can differ.
 
     **Date**: DOY 2025-001 (January 1, 2025)
     **Receivers**: canopy + reference
@@ -244,7 +262,6 @@ def _(ds_can_aug, ds_ref_aug, mo, np):
     ds_vod = TauOmegaZerothOrder.from_datasets(
         canopy_ds=ds_can_aug,
         sky_ds=ds_ref_aug,
-        align=True,
     )
 
     _vod = ds_vod["VOD"].values
@@ -266,7 +283,7 @@ def _(ds_can_aug, ds_ref_aug, mo, np):
     from canvod.vod import TauOmegaZerothOrder
 
     ds_vod = TauOmegaZerothOrder.from_datasets(
-        canopy_ds=ds_canopy, sky_ds=ds_reference, align=True,
+        canopy_ds=ds_canopy, sky_ds=ds_reference,
     )
     ```
 
@@ -304,7 +321,7 @@ def _(ds_can_aug, ds_ref_aug, mo, np):
     # Compute VOD first, then assign grid cells
     from canvod.vod import TauOmegaZerothOrder as _T
 
-    _ds_vod = _T.from_datasets(canopy_ds=ds_can_aug, sky_ds=ds_ref_aug, align=True)
+    _ds_vod = _T.from_datasets(canopy_ds=ds_can_aug, sky_ds=ds_ref_aug)
     ds_vod_gridded = add_cell_ids_to_vod_fast(
         _ds_vod,
         _grid,
@@ -384,7 +401,7 @@ def _(mo):
         r"""
     ---
 
-    **Previous**: [15 — Functional API](./15_functional_api.py)
+    **Previous**: [14 — Site Pipeline](./14_site_pipeline.py)
     | **Next**: [17 — Batch Processing](./17_workflow_batch_processing.py)
 
     *canVODpy — Apache 2.0*

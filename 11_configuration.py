@@ -1,6 +1,7 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
+#   "canvod-config",
 #   "canvod-utils",
 #   "numpy>=1.24.0",
 #   "xarray>=2024.1.0",
@@ -9,7 +10,8 @@
 # ]
 #
 # [tool.uv.sources]
-# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
+# canvod-config = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-config", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
 #
 # [tool.marimo.opengraph]
 # title = "11 · Configuration & Utilities"
@@ -34,12 +36,12 @@ def _():
 
     [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/11_configuration.py)
 
-    The **canvod-utils** package provides two core subsystems:
+    Two layers make every run specified and observable:
 
-    1. **Configuration** — Pydantic models that define every tuneable
-       parameter of the canvodpy pipeline, loaded from YAML files
-    2. **Diagnostics** — decorators and context managers for timing,
-       memory tracking, dataset inspection, and retry logic
+    1. **Configuration** (`canvod-config`) — Pydantic models that define
+       every tuneable parameter of the canvodpy pipeline, loaded from YAML
+    2. **Utilities and stage timing** (`canvod-utils`, `canvodpy.logging`)
+       — date and hashing helpers, and timed pipeline stages
 
     Together they ensure that the pipeline is both reproducible
     (every run is fully specified by its config) and observable
@@ -64,26 +66,28 @@ def _(mo):
         r"""
     ## Configuration system
 
-    canvodpy uses a layered YAML configuration split across three files:
+    canvodpy is configured through a single YAML file,
+    `config/canvod-settings.yaml`, with three sections:
 
-    | File | Contents |
-    |------|----------|
-    | `processing.yaml` | Pipeline parameters, storage paths, compression, logging |
-    | `sites.yaml` | Research sites, receivers, VOD analysis definitions |
-    | `sids.yaml` | Signal ID filtering (all, preset, or custom list) |
+    | Section | Contents |
+    |---------|----------|
+    | `processing:` | Pipeline parameters, storage paths, compression, logging |
+    | `sites:` | Research sites, receivers, VOD analysis definitions |
+    | `sids:` | Signal ID filtering (all, preset, or custom list) |
 
-    The `load_config()` function reads all three and returns a single
-    validated `CanvodConfig` object:
+    The `load_config()` function reads it and returns a single validated
+    `CanvodConfig` object:
 
     ```python
-    from canvod.utils.config import load_config
+    from canvod.config import load_config
 
     config = load_config(config_dir=Path("config/"))
     ```
 
-    If `config_dir` is omitted, the loader checks the
-    `CANVOD_CONFIG_DIR` environment variable, then searches for a
-    `config/` directory relative to the monorepo root.
+    If `config_dir` is omitted, the loader checks the `CANVOD_CONFIG_DIR`
+    environment variable, then uses the `config/` directory of the
+    monorepo root.  An optional overlay file (`config_file`, or the
+    `CANVOD_CONFIG_FILE` environment variable) is applied on top.
     """
     )
 
@@ -97,10 +101,10 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    from canvod.utils.config.models import (
+    from canvod.config.models import (
         AuxDataConfig,
         CanvodConfig,
-        CompressionConfig,
+        NetcdfCompressionConfig,
         IcechunkConfig,
         LoggingConfig,
         MetadataConfig,
@@ -121,14 +125,14 @@ def _(mo):
         ("MetadataConfig", "Author ORCID, institution ROR, publisher"),
         ("AuxDataConfig", "Ephemeris agency and product type"),
         ("ProcessingParams", "Thread count, resource mode, ephemeris source"),
-        ("CompressionConfig", "zlib level (0-9)"),
+        ("NetcdfCompressionConfig", "NetCDF zlib compression and level (0-9)"),
         ("IcechunkConfig", "Icechunk compression, chunking, manifest settings"),
         ("StorageConfig", "Store paths and write strategies"),
         ("LoggingConfig", "Log directory and file naming"),
         ("PreprocessingConfig", "Temporal aggregation + grid assignment"),
         ("SitesConfig", "All research sites"),
         ("SiteConfig", "One site: receivers, coordinates, VOD analyses"),
-        ("ReceiverConfig", "One receiver: type, directory, naming"),
+        ("ReceiverConfig", "One receiver: type, directory, naming recipe"),
         ("VodAnalysisConfig", "One VOD pair: canopy + reference receiver"),
         ("SidsConfig", "Signal ID filter mode (all/preset/custom)"),
     ]
@@ -156,7 +160,7 @@ def _(mo):
     return (
         AuxDataConfig,
         CanvodConfig,
-        CompressionConfig,
+        NetcdfCompressionConfig,
         IcechunkConfig,
         LoggingConfig,
         MetadataConfig,
@@ -204,7 +208,7 @@ def _(
             "reference_01": ReceiverConfig(
                 type="reference",
                 directory="01_reference",
-                scs_from="canopy_01",
+                paired_canopies=["canopy_01"],
             ),
         },
         vod_analyses={
@@ -236,7 +240,7 @@ def _(
             "canopy_01": ReceiverConfig(type="canopy", directory="02_canopy"),
             "reference_01": ReceiverConfig(
                 type="reference", directory="01_reference",
-                scs_from="canopy_01",
+                paired_canopies=["canopy_01"],
             ),
         }},
         vod_analyses={{
@@ -254,10 +258,10 @@ def _(
     | **Canopy receivers** | {_canopy_names} |
     | **Reference–canopy pairs** | {_pairs} |
 
-    The `scs_from` field on the reference receiver specifies which
-    canopy receiver(s) it provides sky-condition subtraction for.
-    This is validated at construction time: the target must exist
-    in the same site's receiver dictionary.
+    The `paired_canopies` field on the reference receiver specifies which
+    canopy receiver(s) it is paired with: `"all"` or a list of canopy
+    names.  It is required for reference receivers and must not be set
+    for canopy receivers.
     """
     )
 
@@ -325,7 +329,7 @@ def _(ProcessingParams, mo):
             _default.ephemeris_source,
             "final (SP3/CLK) or broadcast (SBF)",
         ),
-        ("batch_hours", _default.batch_hours, "Hours per processing batch"),
+        ("days_per_batch", _default.days_per_batch, "Days processed per batch"),
         (
             "aggregate_glonass_fdma",
             _default.aggregate_glonass_fdma,
@@ -537,258 +541,35 @@ def _(mo):
 
 
 # ---------------------------------------------------------------------------
-# Section: timing diagnostics
+# Section: stage timing
 # ---------------------------------------------------------------------------
 
 
 @app.cell
 def _(mo):
-    import time
-
-    from canvod.utils.diagnostics import BatchTracker, track_time
-
-    # Demonstrate track_time as context manager
-    with track_time("demo.sleep") as _t:
-        time.sleep(0.05)
-
-    # Demonstrate BatchTracker
-    _tracker = BatchTracker(name="demo_batch")
-    for _i in range(5):
-        with _tracker.step(f"step_{_i}"):
-            time.sleep(0.01)
-
-    _summary = _tracker.summary()
-
-    mo.md(
-        f"""
-    ## Timing diagnostics
-
-    `track_time` works as both a decorator and a context manager.
-    It records elapsed time to a global in-memory store (and
-    optionally to a SQLite database):
-
-    ```python
-    from canvod.utils.diagnostics import track_time
-
-    # As decorator
-    @track_time("rinex.read")
-    def read_file(path): ...
-
-    # As context manager
-    with track_time("store.write") as t:
-        ds.to_zarr(store)
-    print(f"Elapsed: {{t.elapsed:.3f}} s")
-    ```
-
-    **Context manager result**: {_t.elapsed:.4f} s
-
-    ### Batch tracking
-
-    `BatchTracker` times multiple steps and produces a summary:
-
-    ```python
-    tracker = BatchTracker(name="daily_batch")
-    for day in days:
-        with tracker.step(f"day_{{day}}"):
-            process(day)
-    tracker.summary()  # Polars DataFrame
-    ```
-
-    **Batch summary** ({_tracker.total:.4f} s total, {_tracker.mean:.4f} s mean):
-
-    {_summary.to_pandas().to_markdown(index=False)}
-    """
-    )
-
-    return BatchTracker, time, track_time
-
-
-# ---------------------------------------------------------------------------
-# Section: memory tracking
-# ---------------------------------------------------------------------------
-
-
-@app.cell
-def _(mo):
-    import numpy as _np
-
-    from canvod.utils.diagnostics import track_memory
-
-    with track_memory("demo.allocate") as _m:
-        _big = _np.zeros((1000, 1000))
-
-    mo.md(
-        f"""
-    ## Memory diagnostics
-
-    `track_memory` measures peak and current RSS memory usage:
-
-    ```python
-    from canvod.utils.diagnostics import track_memory
-
-    with track_memory("vod.compute") as m:
-        result = compute_vod(ds)
-    print(f"Peak: {{m.peak_mb:.1f}} MB")
-    ```
-
-    | Metric | Value |
-    |--------|-------|
-    | **Peak RSS** | {_m.peak_mb:.1f} MB |
-    | **Current RSS** | {_m.current_mb:.1f} MB |
-
-    Memory tracking uses `resource.getrusage()` on Unix systems.
-    It adds negligible overhead and is safe to leave enabled in
-    production.
-    """
-    )
-
-    return (track_memory,)
-
-
-# ---------------------------------------------------------------------------
-# Section: dataset diagnostics
-# ---------------------------------------------------------------------------
-
-
-@app.cell
-def _(mo):
-    import numpy as _np
-    import xarray as _xr
-
-    from canvod.utils.diagnostics import track_dataset
-
-    # Create a small test dataset
-    _ds = _xr.Dataset(
-        {
-            "SNR": (
-                ["epoch", "sid"],
-                _np.random.default_rng(42).normal(40, 5, (100, 20)),
-            ),
-        },
-        coords={
-            "epoch": _np.arange(100),
-            "sid": [f"G{i:02d}|L1|C" for i in range(1, 21)],
-        },
-    )
-    # Inject some NaNs
-    _ds["SNR"].values[0:10, 0:5] = _np.nan
-
-    _report = track_dataset("demo.inspect", _ds, log=False)
-
-    mo.md(
-        f"""
-    ## Dataset diagnostics
-
-    `track_dataset()` inspects an xarray Dataset and returns a
-    `DatasetReport` with shape, NaN ratios, epoch gaps, and size:
-
-    ```python
-    from canvod.utils.diagnostics import track_dataset
-
-    report = track_dataset("pipeline.step3", ds)
-    ```
-
-    | Property | Value |
-    |----------|-------|
-    | **Epochs** | {_report.n_epochs} |
-    | **SIDs** | {_report.n_sids} |
-    | **Variables** | {_report.variables} |
-    | **NaN ratios** | {_report.nan_ratios} |
-    | **Size** | {_report.size_mb:.3f} MB |
-
-    The `warn_nan_threshold` parameter (default 0.5) triggers a
-    warning when any variable exceeds that NaN fraction — useful
-    for catching data quality issues early in the pipeline.
-    """
-    )
-
-    return track_dataset, xr  # type: ignore[unresolved-reference]
-
-
-# ---------------------------------------------------------------------------
-# Section: retry decorator
-# ---------------------------------------------------------------------------
-
-
-@app.cell
-def _(mo):
-    from canvod.utils.diagnostics import retry
-
     mo.md(
         r"""
-    ## Retry decorator
+    ## Stage timing
 
-    Network operations (FTP downloads of SP3/CLK files) can fail
-    transiently.  The `retry` decorator adds exponential backoff:
+    The pipeline times each stage with `stage_timer`, a context manager
+    that emits one `stage_timing` log event per stage, with the stage
+    name, its duration, its status (`ok` or `error`) and any extra
+    context fields.  It also emits the event when the stage fails, so a
+    run that crashes still has a timing record:
 
     ```python
-    from canvod.utils.diagnostics import retry
+    from canvodpy.logging.stage_timer import stage_timer
 
-    @retry(attempts=3, delay=1.0, backoff=2.0, exceptions=(IOError,))
-    def download_sp3(url):
+    with stage_timer("rinex.process_file", file=path.name):
         ...
     ```
 
-    | Parameter | Default | Description |
-    |-----------|---------|-------------|
-    | `attempts` | 3 | Maximum number of tries |
-    | `delay` | 1.0 s | Initial wait between retries |
-    | `backoff` | 2.0 | Multiplier per retry (1 s → 2 s → 4 s) |
-    | `exceptions` | `(Exception,)` | Exception types that trigger retry |
-
-    Only the specified exception types trigger a retry; all others
-    propagate immediately.
+    `canvodpy dashboard` launches a marimo dashboard that reads these
+    events from a run's log files, also while the run is in progress.
     """
     )
 
-    return (retry,)
-
-
-# ---------------------------------------------------------------------------
-# Section: global metrics store
-# ---------------------------------------------------------------------------
-
-
-@app.cell
-def _(mo):
-    from canvod.utils.diagnostics import bottlenecks, get_timings, reset_timings
-
-    _df = get_timings()
-
-    mo.md(
-        f"""
-    ## Global metrics store
-
-    All timing and memory measurements are recorded in a global
-    in-memory store.  For persistence across sessions, an optional
-    SQLite database can be configured:
-
-    ```python
-    from canvod.utils.diagnostics import (
-        configure_db,    # Set SQLite path (None = in-memory only)
-        get_timings,     # Current session as Polars DataFrame
-        bottlenecks,     # Top-N slowest operations
-        reset_timings,   # Clear in-memory store
-        query_db,        # Query persistent DB
-    )
-
-    configure_db("~/.canvod/metrics.db")
-
-    # After a pipeline run:
-    df = get_timings()
-    slow = bottlenecks(top_n=5)
-    ```
-
-    **Current session** has {len(_df)} recorded metrics.
-
-    The `bottlenecks()` function aggregates by operation name and
-    returns total time, mean time, count, and percentage — making
-    it straightforward to identify where the pipeline spends most of
-    its time.
-    """
-    )
-
-    return bottlenecks, get_timings, reset_timings
+    return
 
 
 # ---------------------------------------------------------------------------
@@ -802,27 +583,27 @@ def _(mo):
         r"""
     ## Configuration CLI
 
-    The `canvod-utils` package includes a Typer CLI for managing
-    configuration files:
+    The `canvodpy config` commands manage the configuration file:
 
     ```bash
-    # Initialise config directory with templates
-    uv run canvod-config init --config-dir ./config/
+    # Initialise config/canvod-settings.yaml from the template
+    canvodpy config init
 
-    # Validate configuration
-    uv run canvod-config validate
+    # Validate the configuration and the receiver data it points to
+    canvodpy config validate
+    canvodpy config validate --site <site>
 
-    # Show current configuration
-    uv run canvod-config show
-    uv run canvod-config show --section sites
+    # Show the current configuration
+    canvodpy config show
 
-    # Open in editor
-    uv run canvod-config edit sites
+    # Open canvod-settings.yaml in $EDITOR
+    canvodpy config edit
     ```
 
-    The `validate` command catches common errors (missing fields,
-    invalid types, broken cross-references between receivers and
-    VOD analyses) before running the pipeline.
+    `validate` catches configuration errors (missing fields, invalid
+    types, broken cross-references between receivers and VOD analyses)
+    and checks each receiver's files the same way `canvodpy run` finds
+    them, before you run the pipeline.
     """
     )
 

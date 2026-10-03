@@ -1,10 +1,15 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvod-virtualiconvname>=0.2.2",
+#   "canvod-preflight",
+#   "canvod-utils",
 #   "pooch>=1.6",
 #   "marimo>=0.21.1",
 # ]
+#
+# [tool.uv.sources]
+# canvod-preflight = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-preflight", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
 #
 # [tool.marimo.opengraph]
 # title = "01 · Naming Convention & Validation"
@@ -40,16 +45,11 @@ def _(mo):
     naming convention, duplicate or misattributed files can silently
     corrupt a dataset.
 
-    The **canvod-virtualiconvname** package is the single source of truth for
-    GNSS filename conventions in canvodpy.  It provides:
-
-    1. **`CanVODFilename`** — a structured parser for the IGS-derived
-       long-name convention
-    2. **`BUILTIN_PATTERNS`** — regex patterns for recognising RINEX v2,
-       RINEX v3, Septentrio SBF, and canVOD filenames
-    3. **`FilenameMapper`** — maps physical files on disk to canonical names
-    4. **`DataDirectoryValidator`** — pre-pipeline hard gate that rejects
-       unmapped files and temporal overlaps before any data is read
+    The **canvod-preflight** package is the single source of truth for the
+    canVOD filename convention.  Its **`CanVODFilename`** is a structured
+    parser for the IGS-derived long-name convention.  `canvodpy run` uses it
+    to find each receiver's files, and `canvodpy config validate` checks a
+    site's files the same way before you process them.
 
     The naming convention encodes station identity, receiver role, time window,
     sampling rate, and file type into a single, self-describing filename.
@@ -205,7 +205,7 @@ def _(mo):
 
 @app.cell
 def _():
-    from canvod.virtualiconvname import CanVODFilename
+    from canvod.preflight import CanVODFilename
 
     return (CanVODFilename,)
 
@@ -219,7 +219,7 @@ def _(CanVODFilename, ROSALIA_CANOPY_DIR, mo):
     ## Parsing a filename
 
     ```python
-    from canvod.virtualiconvname import CanVODFilename
+    from canvod.preflight import CanVODFilename
 
     parsed = CanVODFilename.from_filename("{_file.name}")
     ```
@@ -241,66 +241,6 @@ def _(CanVODFilename, ROSALIA_CANOPY_DIR, mo):
 
     The model is frozen (immutable) and round-trips perfectly:
     `CanVODFilename.from_filename(parsed.name)` produces an identical object.
-    """)
-    return
-
-
-@app.cell
-def _():
-    from canvod.virtualiconvname import BUILTIN_PATTERNS, match_pattern
-
-    return BUILTIN_PATTERNS, match_pattern
-
-
-@app.cell
-def _(BUILTIN_PATTERNS, mo):
-    _rows = []
-    for _name, _pat in BUILTIN_PATTERNS.items():
-        _globs = ", ".join(f"`{g}`" for g in _pat.file_globs)
-        _rows.append(f"| `{_name}` | {_globs} |")
-
-    mo.md(f"""
-    ## Built-in filename patterns
-
-    `BUILTIN_PATTERNS` is a registry of named regex patterns for different
-    GNSS filename conventions.  The `match_pattern()` function tries each
-    in order (or a specific one by name).
-
-    | Pattern | Glob(s) |
-    |---------|---------|
-    {chr(10).join(_rows)}
-    """)
-    return
-
-
-@app.cell
-def _(match_pattern, mo):
-    _examples = [
-        "ROSA01TUW_R_20250010000_15M_05S_AA.rnx",
-        "ROSR01TUW_R_20250010000_15M_05S_AA.sbf",
-    ]
-
-    _rows = []
-    for _fn in _examples:
-        _result = match_pattern(_fn, pattern_name="auto")
-        if _result:
-            _pat, _m = _result
-            _rows.append(f"| `{_fn}` | `{_pat.name}` |")
-        else:
-            _rows.append(f"| `{_fn}` | *no match* |")
-
-    mo.md(f"""
-    ### Auto-detection
-
-    ```python
-    from canvod.virtualiconvname import match_pattern
-
-    pattern, match = match_pattern("ROSA01TUW_R_20250010000_15M_05S_AA.rnx")
-    ```
-
-    | Filename | Matched pattern |
-    |----------|----------------|
-    {chr(10).join(_rows)}
     """)
     return
 
@@ -339,43 +279,25 @@ def _(CanVODFilename, ROSALIA_CANOPY_DIR, mo):
 @app.cell
 def _(mo):
     mo.md(r"""
-    ## Pre-pipeline validation
+    ## Which files a run processes
 
-    Before any data is read, the `DataDirectoryValidator` performs a
-    **hard gate** check on the file inventory:
+    `canvodpy run` scans each receiver's `directory` recursively, in any
+    folder layout (all files in one folder, one folder per day, or deeper
+    nesting).  A file's day comes from the date in its name, not from its
+    folder.  Without a naming recipe, only files that follow the convention
+    are processed; other files are passed over.  A run stops before reading
+    any data if
 
-    1. **Name mapping**: every file must match a known pattern and produce
-       a valid `CanVODFilename`.  Unrecognised files (e.g. log files,
-       temporary files) are flagged.
+    1. a directory holds files of more than one receiver,
+    2. two files map to the same canonical name, or
+    3. two files cover the same time, for example a daily file next to the
+       15-minute files of the same day.
 
-    2. **Temporal overlap detection**: files covering the same time window
-       (e.g. a daily file alongside 15-minute files for the same day) are
-       flagged as overlaps.  Overlapping data would cause duplicate
-       observations in the store.
+    Check a site before processing it.  The check finds the files exactly
+    as a run does and also lists the files a run would pass over:
 
-    3. **Consistency checks**: receiver type, site ID, and agency must be
-       consistent across all files in a directory.
-
-    If validation fails, the pipeline **refuses to proceed**.  This prevents
-    silent data corruption from misconfigured directories.
-
-    ```python
-    from canvod.virtualiconvname import DataDirectoryValidator
-
-    validator = DataDirectoryValidator()
-    report = validator.validate_receiver(
-        site_naming=site_config,
-        receiver_naming=receiver_config,
-        receiver_type="canopy",
-        receiver_base_dir=data_dir,
-    )
-
-    if report.is_valid:
-        # Safe to proceed with ingestion
-        ...
-    else:
-        # report.unmatched, report.overlaps contain diagnostics
-        ...
+    ```bash
+    canvodpy config validate --site <site>
     ```
     """)
     return
@@ -384,42 +306,22 @@ def _(mo):
 @app.cell
 def _(mo):
     mo.md(r"""
-    ## Filename virtualisation
+    ## Files that don't follow the convention
 
-    The `FilenameMapper` bridges the gap between physical files on disk
-    (which may use arbitrary naming) and the canonical convention.
+    Sites that receive data from third-party operators often use their own
+    naming schemes (RINEX v2 short names, Septentrio native names, etc.).
+    The optional `canvod-filemap` package from
+    [canvodpy-extensions](https://github.com/nfb2021/canvodpy-extensions)
+    provides **naming recipes**: a recipe translates a receiver's physical
+    filenames to canonical names, without renaming anything on disk.
+    Create one per receiver and name it in the receiver's `recipe` setting:
 
-    This is essential for sites that receive data from third-party operators
-    who use their own naming schemes (RINEX v2 short names, Septentrio
-    native names, etc.).  The mapper:
-
-    1. Discovers all files matching known patterns
-    2. Maps each to its canonical `CanVODFilename`
-    3. Returns `VirtualFile` objects that pair the physical path with the
-       canonical name
-
-    Downstream code only sees canonical names, ensuring consistent
-    behaviour regardless of how files were originally named.
-
-    ```python
-    from canvod.virtualiconvname import FilenameMapper
-
-    mapper = FilenameMapper(
-        site_naming=site_config,
-        receiver_naming=receiver_config,
-        receiver_type="canopy",
-        receiver_base_dir=data_dir,
-    )
-
-    # Discover all files
-    virtual_files = mapper.discover_all()
-
-    # Or for a specific date
-    virtual_files = mapper.discover_for_date(year=2025, doy=1)
-
-    for vf in virtual_files:
-        print(f"{vf.physical_path.name} -> {vf.canonical_str}")
+    ```bash
+    just naming-init <site> <recipe>
     ```
+
+    Downstream code only sees canonical names, so processing behaves the
+    same regardless of how files were originally named.
     """)
     return
 
@@ -429,10 +331,8 @@ def _(mo):
     mo.md(r"""
     ---
 
-    With canonical naming and pre-pipeline validation, data integrity is
-    guaranteed before any processing begins.  Every file is unambiguously
-    identified, and temporal overlaps or naming inconsistencies are caught
-    at the gate.
+    With canonical names, every file is unambiguously identified, and
+    overlapping or misattributed files stop a run before any data is read.
 
     **Next**: [02 — RINEX Reading](./02_rinex_reading.py)
 

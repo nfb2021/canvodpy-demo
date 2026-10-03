@@ -1,16 +1,38 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
+#   "canvod-auxiliary",
+#   "canvod-config",
+#   "canvod-grids",
+#   "canvod-ops",
+#   "canvod-preflight",
+#   "canvod-readers",
+#   "canvod-store",
+#   "canvod-store-metadata",
+#   "canvod-utils",
+#   "canvod-viz",
+#   "canvod-vod",
 #   "canvodpy",
 #   "marimo>=0.21.1",
 # ]
 #
 # [tool.uv.sources]
-# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
+# canvod-auxiliary = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-auxiliary", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-config = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-config", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-grids = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-grids", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-ops = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-ops", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-preflight = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-preflight", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-store-metadata = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store-metadata", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-viz = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-viz", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-vod = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-vod", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
 #
 # [tool.marimo.opengraph]
 # title = "12 · API Overview"
-# description = "Survey canVODpy's two supported Python surfaces -- Site.pipeline() and the functional API -- plus the canvodpy run CLI that wraps Site.pipeline() for production use."
+# description = "Survey canVODpy's supported surfaces: the canvodpy run CLI for production use and Site.pipeline(), the Python entry point it wraps."
 # ///
 
 import marimo
@@ -31,24 +53,24 @@ def _():
 
     [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/12_api_overview.py)
 
-    canvodpy has **three supported ways to run or script the pipeline**.
-    All three produce the same scientific results — the same VOD values
-    from the same input data — but differ in where you invoke them from
-    and how much control you need.
+    canvodpy has **two supported ways to run or script the pipeline**.
+    Both produce the same scientific results — the same VOD values from
+    the same input data — but differ in where you invoke them from.
 
     | Surface | Style | Entry point | Use case |
     |---------|-------|-------------|----------|
     | **CLI** | Command-line | `canvodpy run --site ...` | Running production ingestion — recommended |
     | **Site pipeline** | Python, object-oriented | `Site(...).pipeline()` | Python-native scripting; what the CLI wraps internally |
-    | **Functional** | Python, pure functions | `canvodpy.functional.*` | Component-level scripting, custom pipelines, Airflow (stateless) |
 
     Earlier versions of canvodpy exposed four numbered "API levels"
     (L1 convenience one-liners, L2 fluent method chaining, L3 site
     pipelines, L4 functional). L1 and L2 are now deprecated — L1 was a
     thin wrapper around exactly what `Site.pipeline()` already does, and
-    L2's fluent chain was superfluous alongside it. Both still work (with
-    a `DeprecationWarning`) but are no longer documented or taught. This
-    notebook covers what replaced them.
+    L2's fluent chain was superfluous alongside it. L4,
+    `canvodpy.functional`, is no longer maintained and gives different
+    results than `canvodpy run`. All three are deprecated: they still work
+    (with a `FutureWarning`) until the next major version, but are no
+    longer documented or taught. This notebook covers what replaced them.
 
     ---
 
@@ -139,50 +161,6 @@ def _(mo):
 
 
 # ---------------------------------------------------------------------------
-# Section: Functional
-# ---------------------------------------------------------------------------
-
-
-@app.cell
-def _(mo):
-    mo.md(
-        r"""
-    ## Functional API
-
-    `canvodpy.functional` exposes every pipeline step as a standalone pure
-    function. Each function has an in-memory variant (`xr.Dataset` in,
-    `xr.Dataset` out) and a file-based variant (paths in, paths out) for
-    workflow orchestrators where each task runs in a separate process.
-
-    ```python
-    from canvodpy.functional import (
-        read_rinex,
-        augment_with_ephemeris,
-        create_grid,
-        assign_grid_cells,
-        calculate_vod,
-    )
-
-    ds = read_rinex("observation.rnx")
-    ds = augment_with_ephemeris(ds, rx_pos, source="final", agency="COD")
-    grid = create_grid("equal_area", angular_resolution=2.0)
-    ds = assign_grid_cells(ds, grid)
-    vod = calculate_vod(canopy_ds, sky_ds)
-    ```
-
-    This is the surface Airflow DAGs use (stateless, one function per
-    task), and it's also the natural fit for research/analysis notebooks
-    where you want to inspect or modify an intermediate step.
-
-    See [15 — Functional API](./15_functional_api.py) for the full
-    walkthrough.
-    """
-    )
-
-    return
-
-
-# ---------------------------------------------------------------------------
 # Section: factory system
 # ---------------------------------------------------------------------------
 
@@ -247,14 +225,14 @@ def _(mo):
     | Run production ingestion, resumable, from a shell/cron | CLI: `canvodpy run` |
     | Script a run in Python — loop over sites, embed in a notebook | `Site(...).pipeline()` |
     | Recompute VOD separately from ingestion | `Site(...).vod` (`VodComputer`) |
-    | Orchestrate with Airflow/Prefect, one function per task | `canvodpy.functional.*` |
-    | Inspect or modify an intermediate step for research | `canvodpy.functional.*` |
+    | Orchestrate with Airflow | The optional `canvod-airflow` extension (`canvodpy.workflows.tasks`) |
+    | Inspect or modify an intermediate step for research | The `canvod-*` packages directly, see [16 — Single-Day Workflow](./16_workflow_single_day.py) |
     | Extend with a custom reader/grid/calculator | Factories: `VODFactory.register()` |
 
-    All three surfaces share the same underlying implementations — you
+    The CLI and `Site(...).pipeline()` share the same implementation — you
     can mix them freely. A common pattern: use the CLI for scheduled
-    production runs, and `canvodpy.functional` in an analysis notebook to
-    inspect a specific day's intermediate results.
+    production runs, and `Site(...)` in an analysis notebook to open the
+    stores the CLI wrote.
 
     ---
 
@@ -262,7 +240,6 @@ def _(mo):
 
     - [13 — Running the Pipeline (CLI)](./13_cli_pipeline.py)
     - [14 — Site Pipeline](./14_site_pipeline.py)
-    - [15 — Functional API](./15_functional_api.py)
     """
     )
 

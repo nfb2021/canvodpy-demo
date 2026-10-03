@@ -1,12 +1,8 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvodpy",
 #   "marimo>=0.21.1",
 # ]
-#
-# [tool.uv.sources]
-# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
 #
 # [tool.marimo.opengraph]
 # title = "14 · Site Pipeline"
@@ -140,8 +136,8 @@ def _(mo):
         r"""
     ## VOD analyses configuration
 
-    The `vod_analyses` section in `sites.yaml` defines receiver pairs
-    for VOD computation:
+    The `vod_analyses` entry of each site in `config/canvod-settings.yaml`
+    defines receiver pairs for VOD computation:
 
     ```yaml
     sites:
@@ -150,10 +146,13 @@ def _(mo):
           canopy_01:
             type: canopy
             directory: 02_canopy
+          canopy_02:
+            type: canopy
+            directory: 03_canopy
           reference_01:
             type: reference
             directory: 01_reference
-            scs_from: canopy_01
+            paired_canopies: all
         vod_analyses:
           main:
             canopy_receiver: canopy_01
@@ -240,7 +239,7 @@ def _(mo):
     —
 
     **Previous**: [13 — Running the Pipeline (CLI)](./13_cli_pipeline.py)
-    | **Next**: [15 — Functional API](./15_functional_api.py)
+    | **Next**: [16 — Single-Day Workflow](./16_workflow_single_day.py)
 
     *canVODpy — Apache 2.0*
     """

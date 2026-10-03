@@ -1,9 +1,17 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
+#   "canvod-auxiliary",
+#   "canvod-config",
+#   "canvod-grids",
+#   "canvod-ops",
+#   "canvod-preflight",
+#   "canvod-readers",
 #   "canvod-store",
 #   "canvod-store-metadata",
-#   "canvod-ops",
+#   "canvod-utils",
+#   "canvod-viz",
+#   "canvod-vod",
 #   "canvodpy",
 #   "pooch>=1.6",
 #   "pyyaml>=6.0",
@@ -11,10 +19,18 @@
 # ]
 #
 # [tool.uv.sources]
-# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "b8dfd7ace67284cc0a561f239f5cd0318bb7bd12" }
-# canvod-store-metadata = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store-metadata", rev = "b8dfd7ace67284cc0a561f239f5cd0318bb7bd12" }
-# canvod-ops = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-ops", rev = "b8dfd7ace67284cc0a561f239f5cd0318bb7bd12" }
-# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "b8dfd7ace67284cc0a561f239f5cd0318bb7bd12" }
+# canvod-auxiliary = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-auxiliary", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-config = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-config", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-grids = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-grids", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-ops = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-ops", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-preflight = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-preflight", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-store-metadata = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store-metadata", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-viz = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-viz", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvod-vod = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-vod", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "fc3b2fe8fac9c36fa1997ad6e2d898663e0a2384" }
 #
 # [tool.marimo.opengraph]
 # title = "18 · Store Operations"
@@ -639,7 +655,7 @@ def _(mo):
     | `rinex_hash` | SHA-256 hash (16-char truncation) |
     | `start` / `end` | Temporal extent of the file |
     | `fname` | Original filename |
-    | `canonical_name` | Standardised name via `FilenameMapper` |
+    | `canonical_name` | Canonical canVOD name (the file's own name, or translated by a naming recipe) |
     | `written_at` | Ingestion timestamp |
     """)
     return

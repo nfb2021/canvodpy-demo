@@ -1,12 +1,8 @@
 # /// script
 # requires-python = ">=3.14"
 # dependencies = [
-#   "canvodpy",
 #   "marimo>=0.21.1",
 # ]
-#
-# [tool.uv.sources]
-# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "6aa534fb8d78251c5640857361505d98a9b7dfb9" }
 #
 # [tool.marimo.opengraph]
 # title = "17 · Batch Processing Workflows"
@@ -124,7 +120,8 @@ def _(mo):
     # Use broadcast ephemeris (from SBF SatVisibility block)
     # Only available when source format is SBF
     with site.pipeline() as pipe:
-        # Set ephemeris_source in processing.yaml to "broadcast"
+        # Set processing.params.ephemeris_source to "broadcast"
+        # in config/canvod-settings.yaml
         data = pipe.process_date("2025001")
     ```
 
@@ -153,16 +150,25 @@ def _(mo):
         r"""
     ## Temporal aggregation
 
-    The preprocessing step can aggregate observations to a coarser
-    time resolution before VOD computation:
+    `canvodpy run` and `Site(...).pipeline()` store observations at their
+    full time resolution.  To aggregate a dataset to a coarser time
+    resolution, apply the `canvod-ops` pipeline to it; it reads its
+    settings from the `processing.preprocessing` section of
+    `config/canvod-settings.yaml`:
 
-    ```python
-    # In processing.yaml:
+    ```yaml
     preprocessing:
       temporal_aggregation:
         enabled: true
         freq: "1min"      # Pandas offset alias
         method: "mean"    # or "median"
+    ```
+
+    ```python
+    from canvod.ops import build_default_pipeline
+
+    ops = build_default_pipeline()   # reads processing.preprocessing
+    ds_aggregated, result = ops(ds)
     ```
 
     | Frequency | Epochs per day | Use case |
@@ -200,23 +206,15 @@ def _(mo):
         r"""
     ## Grid configuration
 
-    Grid assignment can be configured globally or per-workflow:
+    `canvodpy run` does not assign grid cells; you assign them to a
+    VOD dataset yourself, at the resolution you choose (see
+    [16 — Single-Day Workflow](./16_workflow_single_day.py)):
 
     ```python
-    # In processing.yaml:
-    preprocessing:
-      grid_assignment:
-        enabled: true
-        grid_type: "equal_area"
-        angular_resolution: 2.0  # degrees
+    from canvod.grids import add_cell_ids_to_vod_fast, create_hemigrid
 
-    # Or override in code:
-    result = (workflow("my_site")
-        .read("2025001")
-        .augment()
-        .grid("equal_area", angular_resolution=5.0)  # Override to 5°
-        .vod("canopy_01", "reference_01")
-        .result())
+    grid = create_hemigrid("equal_area", angular_resolution=5.0)
+    ds = add_cell_ids_to_vod_fast(ds_vod, grid, grid_name="equal_area_5deg")
     ```
 
     | Resolution | Cells | Obs per cell (1 day) | Best for |
@@ -290,34 +288,16 @@ def _(mo):
         r"""
     ## Monitoring long-running batches
 
-    Use the diagnostics system to track progress and identify
-    bottlenecks:
+    Every pipeline stage writes a timing event to the run's
+    performance log (`machine/performance*.json` in the log directory),
+    with the stage name, its duration and its status.  The dashboard
+    reads these logs, also while a run is still in progress, so you can
+    follow a multi-day batch and find its slowest stages:
 
-    ```python
-    from canvod.utils.diagnostics import (
-        BatchTracker,
-        track_time,
-        bottlenecks,
-        configure_db,
-    )
-
-    # Persist metrics across sessions
-    configure_db("~/.canvod/metrics.db")
-
-    tracker = BatchTracker(name="january_2025")
-
-    with site.pipeline(n_workers=4) as pipe:
-        for date, data in pipe.process_range("2025001", "2025031"):
-            with tracker.step(date):
-                pass  # Pipeline already ran
-
-    # After completion
-    print(tracker.summary())  # Polars DataFrame with per-day timings
-    print(bottlenecks(top_n=5))  # Slowest operations
+    ```bash
+    canvodpy dashboard                      # log directory from canvod-settings.yaml
+    canvodpy dashboard --logs-dir ./.logs   # or an explicit one
     ```
-
-    The SQLite database allows comparing performance across runs —
-    useful for detecting regressions after code changes.
     """
     )
 
