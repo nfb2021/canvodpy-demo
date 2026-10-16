@@ -371,6 +371,12 @@ def _(mo):
     into its own slots, so writing a file again replaces it.
     `append_to_group()` refuses a group made of day blocks; use it only on
     groups you create yourself with `write_initial_group()`.
+
+    The VOD store is written the same way: each day of VOD gets a block at
+    the cadence of its GNSS data, with one commit per day. VOD of a day
+    computed from other GNSS files, for example after more files of the
+    day were stored, replaces the stored day; VOD from the same files is
+    skipped.
     """)
     return
 
