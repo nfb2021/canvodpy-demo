@@ -78,7 +78,7 @@ def _():
     This notebook goes through the three steps with one file per receiver
     of the demo data. Readers work the same way, with `GNSSDataReader`
     and `ReaderFactory`; the
-    [plugins guide](https://nfb2021.github.io/canvodpy/guides/plugins/)
+    [plugins guide](https://canvodpy.eu/guides/plugins/)
     shows both.
 
     ---
@@ -453,7 +453,7 @@ def _(mo):
 
     Reader plugins use the entry point group `canvodpy.readers` and
     inherit `GNSSDataReader`; the
-    [plugins guide](https://nfb2021.github.io/canvodpy/guides/plugins/)
+    [plugins guide](https://canvodpy.eu/guides/plugins/)
     shows a complete package with a reader and a calculator.
     """
     )

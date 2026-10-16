@@ -336,6 +336,7 @@ def _(ProcessingParams, mo):
             "final (SP3/CLK) or broadcast (SBF)",
         ),
         ("days_per_batch", _default.days_per_batch, "Days processed per batch"),
+        ("max_memory_gb", _default.max_memory_gb, "Memory budget of a run in GB"),
         (
             "aggregate_glonass_fdma",
             _default.aggregate_glonass_fdma,
@@ -370,8 +371,10 @@ def _(ProcessingParams, mo):
       `n_max_threads`, and optionally the CPU cores (`cpu_affinity`)
       and the priority (`nice_priority`) of the workers
 
-    canVODpy doesn't limit memory; to lower the memory a run needs,
-    use fewer workers or a smaller `days_per_batch`.
+    A run fits its memory budget, `max_memory_gb` (without it, the
+    memory available when the run starts): it starts fewer workers, or
+    lowers `days_per_batch`, if they do not fit, and stops before
+    reading a file if not even one worker fits.
 
     ```python
     params = ProcessingParams(
