@@ -405,8 +405,8 @@ def _(StorageConfig, mo):
     | Strategy | Behaviour |
     |----------|-----------|
     | `skip` | Default: leave the stored data unchanged; the log book records the skip |
-    | `overwrite` | Replace the stored epochs of the file's range with the new data |
-    | `unsafe_append` | Write the data again, without any duplicate check |
+    | `overwrite` | Write the file again into its slots, replacing what it wrote before |
+    | `unsafe_append` | Kept from versions that appended files; does what `overwrite` does |
 
     ```python
     storage = StorageConfig(
