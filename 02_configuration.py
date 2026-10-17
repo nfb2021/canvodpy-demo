@@ -415,8 +415,9 @@ def _(StorageConfig, mo):
     )
     ```
 
-    `stores_root_dir` is a local folder. A URL such as `s3://bucket/prefix`
-    is refused, because runs write stores to local folders only.
+    `stores_root_dir` is a local folder or an `s3://bucket/prefix` URL;
+    the S3 credentials, region and endpoint come from the environment only
+    ([22 · Stores on S3](./22_s3_stores.py)). Other URLs are refused.
 
     **skip** is the recommended setting: re-running a day leaves the
     stored data unchanged. Use **overwrite** to correct data already
@@ -613,12 +614,24 @@ def _(mo):
 
     # Open canvod-settings.yaml in $EDITOR
     canvodpy config edit
+
+    # Write the settings file from an existing store
+    canvodpy config init --from-store /data/stores/my_site/rinex
+    canvodpy config init --from-store s3://my-bucket/stores/my_site/rinex
     ```
 
     `validate` catches configuration errors (missing fields, invalid
     types, broken cross-references between receivers and VOD analyses)
     and checks each receiver's files the same way `canvodpy run` finds
     them, before you run the pipeline.
+
+    `init --from-store` writes the settings a store was made with: its
+    content settings, which every run writing to the store must keep, its
+    site and receivers, and the stores folder. The values that belong to
+    your machine (data folders, logs, your name) are `TODO`, and
+    `validate` lists them. This is how a second machine joins a store, or
+    how you reproduce the processing of a store you were given, local or
+    on S3.
     """
     )
 

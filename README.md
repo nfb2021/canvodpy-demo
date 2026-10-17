@@ -102,6 +102,7 @@ uv run marimo edit demo/10_vod_retrieval.py
 | 19 | `19_workflow_single_day.py` | End-to-end single-day processing | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/19_workflow_single_day.py?mode=edit) |
 | 20 | `20_workflow_batch_processing.py` | Batch processing with Dask | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/20_workflow_batch_processing.py?mode=edit) |
 | 21 | `21_plugins.py` | Your own VOD calculator: register it, compare it, make it a plugin | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/21_plugins.py?mode=edit) |
+| 22 | `22_s3_stores.py` | Stores on S3: credentials, two runs on one store, settings from a store (needs an S3 endpoint, RustFS works) | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/22_s3_stores.py?mode=edit) |
 
 ## Test data
 

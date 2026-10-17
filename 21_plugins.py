@@ -568,6 +568,7 @@ def _(mo):
     ---
 
     **Previous**: [20 · Batch Processing](./20_workflow_batch_processing.py)
+    | **Next**: [22 · Stores on S3](./22_s3_stores.py)
 
     *canVODpy · Apache 2.0*
     """

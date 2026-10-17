@@ -278,7 +278,7 @@ def _(mo):
     (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` or `AWS_PROFILE`,
     `AWS_REGION`, and `AWS_ENDPOINT_URL` for storage that isn't AWS) or
     from `~/.aws/credentials`, never from the settings or the store.
-    Runs still write stores to local folders only.
+    Runs write stores on S3 too: [22 · Stores on S3](./22_s3_stores.py).
 
     ## Changing the description
 
