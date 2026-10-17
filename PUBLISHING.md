@@ -6,8 +6,7 @@ Working checklist for preparing all notebooks for molab, gallery, and thumbnails
 
 - **WASM / playground**: not viable; canvodpy depends on native C extensions
   (icechunk, xarray, numpy) that cannot compile to WebAssembly.
-- **molab**: the right path. Runs on real cloud servers, installs from `pyproject.toml`,
-  reads repo files, triggers Pooch/Zenodo download for test data.
+- **molab**: the right path. Runs on real cloud servers, reads the single-file notebooks (each pins its own `canvod*` revision) and runs `canvodpy.demo_data()` to fetch the test data on first use.
 - **Gallery**: rendered by `marimo run ./` (locally) and on molab. Driven by OpenGraph
   metadata in each notebook's PEP 723 header + thumbnail images.
 - **Thumbnails**: one link-preview image per notebook, made by
@@ -58,31 +57,54 @@ Format:
 
 ---
 
-## Step 2: Add `ensure_data()` setup cell to data-reading notebooks
+## Step 2: Add a `demo_data()` setup cell to data-reading notebooks
 
-Notebooks that load GNSS data must call `_paths.ensure_data()` before using any
-path constants. Use the marimo downloader for a progress bar in the browser.
+Notebooks that load GNSS data call `canvodpy.demo_data()` (which downloads
+the test data into the platform cache on first use) and read the downloaded
+data from the cache, then write a `canvod-settings.yaml` into a fresh
+temporary folder so `canvodpy.Site(...)` can find the site and receivers. The
+settings, stores, logs and auxiliary data of a session go into that folder;
+only the downloaded test data is read from the `demo_data()` cache, which is
+never written to.
 
 ```python
 @app.cell
 def _():
-    import _paths
-    from _download import marimo_downloader
-    _paths.ensure_data(downloader=marimo_downloader)
+    from canvodpy import demo_data
+
+    root = demo_data("rinex")
+    root = demo_data("aux")      # the same folder for every kind
+    return root
+
+
+@app.cell
+def _(root):
+    import shutil
+    import tempfile
+    from pathlib import Path
+
+    import yaml
+
+    from canvod.utils import testing
+
+    work = Path(tempfile.mkdtemp(prefix="canvodpy_demo_"))
+    config_dir = work / "config"
+    aux_data_dir = work / "aux_data"
+    shutil.copytree(root / "aux_data" / "01_SP3", aux_data_dir / "01_SP3")
+    shutil.copytree(root / "aux_data" / "02_CLK", aux_data_dir / "02_CLK")
+
+    settings = { ... }  # metadata from testing, funding empty
+    (config_dir / "canvod-settings.yaml").write_text(...)
+    os.environ["CANVOD_CONFIG_DIR"] = str(config_dir)
+    return work, config_dir
 ```
 
-Notebooks that need this (read files from `TEST_DATA`):
-- [ ] `01_cli_pipeline.py`: shell/documentation only, no real data
-- [x] `03_convenience_speedrun.py`
-- [x] `05_rinex_reading.py`
-- [x] `06_sbf_reading.py`
-- [x] `08_ephemeris_coordinates.py`
-- [x] `10_vod_retrieval.py`
-- [x] `11_icechunk_store.py`
-- [x] `13_workflow_store_operations.py`
-- [ ] `18_site_pipeline.py`: uses `"my_site"` placeholder, no real data
-- [x] `19_workflow_single_day.py`
-- [ ] `20_workflow_batch_processing.py`: uses `"my_site"` placeholder, no real data
+Each data-reading notebook declares `canvodpy` (and the `canvod*` packages it
+uses) in its PEP 723 header, pinned to a single revision.
+
+The settings block is identical in the 8 notebooks that write a
+`canvod-settings.yaml` (`grep -l canvod-settings.yaml *.py`): change it in
+all of them together.
 
 ---
 
@@ -114,7 +136,8 @@ background; the logo loads from the canvodpy repository.
 
 Badge already present in README header. Per-notebook molab links added to
 the notebooks table (Open column with individual `blob/main/<notebook>` links).
-Also updated the "Run in the browser" section to mention Zenodo auto-download.
+Also updated the "Run in the browser" section to mention the on-first-use
+`demo_data()` download.
 
 ---
 
@@ -129,7 +152,7 @@ Requires OpenGraph metadata (Step 1) and thumbnails (Step 4) to look good.
 
 - `css_file="canvod_nordic.css"` is already set on all notebooks; the Nordic
   Green theme will render on molab as long as the CSS file is in the repo root.
-- molab reads `pyproject.toml` for dependencies; `pooch` and `tqdm` are already
-  declared, so the Zenodo download will work out of the box.
-- The `_paths.py` and `_download.py` helper files must be in the same directory
-  as the notebooks (repo root of canvodpy-demo).
+- Each notebook is self-contained and declares its own `canvod*` dependencies
+  and their pinned revision, so molab does not need `pyproject.toml` to resolve
+  them. `canvodpy.demo_data()` fetches the test data on first use into the
+  platform cache folder.

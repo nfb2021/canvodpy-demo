@@ -13,24 +13,25 @@
 #   "canvod-viz",
 #   "canvod-vod",
 #   "canvodpy",
-#   "pooch>=1.6",
 #   "pyyaml>=6.0",
 #   "marimo>=0.21.1",
+#   "xarray==2026.9.0",
+#   "numpy==2.5.4",
 # ]
 #
 # [tool.uv.sources]
-# canvod-auxiliary = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-auxiliary", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvod-config = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-config", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvod-grids = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-grids", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvod-ops = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-ops", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvod-preflight = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-preflight", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvod-store-metadata = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store-metadata", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvod-viz = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-viz", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvod-vod = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-vod", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
+# canvod-auxiliary = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-auxiliary", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvod-config = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-config", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvod-grids = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-grids", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvod-ops = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-ops", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvod-preflight = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-preflight", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvod-store = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvod-store-metadata = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-store-metadata", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvod-viz = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-viz", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvod-vod = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-vod", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
 #
 # [tool.marimo.opengraph]
 # title = "13 · Store Operations"
@@ -72,9 +73,8 @@ def _():
     [11 · Icechunk Store](./11_icechunk_store.py); nothing here is illustrative-only.
 
     **Test data**: this notebook builds the store live, at run time, by
-    running the real `canvodpy` CLI against real Rosalia RINEX v3.04 data
-    for DOY 2025-001; no pre-built store fixture is shipped (see
-    `_live_store.py` for why).
+    running the site pipeline against real Rosalia RINEX v3.04 data
+    for DOY 2025-001; no pre-built store fixture is shipped.
 
     ---
 
@@ -85,19 +85,123 @@ def _():
 
 @app.cell
 def _():
-    import _paths
-    from _download import marimo_downloader
-    _paths.ensure_data(downloader=marimo_downloader)
-    return
+    from canvodpy import demo_data
+
+    root = demo_data("rinex")
+    root = demo_data("aux")
+    return root
 
 
 @app.cell
-def _(mo):
-    from canvod.store import MyIcechunkStore
+def _(root):
+    import os
+    import shutil
+    import tempfile
+    from pathlib import Path
 
-    from _live_store import build_rosalia_store, get_pipeline_command, get_pipeline_output
+    import yaml
 
-    store, store_path = build_rosalia_store()
+    from canvod.utils import testing
+
+    work = Path(tempfile.mkdtemp(prefix="canvodpy_demo_"))
+    config_dir = work / "config"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    aux_data_dir = work / "aux_data"
+    aux_data_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(root / "aux_data" / "01_SP3", aux_data_dir / "01_SP3")
+    shutil.copytree(root / "aux_data" / "02_CLK", aux_data_dir / "02_CLK")
+
+    settings = {
+        "sites": {
+            "rosalia_v3_04": {
+                "store_description": (
+                    "Reference GNSS-T store for the Rosalia beech forest site,"
+                    " built live from real RINEX v3.04 raw data (DOY 2025-001)."
+                ),
+                "description": (
+                    "Beech forest GNSS-T research site, reference test dataset."
+                ),
+                "country": "AT",
+                "latitude": 47.7,
+                "longitude": 16.3,
+                "altitude_m": 680.0,
+                "gnss_site_data_root": str(root / "rinex_v3_04" / "01_Rosalia"),
+                "receivers": {
+                    "reference_01": {
+                        "type": "reference",
+                        "directory": "01_reference/01_GNSS/01_raw",
+                        "reader_format": "rinex3",
+                        "paired_canopies": "all",
+                        "description": "Rosalia reference receiver (test data)",
+                        "metadata": {
+                            "receiver_model": "Septentrio AsteRx-SB3 Pro",
+                            "firmware_version": "4.14.4",
+                        },
+                    },
+                    "canopy_01": {
+                        "type": "canopy",
+                        "directory": "02_canopy/01_GNSS/01_raw",
+                        "reader_format": "rinex3",
+                        "description": "Rosalia canopy receiver (test data)",
+                        "metadata": {
+                            "receiver_model": "Septentrio AsteRx-SB3 Pro",
+                            "firmware_version": "4.14.4",
+                        },
+                    },
+                },
+                "vod_analyses": {
+                    "canopy_01_vs_reference_01": {
+                        "canopy_receiver": "canopy_01",
+                        "reference_receiver": "reference_01",
+                    }
+                },
+            }
+        },
+        "processing": {
+            "metadata": {
+                "author": testing.PERSON_NAME,
+                "email": testing.PERSON_EMAIL,
+                "orcid": testing.PERSON_ORCID,
+                "institution": testing.INSTITUTION,
+                "institution_ror": "https://ror.org/" + testing.INSTITUTION_ROR,
+                "department": testing.DEPARTMENT,
+                "research_group": testing.RESEARCH_GROUP,
+                "website": testing.WEBSITE,
+                "license": "CC-BY-4.0",
+                "publisher": testing.PUBLISHER,
+                "publisher_url": testing.WEBSITE,
+                "naming_authority": testing.NAMING_AUTHORITY,
+            },
+            "references": {
+                "software_repository": "https://github.com/nfb2021/canvodpy",
+                "documentation": "https://github.com/nfb2021/canvodpy/tree/main/docs",
+                "publications": [],
+                "funding": [],
+            },
+            "storage": {
+                "stores_root_dir": str(work / "stores"),
+                "aux_data_dir": str(aux_data_dir),
+                "shared_aux_cache_dir": None,
+            },
+            "logging": {"log_dir": str(work / "logs")},
+        },
+    }
+    (config_dir / "canvod-settings.yaml").write_text(
+        yaml.safe_dump(settings, sort_keys=False)
+    )
+    os.environ["CANVOD_CONFIG_DIR"] = str(config_dir)
+    return work, config_dir
+
+
+@app.cell
+def _(mo, config_dir, root):
+    from canvodpy import Site
+
+    site = Site("rosalia_v3_04")
+    site.pipeline(n_workers=2).process_date("2025001")
+
+    store = site.gnss_store
+    store_path = site.gnss_store_path
 
     _branches = store.get_branch_names()
     _groups = store.list_groups()
@@ -108,9 +212,10 @@ def _(mo):
     ## Opening and inspecting a store
 
     ```python
-    from canvod.store import MyIcechunkStore
+    from canvodpy import Site
 
-    store = MyIcechunkStore(store_path=Path("stores/rosalia_rinex"))
+    site = Site("rosalia_v3_04")
+    data = site.pipeline().process_date("2025001")
     ```
 
     | Property | Value |
@@ -123,25 +228,12 @@ def _(mo):
     The `source_format` root attribute indicates whether data
     originated from RINEX or SBF files.
 
-    This store was built by running the real `canvodpy` CLI as a
-    subprocess (marimo notebooks can't run shell commands directly) --
-    here is the exact command that produced it:
-
-    ```bash
-    {get_pipeline_command()}
-    ```
-
-    <details>
-    <summary>CLI output (captured after the run finished -- not live)</summary>
-
-    ```text
-    {get_pipeline_output()}
-    ```
-
-    </details>
+    This store was built by running the site pipeline on the demo data that
+    `demo_data()` downloaded; the settings above tell the site where its
+    data and stores live, in a fresh temporary folder each run.
     """
     )
-    return store, store_path
+    return site, store, store_path
 
 
 @app.cell
@@ -955,32 +1047,32 @@ def _(mo):
 
     All of the above is `canvod-store-metadata`'s own display format. For
     interop with STAC-based tooling (catalog browsers, `stac-fastapi`,
-    `pystac`), `to_stac_collection()` converts the same metadata into a
-    STAC 1.1 Collection dict **in memory** -- no file write required. A
-    JSON-string convenience wrapper, `to_stac_collection_json()`, is also
-    available for cases that want the serialized form directly (display,
-    hashing, sending over the wire).
+    `pystac`), `store_item()` describes `main` of one store as a STAC 1.1
+    Item **in memory** -- no file write required. It returns a
+    `pystac.Item` with a point at the site, the time range of the data,
+    the receivers with their positions, and one asset per stored dataset;
+    `.to_dict()` gives the serialized JSON.
 
     ```python
-    from canvod.store_metadata import to_stac_collection, to_stac_collection_json
+    from canvod.store_metadata import store_item
 
-    collection = to_stac_collection(meta)          # dict
-    as_json = to_stac_collection_json(meta)         # str
-
-    # To persist it to disk instead: write_stac_collection(store_path)
+    item = store_item(store_path)          # pystac.Item
+    as_json = json.dumps(item.to_dict())    # str
     ```
     """)
     return
 
 
 @app.cell
-def _(mo, store_metadata):
-    from canvod.store_metadata import to_stac_collection_json
+def _(mo, metadata_exists, store_path):
+    import json
+
+    from canvod.store_metadata import store_item
 
     _stac_json = (
         "No store metadata found."
-        if store_metadata is None
-        else to_stac_collection_json(store_metadata)
+        if not metadata_exists(store_path)
+        else json.dumps(store_item(store_path).to_dict(), indent=2, default=str)
     )
 
     mo.md(

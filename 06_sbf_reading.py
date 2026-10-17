@@ -4,14 +4,16 @@
 #   "canvod-config",
 #   "canvod-readers",
 #   "canvod-utils",
-#   "pooch>=1.6",
+#   "canvodpy",
 #   "marimo>=0.21.1",
+#   "numpy==2.5.4",
 # ]
 #
 # [tool.uv.sources]
-# canvod-config = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-config", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
+# canvod-config = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-config", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvod-readers = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-readers", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
 #
 # [tool.marimo.opengraph]
 # title = "06 · SBF Binary Reading"
@@ -80,9 +82,10 @@ def _():
 
 @app.cell
 def _():
-    import _paths
-    from _download import marimo_downloader
-    _paths.ensure_data(downloader=marimo_downloader)
+    from canvodpy import demo_data
+
+    root = demo_data("sbf")
+    return root
 
 
 # ---------------------------------------------------------------------------
@@ -91,12 +94,12 @@ def _():
 
 
 @app.cell
-def _():
+def _(root):
     from pathlib import Path
 
-    from _paths import SBF_CANOPY_DIR, SBF_REFERENCE_DIR
+    sbf_canopy = root / "sbf" / "01_Rosalia" / "02_canopy"
 
-    return Path, SBF_CANOPY_DIR, SBF_REFERENCE_DIR
+    return Path, sbf_canopy
 
 
 # ---------------------------------------------------------------------------
@@ -155,10 +158,10 @@ def _(mo):
 
 
 @app.cell
-def _(SBF_CANOPY_DIR, mo):
+def _(mo, sbf_canopy):
     from canvod.readers.sbf import SbfReader
 
-    _first_file = sorted(SBF_CANOPY_DIR.glob("25001/*.sbf"))[0]
+    _first_file = sorted(sbf_canopy.glob("25001/*.sbf"))[0]
     sbf_reader = SbfReader(fpath=_first_file)
 
     mo.md(

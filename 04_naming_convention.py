@@ -3,13 +3,14 @@
 # dependencies = [
 #   "canvod-preflight",
 #   "canvod-utils",
-#   "pooch>=1.6",
+#   "canvodpy",
 #   "marimo>=0.21.1",
 # ]
 #
 # [tool.uv.sources]
-# canvod-preflight = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-preflight", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
-# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "f30959f710ca71e28433135f25140097d0c0e08f" }
+# canvod-preflight = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-preflight", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvod-utils = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "packages/canvod-utils", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
+# canvodpy = { git = "https://github.com/nfb2021/canvodpy.git", subdirectory = "canvodpy", rev = "c979f38b33048852ed3c2c4c6b4ab10b5b85f654" }
 #
 # [tool.marimo.opengraph]
 # title = "04 · Naming Convention & Validation"
@@ -69,9 +70,13 @@ def _(mo):
 
 @app.cell
 def _():
-    from _paths import ROSALIA_CANOPY_DIR
+    from pathlib import Path
 
-    return (ROSALIA_CANOPY_DIR,)
+    from canvodpy import demo_data
+
+    root = demo_data("rinex")
+    canopy_dir = root / "rinex_v3_04" / "01_Rosalia" / "02_canopy" / "01_GNSS" / "01_raw"
+    return canopy_dir
 
 
 @app.cell
@@ -217,8 +222,8 @@ def _():
 
 
 @app.cell
-def _(CanVODFilename, ROSALIA_CANOPY_DIR, mo):
-    _file = sorted(ROSALIA_CANOPY_DIR.glob("25001/*.rnx"))[0]
+def _(CanVODFilename, canopy_dir, mo):
+    _file = sorted(canopy_dir.glob("25001/*.rnx"))[0]
     parsed = CanVODFilename.from_filename(_file.name)
 
     mo.md(f"""
@@ -252,8 +257,8 @@ def _(CanVODFilename, ROSALIA_CANOPY_DIR, mo):
 
 
 @app.cell
-def _(CanVODFilename, ROSALIA_CANOPY_DIR, mo):
-    _files = sorted(ROSALIA_CANOPY_DIR.glob("25001/*.rnx"))
+def _(CanVODFilename, canopy_dir, mo):
+    _files = sorted(canopy_dir.glob("25001/*.rnx"))
 
     _first_five = []
     for _f in _files[:5]:
