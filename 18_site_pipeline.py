@@ -54,6 +54,11 @@ def _():
     `(date_key, datasets)` pair per processed day; this is what the CLI's
     reporter loop consumes to show live progress.
 
+    The first run creates the site's stores. Before that,
+    `site.gnss_store` and `site.vod_store` raise a `FileNotFoundError`;
+    `site.gnss_store_path` and `site.vod_store_path` say where the run
+    puts them.
+
     Once data is ingested, `site.vod` (a `VodComputer`) gives finer-grained
     control over VOD computation as a separate stage, covered below.
 

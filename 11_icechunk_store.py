@@ -126,8 +126,12 @@ def _(mo):
     | Property | Value |
     |----------|-------|
     | **Path** | `{store_path}` |
+    | **Site** | `{store.site_name}` |
     | **Branches** | {", ".join(f"`{b}`" for b in _branches)} |
     | **Groups** | {", ".join(f"`{g}`" for g in _groups) if _groups else "(empty)"} |
+
+    The store knows its site from its own metadata, not from the folder
+    it sits in, so moving or renaming the folder doesn't change it.
 
     This store was built by running the real `canvodpy` CLI as a
     subprocess (marimo notebooks can't run shell commands directly) --
@@ -332,17 +336,20 @@ def _(mo):
     mo.md(r"""
     ## Creating a new store
 
-    The `create_gnss_store()` and `create_vod_store()` factory functions
-    initialise new Icechunk repositories with the appropriate configuration:
+    You don't create a store yourself: `canvodpy run` creates a site's
+    stores when it first writes data, together with their metadata and
+    the Icechunk settings in `processing.icechunk`. Opening a store never
+    creates one, so a mistyped path fails with a `FileNotFoundError`
+    instead of leaving an empty store behind:
 
     ```python
-    from canvod.store import create_gnss_store, create_vod_store
+    from canvod.store import open_gnss_store, open_vod_store
 
-    # For raw observation data
-    gnss_store = create_gnss_store(Path("/data/my_site/observations.icechunk"))
+    # Raw observation data
+    gnss_store = open_gnss_store(Path("/data/my_site/rinex"))
 
-    # For VOD products
-    vod_store = create_vod_store(Path("/data/my_site/vod.icechunk"))
+    # VOD products
+    vod_store = open_vod_store(Path("/data/my_site/vod"))
     ```
 
     ### Writing data
@@ -358,6 +365,12 @@ def _(mo):
 
     The `append_to_group()` method handles all deduplication, epoch
     alignment, and SID padding automatically.
+
+    `canvodpy run` does not append. In a new GNSS store each processing
+    day gets one block of empty epoch slots, and every file is written
+    into its own slots, so writing a file again replaces it.
+    `append_to_group()` refuses a group made of day blocks; use it only on
+    groups you create yourself with `write_initial_group()`.
     """)
     return
 

@@ -415,6 +415,9 @@ def _(StorageConfig, mo):
     )
     ```
 
+    `stores_root_dir` is a local folder. A URL such as `s3://bucket/prefix`
+    is refused, because runs write stores to local folders only.
+
     **skip** is the recommended setting: re-running a day leaves the
     stored data unchanged. Use **overwrite** to correct data already
     stored, e.g. after a processing bug was fixed. The strategy applies to

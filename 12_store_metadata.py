@@ -265,6 +265,21 @@ def _(mo):
 
     The history of a store is its commit log; `show_metadata()` lists it.
 
+    ## Stores on S3
+
+    The metadata functions also take an `s3://bucket/prefix` URL, so you
+    can read the metadata of a shared store without copying it:
+
+    ```python
+    show_metadata("s3://example-bucket/stores/ExampleSite/gnss")
+    ```
+
+    Credentials, region and endpoint come only from the environment
+    (`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` or `AWS_PROFILE`,
+    `AWS_REGION`, and `AWS_ENDPOINT_URL` for storage that isn't AWS) or
+    from `~/.aws/credentials`, never from the settings or the store.
+    Runs still write stores to local folders only.
+
     ## Changing the description
 
     Amendable fields change only by amendment, with a reason. Each
