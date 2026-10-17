@@ -354,26 +354,29 @@ def _(mo):
 
     ### Writing data
 
-    ```python
-    with store.writable_session(branch="main") as session:
-        # First write to a group
-        store.write_initial_group(ds, group_name="canopy_01")
+    You don't write groups yourself: `canvodpy run` (or
+    `Site(<site>).pipeline()` in Python) writes the files of a site into
+    its stores:
 
-        # Subsequent writes append along the epoch dimension
-        store.append_to_group(ds_new, group_name="canopy_01", append_dim="epoch")
+    ```python
+    from canvodpy import Site
+
+    with Site("my_site").pipeline() as pipeline:
+        pipeline.process_date("2025001")
     ```
 
-    The `append_to_group()` method handles all deduplication, epoch
-    alignment, and SID padding automatically.
-
-    `canvodpy run` does not append. In a GNSS store each processing
+    A run does not append. In a GNSS store each processing
     day gets one block of empty epoch slots, and every file is written
     into its own slots, so writing a file again replaces it. A run refuses
     a store written by appending, by canVODpy versions before day blocks;
     `canvodpy store migrate-layout SITE --store gnss` (and `--store vod`)
     moves it to day blocks once.
-    `append_to_group()` refuses a group made of day blocks; use it only on
-    groups you create yourself with `write_initial_group()`.
+
+    `write_initial_group()`, `append_to_group()` and
+    `write_or_append_group()` are left over from development: they warn,
+    still work on groups written by appending, refuse a group made of day
+    blocks, and will be removed with the next major version. Read a group
+    with `read_group()`; `read_group_deduplicated()` is deprecated too.
 
     The VOD store is written the same way: each day of VOD gets a block at
     the cadence of its GNSS data, with one commit per day. VOD of a day

@@ -352,61 +352,53 @@ def _(demo_branch, history_table):
 @app.cell
 def _(mo):
     mo.md(r"""
-    ## Writing a new group on the branch
+    ## Changing data on the branch
 
-    A small synthetic dataset, built inline (not real GNSS data) purely
-    to demonstrate `write_initial_group()` without touching any of the
-    real ingested groups. Written to the `demo/scratch` branch, so
-    `main` is completely unaffected. Its epochs are marked as GPS time
-    (`epoch.attrs["time_system"] = "GPS"`): a store holds GPS time only and
-    refuses data that doesn't record its time scale.
+    `canvodpy run` writes the observations; afterwards you can still add
+    variables computed from the data already in a group. Here the
+    observations of `canopy_01` are assigned to the cells of a 5° equal-area
+    grid, the same operation as `processing.preprocessing.grid_assignment` in
+    a run. Only the new `cell_id_equal_area_5.0deg` variable is written, and
+    only on `demo/scratch`, so `main` is unaffected:
+
+    ```python
+    from canvod.ops import assign_grid_cells_in_store
+
+    assign_grid_cells_in_store(
+        store, "canopy_01", grid_type="equal_area", angular_resolution=5.0,
+        branch="demo/scratch",
+    )
+    ```
     """)
     return
 
 
 @app.cell
 def _(demo_branch, store):
-    import numpy as np
-    import xarray as _xr
+    from canvod.ops import assign_grid_cells_in_store
 
-    def _make_demo_dataset():
-        sids = ["G01|L1|C", "G02|L1|C", "E01|L1|C"]
-        epochs = np.datetime64("2025-01-01T00:00:00") + np.arange(60) * np.timedelta64(
-            5, "s"
-        )
-        rng = np.random.default_rng(42)
-        snr = rng.uniform(30.0, 50.0, (60, len(sids))).astype(np.float32)
-        ds = _xr.Dataset(
-            {"S1C": (("epoch", "sid"), snr)},
-            coords={"epoch": epochs, "sid": sids},
-        )
-        # The store holds GPS time only, and refuses epochs that don't
-        # record their time scale.
-        ds["epoch"].attrs["time_system"] = "GPS"
-        ds.attrs["File Hash"] = "demo0000deadbeef"
-        return ds
-
-    demo_group = "demo_scratch_group"
-    if not store.group_exists(demo_group, branch=demo_branch):
-        store.write_initial_group(
-            _make_demo_dataset(), group_name=demo_group, branch=demo_branch
-        )
+    demo_group = "canopy_01"
+    assign_grid_cells_in_store(
+        store,
+        demo_group,
+        grid_type="equal_area",
+        angular_resolution=5.0,
+        branch=demo_branch,
+    )
     return (demo_group,)
 
 
 @app.cell
 def _(demo_branch, demo_group, mo, store):
+    def _cells(branch):
+        _names = store.read_group(demo_group, branch=branch).data_vars
+        return ", ".join(f"`{v}`" for v in _names if v.startswith("cell_id")) or "none"
+
     mo.md(f"""
-    **Groups on `{demo_branch}`**: {
-        ", ".join(f"`{g}`" for g in store.get_group_names(branch=demo_branch)[demo_branch])
-    }
+    **Grid cells in `{demo_group}` on `{demo_branch}`**: {_cells(demo_branch)}
 
-    **Groups on `main`**: {
-        ", ".join(f"`{g}`" for g in store.list_groups(branch="main"))
-    } -- unchanged, `write_initial_group()` on a branch never touches `main`.
-
-    (`{demo_group}` on `{demo_branch}` is a small synthetic dataset built
-    inline purely to demonstrate the write path -- not real GNSS data.)
+    **Grid cells in `{demo_group}` on `main`**: {_cells("main")} -- unchanged,
+    a write on a branch never touches `main`.
 
     And the graph once more -- `demo/scratch` now has one extra commit
     that `main` doesn't:
