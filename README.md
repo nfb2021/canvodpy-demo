@@ -85,6 +85,7 @@ uv run marimo edit demo/10_vod_retrieval.py
 | 19 | `19_workflow_single_day.py` | End-to-end single-day processing | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/19_workflow_single_day.py?mode=edit) |
 | 20 | `20_workflow_batch_processing.py` | Batch processing with Dask | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/20_workflow_batch_processing.py?mode=edit) |
 | 21 | `21_plugins.py` | Your own VOD calculator: register it, compare it, make it a plugin | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/21_plugins.py?mode=edit) |
+| 23 | `23_run_dashboard.py` | The run dashboard on an example run history: progress, stage times, resources, problems, comparison by label | [![molab](https://marimo.io/shield.svg)](https://molab.marimo.io/github/nfb2021/canvodpy-demo/blob/main/23_run_dashboard.py?mode=edit) |
 
 ## Test data
 
@@ -99,6 +100,10 @@ v2.11, stripped RINEX v3.05, SBF and NMEA, with orbit and clock products.
 | the user cache folder, `canvodpy/` | after a first download |
 | `./test_data/` | after `git clone https://github.com/nfb2021/canvodpy-test-data.git test_data` |
 | Zenodo ([doi:10.5281/zenodo.19708759](https://doi.org/10.5281/zenodo.19708759)) | otherwise: downloaded once (about 1.7 GB) and cached |
+
+Notebook 23 reads an anonymized run history with
+`canvodpy.demo_data("run_history")`: under 1 MB, downloaded once into the
+user cache folder.
 
 ## Contributing
 
