@@ -105,6 +105,21 @@ uv run marimo edit demo/10_vod_retrieval.py
 | 22 | `22_s3_stores.py` | Stores on S3: credentials, two runs on one store, settings from a store (needs an S3 endpoint, RustFS works) | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/TUW-GEO/canvodpy-demo/blob/main/22_s3_stores.py) |
 | 23 | `23_run_dashboard.py` | The run dashboard on an example run history: progress, stage times, resources, problems, comparison by label | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/TUW-GEO/canvodpy-demo/blob/main/23_run_dashboard.py) |
 
+## Release notebooks
+
+Every minor and major release of canVODpy has a notebook in `releases/`
+that shows what is new and how to use it, next to the
+[changelog](https://github.com/TUW-GEO/canvodpy/blob/main/CHANGELOG.md).
+Each pins the release it describes. CI checks their format but doesn't run
+them: some cells only show code that needs your own data.
+
+| Release | Open |
+|---|---|
+
+To write one, copy `releases/_template.py` to `releases/vX.Y.Z.py` before
+the release; [Release process](https://canvodpy.eu/RELEASING/) in the
+canvodpy docs says when.
+
 ## Test data
 
 Notebooks that read real GNSS data get it from `canvodpy.demo_data()`,
@@ -146,7 +161,7 @@ CI runs every notebook on each pull request and once a week. To run the same
 checks locally:
 
 ```bash
-uv run --locked marimo check --strict [0-9][0-9]_*.py   # format; --fix fixes most warnings
+uv run --locked marimo check --strict [0-9][0-9]_*.py releases/*.py   # format; --fix fixes most warnings
 scripts/run_notebooks.sh                                # all notebooks
 scripts/run_notebooks.sh 05 13                          # only these
 ```
