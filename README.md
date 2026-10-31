@@ -115,6 +115,7 @@ them: some cells only show code that needs your own data.
 
 | Release | Open |
 |---|---|
+| [v1.1.0](releases/v1.1.0.py): broadcast ephemeris from RINEX navigation files | [![Open in molab](https://marimo.io/molab-shield.svg)](https://molab.marimo.io/github/TUW-GEO/canvodpy-demo/blob/main/releases/v1.1.0.py) |
 
 To write one, copy `releases/_template.py` to `releases/vX.Y.Z.py` before
 the release; [Release process](https://canvodpy.eu/RELEASING/) in the
